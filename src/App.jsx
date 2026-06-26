@@ -321,29 +321,434 @@ const profiles = {
     carreiras: ["Artes plásticas e instalações","Composição musical","Cinema de autor","Design conceitual","Filosofia estética","Literatura experimental"],
     fatoCurioso: "Sonhadores do seu perfil são descobertos tarde — porque levam tempo para confiar que o que criaram merece existir. Sua maior barreira nunca foi talento. Foi a pergunta: 'isso é bom o suficiente para ser visto'.",
     afirmacao: "Você cria verdade. E o mundo precisa disso mais do que precisa de mais perfeição. Deixe ser visto."
+  },
+  "Colérico-Corporal": {
+    nome: "O Guerreiro", emoji: "⚔️", cor: "#B0281A",
+    frase: "Você não planeja indefinidamente. Você age — e ajusta no movimento.",
+    resumo: "Presença física intensa, instinto de ação e capacidade de sentir o mundo através do corpo. Você pensa melhor quando está em movimento.",
+    base: {
+      arquetipo: "O Colérico tem urgência. Não suporta esperar. Prefere uma decisão imperfeita agora a uma decisão perfeita tarde. Esse impulso, combinado com inteligência corporal, cria alguém que literalmente age antes de pensar — e frequentemente acerta.",
+      inteligencia: "Descrita por Gardner como a capacidade de usar o próprio corpo com habilidade e precisão. Não se limita a atletas — aparece em cirurgiões, artesãos, dançarinos, atores e qualquer pessoa que pensa com as mãos e sente no corpo antes de articular com palavras.",
+      combinacao: "Colérico com inteligência corporal cria o perfil mais orientado à ação física da matriz. Você não espera ter certeza antes de começar — começa e corrige no processo. Sua inteligência não é abstrata: é visceral, tátil, imediata. O que outros processam em horas, você sente em segundos."
+    },
+    descricao: "Você tem uma relação com o mundo que passa pelo corpo antes de passar pela mente. Não é impulsividade — é um tipo diferente de inteligência. Você lê ambientes, tensões e dinâmicas de poder através de sinais físicos que outras pessoas simplesmente não captam. Sua presença física é comunicação mesmo quando você não fala.",
+    descricao2: "O Guerreiro tem um código interno de honra difícil de dobrar. Você não faz o que não acredita, não trai o que considera seu e não recua quando a situação exige que fique. Isso cria uma lealdade rara — e uma inflexibilidade que pode ser custosa quando a situação exige diplomacia em vez de confronto.",
+    forcas: ["Age com velocidade e confiança em situações que exigem decisão imediata","Presença física que transmite autoridade e segurança sem precisar de palavras","Alta tolerância à dor, ao desconforto e à adversidade física","Lê tensões corporais e emocionais no ambiente com precisão instintiva","Executa com o corpo o que outros apenas planejam"],
+    sombra: ["Pode resolver conflitos com confronto direto quando diplomacia seria mais eficaz","Dificuldade com ambientes que exigem paciência, burocracia e espera","Pode intimidar involuntariamente quem tem perfil mais sensível","Impulsividade física pode gerar consequências que o pensamento teria evitado","Tende a subestimar a inteligência de quem não demonstra força ou ação"],
+    sobrePressao: "Pressão libera você. Situações de crise ativam um modo operacional que parece quase sobrenatural para quem observa — você fica mais calmo, mais rápido e mais decisivo. O perigo é o período pós-crise: quando a adrenalina baixa, o custo emocional aparece de uma vez.",
+    pontosCegos: "Você confia tanto no seu instinto físico que às vezes ignora informações que vêm em formato abstrato — dados, estatísticas, análises. Nem tudo que importa pode ser sentido. Algumas batalhas são vencidas antes de começar, com planejamento que você acha tedioso.",
+    relacoes: "Você é protetor, presente e intenso. As pessoas ao seu lado sabem que você as defende — e sentem isso como segurança real. O risco é que sua intensidade pode sufocar. Nem toda pessoa quer ser protegida da mesma forma que você protegeria.",
+    carreiras: ["Medicina de emergência","Artes marciais e esportes de alto desempenho","Dança e teatro físico","Cirurgia","Construção e artesanato","Segurança e resgate"],
+    fatoCurioso: "Guerreiros do seu perfil frequentemente descrevem estados de 'flow' durante situações de alta pressão — cirurgias, competições, crises. O corpo assume o controle e a mente observa. É um estado que outros perfis raramente acessam.",
+    afirmacao: "Você foi feito para o campo — não para a sala de reuniões. Mas os maiores guerreiros da história também sabiam quando negociar."
+  },
+  "Colérico-Musical": {
+    nome: "O Maestro", emoji: "🎼", cor: "#A93226",
+    frase: "Você não segue o ritmo. Você define o compasso que os outros vão seguir.",
+    resumo: "Sensibilidade ao ritmo de tudo — pessoas, projetos, conversas. Você percebe quando algo está fora do tom antes de qualquer outro.",
+    base: {
+      arquetipo: "O Colérico tem senso natural de ritmo social — sabe quando acelerar, quando desacelerar, quando o silêncio é poder. Combinado com inteligência musical, essa percepção se torna quase sobrenatural.",
+      inteligencia: "A Inteligência Musical, para Gardner, não é apenas tocar instrumentos — é sensibilidade a padrões sonoros, ritmo, harmonia e a estrutura emocional da música. Aparece em músicos, mas também em quem percebe o 'tom' de uma reunião, a cadência de uma negociação ou o ritmo de uma equipe.",
+      combinacao: "Colérico com inteligência musical cria líderes com senso de timing excepcional. Você sabe exatamente quando lançar uma ideia, quando pressionar e quando recuar. Sua liderança tem qualidade orquestral — você rege sem que as pessoas percebam que estão sendo regidas."
+    },
+    descricao: "Você percebe o mundo em padrões que outros não conseguem articular. Quando uma reunião está 'saindo do ritmo', quando uma equipe está 'desafinada', quando uma conversa 'perdeu o tom' — você sente isso antes de qualquer outro. E tem a autoridade natural para reestabelecer o compasso.",
+    descricao2: "Líderes com seu perfil não precisam gritar para serem ouvidos. Eles simplesmente mudam o ritmo — e todo o ambiente se ajusta. Há uma qualidade magnética no seu silêncio e uma precisão no seu timing que cria seguidores sem que você precise pedir.",
+    forcas: ["Senso de timing excepcional em comunicação, liderança e negociação","Percebe dissonâncias em equipes e ambientes antes que se tornem problemas","Capacidade de criar harmonia e coesão em grupos diversos","Usa pausa e ritmo como ferramentas de influência conscientes","Memória para padrões — lembra como situações evoluíram e prevê como vão evoluir"],
+    sombra: ["Pode ser perfeccionista com o 'ritmo' alheio — intolerante com quem é naturalmente descompassado","Dificuldade em trabalhar com pessoas que não têm sensibilidade ao timing","Pode manipular ambientes sutilmente sem perceber","Às vezes mais preocupado com a harmonia da situação do que com a verdade dela","Impaciência com processos que considera cacofônicos ou desorganizados"],
+    sobrePressao: "Pressão tende a te fazer acelerar o ritmo interno antes de desacelerar. Você pode tomar decisões prematuras porque o silêncio da incerteza é insuportável — você prefere um compasso errado a nenhum compasso.",
+    pontosCegos: "Nem tudo que parece desafinado está errado. Algumas das melhores ideias chegam de pessoas que parecem fora do ritmo. Sua sensibilidade ao padrão pode te cegar para o valor da dissonância criativa.",
+    relacoes: "Você busca parceiros que 'estejam na mesma frequência'. Quando encontra, a conexão é profunda e intuitiva. Quando não encontra, pode descartar relações que precisariam apenas de tempo para encontrar o ritmo.",
+    carreiras: ["Regência e composição","Liderança de equipes criativas","Produção musical e audiovisual","Treinamento e facilitação","Neurociência e pesquisa em ritmo","Direção de palco e cinema"],
+    fatoCurioso: "Maestros do seu perfil frequentemente descrevem pensar em reuniões e conversas como se fossem partituras — com vozes, tempos e dinâmicas. Quando algo 'soa errado', eles sentem antes de analisar.",
+    afirmacao: "Você tem o dom de criar harmonia. Mas harmonia real não é ausência de tensão — é tensão bem resolvida. Não suavize o que precisa ser confrontado."
+  },
+  "Colérico-Naturalista": {
+    nome: "O Caçador", emoji: "🦅", cor: "#BA4A00",
+    frase: "Você lê o ambiente antes de qualquer outro. E age enquanto os outros ainda estão observando.",
+    resumo: "Instinto aguçado, leitura rápida de contextos e sistemas, capacidade de agir no momento exato.",
+    base: {
+      arquetipo: "Alta energia direcional e orientação por resultado. O Colérico não observa passivamente — observa para agir.",
+      inteligencia: "Gardner descreve a Inteligência Naturalista como a capacidade de reconhecer, classificar e entender padrões na natureza e no ambiente. Em contextos modernos, manifesta-se como leitura aguçada de sistemas e ecossistemas — seja na natureza, nos negócios ou nas dinâmicas humanas.",
+      combinacao: "Colérico com inteligência naturalista cria o perfil mais orientado a contexto e oportunidade da matriz. Você não apenas age rápido — age no momento certo. Você lê o ambiente como um predador lê o território: com precisão instintiva e sem desperdício de energia."
+    },
+    descricao: "Você tem uma capacidade rara de ler sistemas inteiros com rapidez. Seja um ecossistema natural, um mercado, uma organização ou uma sala de reuniões — você enxerga as relações entre as partes, identifica onde está o poder e onde está a vulnerabilidade, e age com precisão cirúrgica.",
+    descricao2: "O Caçador não corre atrás de qualquer coisa. Ele espera o momento certo — mas quando esse momento chega, age com uma velocidade que surpreende quem achava que você estava parado.",
+    forcas: ["Leitura rápida e precisa de sistemas complexos e ambientes dinâmicos","Identificação de oportunidades antes que outros as percebam","Capacidade de agir no momento exato, sem cedo demais nem tarde demais","Alta resistência e adaptabilidade a ambientes incertos e instáveis","Pensamento ecossistêmico — enxerga relações que análises lineares perdem"],
+    sombra: ["Pode ser excessivamente predatório em contextos que pedem colaboração","Dificuldade com ambientes burocráticos e estáveis que não exigem caça","Pode subestimar o valor de paciência prolongada sem ação","Tendência a classificar pessoas e situações rapidamente — e nem sempre corretamente","Pode priorizar a oportunidade sobre as pessoas envolvidas"],
+    sobrePressao: "Pressão aguça seus instintos. Você fica mais focado, mais eficiente e menos propenso a desperdiçar energia. O risco é a hiperfocagem — às vezes você está tão focado na presa que não vê o que está ao seu redor.",
+    pontosCegos: "Nem todo ambiente é território a ser dominado. Algumas situações pedem cuidado, não caça. Sua leitura rápida de sistemas pode te fazer agir antes de entender completamente o que está diante de você.",
+    relacoes: "Você é protetor e atento com quem considera seu. Mas sua leitura classificatória de pessoas pode criar distâncias desnecessárias. Nem todo mundo precisa provar que merece seu respeito antes de recebê-lo.",
+    carreiras: ["Biologia e ecologia","Empreendedorismo e venture capital","Inteligência de mercado","Gestão de crises","Exploração e pesquisa de campo","Estratégia competitiva"],
+    fatoCurioso: "Caçadores do seu perfil frequentemente descrevem uma sensação de 'saber' quando algo está prestes a mudar em um ambiente — antes de conseguir articular por quê. É leitura de padrões em nível inconsciente.",
+    afirmacao: "Você foi feito para territórios que exigem leitura rápida e ação precisa. Mas os ecossistemas mais ricos são também os mais frágeis — cuide do que caça."
+  },
+  "Colérico-Espacial": {
+    nome: "O Arquiteto", emoji: "🏛️", cor: "#922B21",
+    frase: "Você não vê o que existe. Você vê o que deveria existir — e sabe como construí-lo.",
+    resumo: "Visão tridimensional do mundo, capacidade de projetar soluções antes de executar e precisão na tradução de ideias em estruturas concretas.",
+    base: {
+      arquetipo: "Urgência, controle e orientação por resultado. O Colérico não projeta por prazer estético — projeta para construir algo real.",
+      inteligencia: "A Inteligência Espacial é a capacidade de pensar em três dimensões, visualizar estruturas e relações no espaço, e criar representações mentais precisas de como as coisas se encaixam. Aparece em arquitetos, engenheiros, designers, cirurgiões e qualquer pessoa que pensa visualmente antes de verbalmente.",
+      combinacao: "Colérico com inteligência espacial cria o construtor mais eficiente da matriz. Você não apenas visualiza — você planeja a execução ao mesmo tempo em que visualiza. Não há separação entre o sonho e o projeto. Você vê o edifício antes do primeiro tijolo."
+    },
+    descricao: "Você pensa em espaço, estrutura e forma antes de pensar em palavras. Quando confrontado com um problema — físico, organizacional ou conceitual — você instintivamente o mapeia espacialmente. Onde estão os bloqueios? Onde está a ineficiência? Como redesenhar isso para que funcione melhor?",
+    descricao2: "O Arquiteto tem um padrão visual de qualidade que raramente consegue desligar. Você entra em um espaço e imediatamente vê o que está errado — o fluxo inadequado, o desperdício de área, a oportunidade perdida. Isso é inestimável quando você tem poder de transformar.",
+    forcas: ["Visualização espacial tridimensional com alta precisão","Capacidade de projetar soluções completas antes de iniciar a execução","Senso estético funcional — belo porque funciona, não apenas porque parece","Alta eficiência na organização de espaços, fluxos e sistemas","Traduz visões complexas em projetos concretos e executáveis"],
+    sombra: ["Pode ser excessivamente crítico com ambientes e estruturas que considera inadequados","Dificuldade em aceitar soluções 'boas o suficiente' quando vê a solução ideal","Pode priorizar a estrutura sobre as pessoas que a habitam","Impaciência com processos que não seguem o projeto original","Pode subestimar a complexidade humana que não cabe em nenhum projeto"],
+    sobrePressao: "Pressão tende a ativar seu modo de 'redesenho de emergência'. Você rapidamente remapeia a situação, identifica os pontos críticos e propõe uma nova estrutura. O risco é que nem sempre o problema é estrutural — às vezes é humano.",
+    pontosCegos: "Você acredita que problemas suficientemente bem-estruturados se resolvem. Mas alguns problemas não têm solução arquitetônica. Relacionamentos, emoções e caos criativo não se encaixam em planta baixa.",
+    relacoes: "Você é o parceiro que transforma espaços — físicos e relacionais. Tende a 'projetar' o relacionamento ideal e pode se frustrar quando a realidade não segue o projeto. Aprenda a habitar o espaço que existe, não só o que você projetaria.",
+    carreiras: ["Arquitetura e urbanismo","Engenharia civil e estrutural","Design de produto e interfaces","Cirurgia e medicina de precisão","Estratégia organizacional","Cenografia e design de espaços"],
+    fatoCurioso: "Arquitetos do seu perfil frequentemente resolvem problemas complexos dormindo — seu cérebro continua a trabalhar no projeto espacialmente mesmo durante o descanso. Acorde com um caderno ao lado.",
+    afirmacao: "Você tem o dom de construir o que outros apenas imaginam. Mas as estruturas mais duradouras são aquelas que deixam espaço para o humano crescer dentro delas."
+  },
+  "Colérico-Existencial": {
+    nome: "O Reformador", emoji: "⚡", cor: "#CB4335",
+    frase: "Você não aceita o mundo como ele é. Você se pergunta por que deveria ser diferente — e faz algo a respeito.",
+    resumo: "Questionamento profundo aliado à urgência de transformar. Você não filosofa por prazer — filosofa para agir.",
+    base: {
+      arquetipo: "Alta energia de transformação e baixa tolerância para o que considera injusto, ineficiente ou sem sentido. O Colérico não contempla — age.",
+      inteligencia: "Gardner descreve a Inteligência Existencial como a capacidade de contemplar questões profundas sobre existência, sentido, morte e o lugar do ser humano no universo. Não é teórica — é uma necessidade visceral de entender o 'porquê' de tudo.",
+      combinacao: "Colérico com inteligência existencial cria o perfil mais orientado a transformação sistêmica da matriz. Você não apenas questiona — você age com base nos questionamentos. Sua filosofia tem dentes. Sua indignação tem plano."
+    },
+    descricao: "Você carrega uma pergunta constante que outros conseguem silenciar mais facilmente: por que isso é assim, se poderia ser diferente? Essa pergunta não é abstrata para você — é urgente. E sua urgência colérica transforma o questionamento em projeto, e o projeto em ação.",
+    descricao2: "O Reformador é o perfil que muda instituições, questiona sistemas e incomoda o status quo com uma combinação rara: profundidade intelectual e vontade de fazer algo a respeito. Você não escreve artigos sobre o que deveria mudar — você tenta mudar.",
+    forcas: ["Questionamento profundo aliado à capacidade de agir com base nele","Alta tolerância para a complexidade e a ambiguidade das grandes questões","Capacidade de inspirar outros com uma visão de mundo que vai além do imediato","Indignação produtiva — transforma inconformismo em projeto","Perspectiva de longo prazo que perfis mais imediatistas não conseguem sustentar"],
+    sombra: ["Pode ficar preso em grandes questões enquanto problemas concretos esperam","Tendência ao absolutismo — dificuldade em aceitar meias-soluções","Pode ser visto como idealista impraticável mesmo quando tem planos concretos","Impaciência com quem não vê as mesmas urgências sistêmicas","Pode sacrificar relacionamentos pelo que considera causas maiores"],
+    sobrePressao: "Pressão existencial — a sensação de que o tempo está acabando para mudar algo importante — é o que mais te move. Pressão operacional rotineira pode te paralisar: é difícil se importar com pequenas urgências quando você carrega urgências grandes.",
+    pontosCegos: "Nem todo problema sistêmico precisa de reforma total. Às vezes a mudança incremental é mais eficaz do que a revolução. Sua tendência ao absoluto pode te cegar para o valor do gradual.",
+    relacoes: "Você busca parceiros que compartilhem sua visão de mundo. Quando encontra, a conexão é profunda e duradoura. Quando não encontra, pode sentir uma solidão particular — a de alguém que vê algo urgente que os outros não conseguem ver.",
+    carreiras: ["Filosofia aplicada","Ativismo e políticas públicas","Liderança religiosa e espiritual","Ética em tecnologia e ciência","Educação transformadora","Direito constitucional e direitos humanos"],
+    fatoCurioso: "Reformadores do seu perfil frequentemente descrevem um momento específico — uma experiência, uma leitura, uma conversa — que 'mudou tudo'. Antes e depois desse momento, são pessoas diferentes.",
+    afirmacao: "Você tem a rara combinação de ver o que está errado e ter coragem de dizer. Use isso com precisão — não toda causa merece toda sua energia."
+  },
+  "Fleumático-Corporal": {
+    nome: "O Artesão", emoji: "🪵", cor: "#117A65",
+    frase: "Você não faz — você perfaz. A diferença está em cada detalhe que só você percebe.",
+    resumo: "Maestria técnica, paciência com o processo e um padrão de qualidade que não aceita atalhos.",
+    base: {
+      arquetipo: "Paciência, consistência e alto padrão interno. O Fleumático não abandona o processo antes de estar satisfeito com o resultado.",
+      inteligencia: "Em expressão fleumática, aparece não como explosão atlética — mas como maestria artesanal: o cirurgião que opera por seis horas sem perder precisão, o instrumentista que pratica a mesma frase mil vezes.",
+      combinacao: "Fleumático com inteligência corporal cria o perfil de maior maestria técnica da matriz. Você tem a paciência para repetir até que saia perfeito e a inteligência corporal para sentir quando chegou lá. É a combinação que cria os maiores especialistas em habilidades físicas do mundo."
+    },
+    descricao: "Você tem uma relação com o fazer que vai além da técnica. Para você, o processo tem valor em si mesmo — não apenas o resultado. Você não quer fazer algo depressa e bem. Você quer fazer perfeitamente. E você tem a paciência rara para isso.",
+    descricao2: "O Artesão não se impressiona com teoria. Impressiona-se com execução. Você respeita quem domina sua arte com o corpo, não apenas com a mente. E você desenvolve esse domínio com uma dedicação que outros frequentemente confundem com obstinação.",
+    forcas: ["Maestria técnica de nível excepcional em habilidades físicas específicas","Paciência com o processo de desenvolvimento de habilidade — não desiste","Presença física calma que transmite competência e segurança","Alto padrão de execução que raramente aceita mediocridade","Aprendizado corporal profundo — o que você aprende com o corpo, não esquece"],
+    sombra: ["Pode ser excessivamente lento em contextos que exigem adaptação rápida","Dificuldade em ensinar o que faz — o conhecimento está no corpo, não em palavras","Pode se tornar obsoleto se não atualizar técnicas ao longo do tempo","Resistência a novas abordagens que parecem ameaçar a maestria conquistada","Pode subestimar habilidades que não têm componente físico"],
+    sobrePressao: "Pressão ativa seu treinamento. Você faz o que praticou — e praticou muito. O risco é quando a situação exige improvisação radical: seu corpo busca o padrão conhecido mesmo quando o padrão não serve.",
+    pontosCegos: "Maestria pode criar rigidez. O que funcionou por anos pode ser a razão pela qual você não consegue se adaptar quando o contexto muda.",
+    relacoes: "Você demonstra afeto fazendo — consertando, construindo, cuidando fisicamente. Aprenda a complementar com palavras.",
+    carreiras: ["Artes e ofícios tradicionais","Cirurgia e procedimentos médicos de precisão","Instrumentos musicais clássicos","Escultura e cerâmica","Culinária de alto nível","Relojoaria e joalheria"],
+    fatoCurioso: "Artesãos do seu perfil frequentemente descrevem estados de hiperfoco durante o trabalho — horas passam como minutos. É uma forma de meditação ativa que outros perfis raramente acessam com tanta naturalidade.",
+    afirmacao: "Você tem maestria suficiente para criar algo que dura gerações. Cuide de transmitir o que sabe — maestria guardada é maestria desperdiçada."
+  },
+  "Fleumático-Musical": {
+    nome: "O Harmonizador", emoji: "🎵", cor: "#148F77",
+    frase: "Você não impõe o ritmo. Você encontra o ritmo de cada um — e cria algo que funciona junto.",
+    resumo: "Sensibilidade ao equilíbrio, paciência com a criação coletiva e capacidade rara de fazer coisas diferentes soarem bem juntas.",
+    base: {
+      arquetipo: "Paciência e orientação por harmonia. O Fleumático suporta o processo longo de afinar — literalmente e metaforicamente.",
+      inteligencia: "Em expressão fleumática, a inteligência musical aparece não como performance solo brilhante, mas como sensibilidade ao conjunto. Você ouve o todo, não apenas a parte.",
+      combinacao: "Fleumático com inteligência musical cria o harmonizador mais paciente da matriz. Você não impõe — você ajusta. Não domina — você equilibra. Isso é raro e valioso em qualquer ambiente onde múltiplas vozes precisam criar algo coerente juntas."
+    },
+    descricao: "Você tem uma sensibilidade ao equilíbrio que vai além da música. Em equipes, em relacionamentos, em projetos — você percebe quando algo está fora de lugar e tem a paciência para ajustar sem drama. Sua presença tende a tornar os ambientes mais coesos, mais produtivos e mais agradáveis.",
+    descricao2: "O Harmonizador tem um dom especial para o trabalho colaborativo. Você consegue fazer contribuições muito diferentes convergirem em algo coerente — não apagando as diferenças, mas encontrando o ponto onde elas se complementam.",
+    forcas: ["Sensibilidade excepcional ao equilíbrio e à harmonia em grupos e processos","Paciência para o processo longo de afinar e ajustar colaborações","Capacidade de integrar perspectivas e vozes muito diferentes","Cria ambientes de trabalho onde as pessoas se sentem ouvidas e valorizadas","Alta memória para padrões de comportamento e dinâmicas relacionais"],
+    sombra: ["Pode priorizar a harmonia sobre a necessidade de confrontar o que está errado","Dificuldade em liderar em situações que exigem decisões dissonantes","Pode ser percebido como indeciso quando está, na verdade, ouvindo tudo","Tende a sacrificar a própria voz para manter o conjunto afinado","Pode se esgotar ao tentar harmonizar dinâmicas simplesmente incompatíveis"],
+    sobrePressao: "Pressão tende a te fazer buscar harmonia prematuramente. Às vezes a dissonância precisa durar mais do que você suporta para criar algo verdadeiramente novo.",
+    pontosCegos: "Nem todo conjunto precisa soar bem. Às vezes a dissonância criativa produz algo melhor que a harmonia fácil.",
+    relacoes: "Você é o parceiro que faz o relacionamento funcionar na prática — com cuidado, ajuste constante e paciência. O risco é sacrificar suas próprias necessidades no processo.",
+    carreiras: ["Composição e arranjo musical","Facilitação e mediação","Liderança de equipes criativas","Produção de projetos colaborativos","Terapia de grupo","Diplomacia cultural"],
+    fatoCurioso: "Harmonizadores do seu perfil frequentemente são a 'cola' invisível de grupos — o elemento que mantém tudo junto sem que ninguém perceba explicitamente. Só percebem quando você sai.",
+    afirmacao: "Você tem o dom de fazer coisas diferentes soarem bem juntas. Mas inclua sua própria voz na harmonia — um conjunto sem o seu timbre está incompleto."
+  },
+  "Fleumático-Naturalista": {
+    nome: "O Guardião", emoji: "🌿", cor: "#229954",
+    frase: "Você não apenas observa os sistemas. Você os cuida.",
+    resumo: "Paciência com processos longos, sensibilidade a equilíbrios delicados e comprometimento profundo com o que precisa ser preservado.",
+    base: {
+      arquetipo: "Consistência, paciência e orientação por preservação. O Fleumático sustenta o cuidado quando outros já desistiram.",
+      inteligencia: "Capacidade de perceber padrões em sistemas complexos, reconhecer equilíbrios delicados e entender as relações de interdependência que sustentam o todo.",
+      combinacao: "Fleumático com inteligência naturalista cria o perfil mais orientado à preservação e ao cuidado de longo prazo. Sua paciência com processos longos e sua sensibilidade a desequilíbrios sutis tornam você insubstituível em contextos que exigem atenção sustentada."
+    },
+    descricao: "Você tem uma relação especial com o tempo longo. Enquanto outros pensam em trimestres, você pensa em gerações. Enquanto outros veem crises, você vê ciclos. Essa perspectiva é rara e cada vez mais necessária em um mundo orientado ao imediato.",
+    descricao2: "O Guardião tem um senso de responsabilidade com o que está sob seus cuidados que vai além do dever profissional. Você cuida porque acredita que cuidar importa — e porque entende que os sistemas mais valiosos são os mais frágeis.",
+    forcas: ["Comprometimento de longo prazo com o que precisa ser preservado ou desenvolvido","Sensibilidade a desequilíbrios sutis em sistemas complexos","Paciência com processos lentos que produzem resultados duradouros","Confiabilidade excepcional — você está lá quando os outros já foram","Perspectiva ecossistêmica que enxerga consequências de longo prazo"],
+    sombra: ["Pode resistir a mudanças necessárias em nome da preservação","Dificuldade em aceitar que alguns sistemas precisam morrer para que novos surjam","Pode se esgotar com o peso do cuidado constante","Tendência a carregar responsabilidades que deveriam ser compartilhadas","Pode ser visto como conservador ou resistente à inovação"],
+    sobrePressao: "Pressão de curto prazo conflita com sua orientação de longo prazo. Você se sente mais perturbado por ameaças ao equilíbrio do que por urgências imediatas.",
+    pontosCegos: "Preservação não é sempre conservação. Às vezes o cuidado mais profundo com um sistema exige transformá-lo radicalmente.",
+    relacoes: "Você é o parceiro mais confiável da matriz. Você fica. Você cuida. Você está lá. O risco é que sua paciência pode ser confundida com passividade.",
+    carreiras: ["Biologia e conservação ambiental","Medicina preventiva e saúde pública","Pedagogia e educação de longo prazo","Planejamento urbano sustentável","Silvicultura e agroecologia","Patrimônio histórico e cultural"],
+    fatoCurioso: "Guardiões do seu perfil frequentemente escolhem profissões cujos resultados só se manifestam em décadas. Eles plantam árvores à sombra das quais não vão sentar — e fazem isso conscientemente.",
+    afirmacao: "Você foi feito para o longo prazo. Em um mundo de gratificação imediata, isso é uma forma de coragem."
+  },
+  "Fleumático-Espacial": {
+    nome: "O Cartógrafo", emoji: "🗺️", cor: "#2471A3",
+    frase: "Você não se perde. Você mapeia — e depois cuida para que outros também não se percam.",
+    resumo: "Clareza visual e estrutural, paciência para documentar e organizar, capacidade de criar mapas que outros possam seguir.",
+    base: {
+      arquetipo: "Paciência, consistência e orientação por clareza. O Fleumático não cria sistemas para si — cria para que outros possam usar.",
+      inteligencia: "Em expressão fleumática, a inteligência espacial aparece não como visão grandiosa de arquiteto — mas como precisão cartográfica. Você documenta, organiza, estrutura. Você cria o mapa que outros vão precisar.",
+      combinacao: "Fleumático com inteligência espacial cria o perfil mais orientado a documentação e estruturação do conhecimento. Você tem a paciência para mapear completamente e a clareza visual para tornar o mapa utilizável. É a combinação que cria sistemas de referência — os guias que outros seguem."
+    },
+    descricao: "Você tem uma necessidade quase compulsiva de criar ordem no espaço — físico, informacional ou conceitual. Não é perfeccionismo estético: é funcional. Você mapeia porque acredita que a clareza serve às pessoas, e porque não suporta a ineficiência de sistemas que poderiam ser mais legíveis.",
+    descricao2: "O Cartógrafo tem uma dádiva específica: consegue tornar complexo em compreensível. Não simplificando em excesso — mas encontrando a estrutura que já estava lá, esperando para ser revelada.",
+    forcas: ["Capacidade de criar estruturas visuais e organizacionais claras e utilizáveis","Paciência para documentar completamente — não para no 'bom o suficiente'","Pensamento espacial que identifica relações e padrões em grandes volumes de informação","Cria sistemas de referência que sobrevivem a quem os criou","Transmite clareza sem simplificação excessiva"],
+    sombra: ["Pode passar mais tempo mapeando do que agindo","Dificuldade em tolerar sistemas mal-estruturados de outros","Pode se tornar o 'arquivista' que ninguém consulta porque os outros preferem improvisar","Tendência a documentar o que deveria ser vivido","Pode ser visto como excessivamente metódico em contextos que valorizam agilidade"],
+    sobrePressao: "Pressão te faz querer criar mais estrutura — o que pode ajudar ou pode atrasar. Quando o mapa não existe e o tempo é curto, você precisa aprender a navegar sem ele.",
+    pontosCegos: "Nem tudo pode ser mapeado. Alguns territórios importantes da vida humana — emoções, relacionamentos, criatividade — resistem à cartografia.",
+    relacoes: "Você é o parceiro que cria estrutura onde havia caos. O risco é querer mapear o relacionamento quando às vezes o que ele precisa é de presença não-estruturada.",
+    carreiras: ["Cartografia e SIG","Arquitetura da informação","UX design e experiência do usuário","Gestão do conhecimento organizacional","Biblioteconomia e documentação","Planejamento estratégico"],
+    fatoCurioso: "Cartógrafos do seu perfil frequentemente têm um sistema de organização doméstica ou pessoal que outras pessoas acham excessivo — e secretamente invejam quando precisam encontrar algo rapidamente.",
+    afirmacao: "Você cria clareza onde havia confusão. Esse é um dos serviços mais valiosos que uma pessoa pode prestar — especialmente quando ninguém percebe quem o está prestando."
+  },
+  "Fleumático-Existencial": {
+    nome: "O Sábio", emoji: "🌌", cor: "#5499C7",
+    frase: "Você não tem pressa para entender. Sabe que as respostas mais importantes levam o tempo que levam.",
+    resumo: "Profundidade filosófica, paciência com a incerteza e capacidade de habitar as grandes questões sem precisar resolvê-las.",
+    base: {
+      arquetipo: "Paciência com processos longos e tolerância à incerteza. O Fleumático não precisa de respostas imediatas.",
+      inteligencia: "A capacidade de contemplar questões fundamentais sobre existência, sentido e propósito. Em expressão fleumática, não é urgência existencial — é contemplação serena.",
+      combinacao: "Fleumático com inteligência existencial cria o perfil mais capaz de habitar a incerteza com paz. Você não é perturbado pelas grandes questões — é nutrido por elas. Enquanto outros fogem da complexidade existencial, você se sente em casa nela."
+    },
+    descricao: "Você tem uma relação com o não-saber que a maioria das pessoas nunca desenvolve. Não porque você desistiu de entender — mas porque aprendeu que as perguntas mais importantes têm valor em si mesmas, independentemente da resposta. Essa paz com a incerteza é uma forma rara de maturidade.",
+    descricao2: "O Sábio não tem pressa. Você acredita que a compreensão profunda exige tempo — e está disposto a dar esse tempo. Isso pode parecer passividade para quem não entende, mas é, na verdade, uma forma de respeito pela complexidade do que está tentando compreender.",
+    forcas: ["Capacidade rara de habitar a incerteza sem ansiedade","Profundidade filosófica que dá contexto ao que parece urgente","Paciência para desenvolver compreensões que resistem ao tempo","Presença tranquilizadora para quem está em crise existencial","Perspectiva de longo prazo que desfaz urgências artificiais"],
+    sombra: ["Pode usar a contemplação como substituto para a ação","Dificuldade em se engajar com urgências práticas que parecem pequenas","Pode ser percebido como indiferente ou desengajado","Tende a evitar decisões que parecem arbitrárias diante de questões mais profundas","Pode se isolar em um mundo interior que os outros não conseguem acessar"],
+    sobrePressao: "Pressão existencial te move; pressão operacional te entorpece. Situações rotineiras podem parecer fúteis — o que pode criar distância desnecessária com o mundo prático.",
+    pontosCegos: "Sabedoria sem engajamento não transforma nada. Você precisa encontrar formas de trazer o que entende para o plano onde as pessoas vivem.",
+    relacoes: "Você é um parceiro profundo e tranquilizador — especialmente em crises. Mas no cotidiano, sua desconexão das urgências práticas pode criar fricção. Aprenda a se importar com as coisas pequenas que importam para quem você ama.",
+    carreiras: ["Filosofia e história das ideias","Liderança espiritual e religiosa","Aconselhamento e psicologia profunda","Educação em humanidades","Pesquisa em significado e bem-estar","Ética aplicada"],
+    fatoCurioso: "Sábios do seu perfil frequentemente são procurados em momentos de crise existencial por pessoas que mal os conhecem. Há algo na sua presença que transmite que as grandes questões não precisam ser apressadas.",
+    afirmacao: "Você habita as perguntas que outros fogem. Isso tem um valor imenso — especialmente para quem está perdido. Deixe que te encontrem."
+  },
+  "Sanguíneo-Corporal": {
+    nome: "O Performer", emoji: "🎪", cor: "#EC407A",
+    frase: "Seu corpo fala antes de você. E raramente diz a coisa errada.",
+    resumo: "Presença física magnética, expressividade corporal natural e capacidade de criar experiências através do corpo.",
+    base: {
+      arquetipo: "Energia, expressividade e orientação para o outro. O Sanguíneo quer ser visto — e tem a intuição natural de saber como ser visto de formas que cativam.",
+      inteligencia: "Em expressão sanguínea, a inteligência corporal aparece como performance e expressividade — não maestria técnica fria, mas comunicação viva através do corpo.",
+      combinacao: "Sanguíneo com inteligência corporal cria o performer mais naturalmente cativante da matriz. Você não apenas age com o corpo — você se comunica com ele. Há uma fluidez entre emoção e expressão física que torna sua presença magnética."
+    },
+    descricao: "Você tem uma relação com o corpo que é ao mesmo tempo instrumento e linguagem. Quando você entra em um espaço, algo muda — na temperatura, na atenção, no ritmo. Você não faz isso conscientemente. É constitucional.",
+    descricao2: "O Performer usa o corpo para criar experiências que outros não conseguem criar com palavras. Você traduz emoção em gesto, intenção em movimento, presença em performance. Isso não é superficialidade — é uma forma sofisticada de inteligência que nossa cultura frequentemente subestima.",
+    forcas: ["Presença física magnética que transforma ambientes sem esforço aparente","Expressividade corporal que comunica além das palavras","Alta leitura de energia e estado emocional de grupos e ambientes","Capacidade de criar conexão e experiência através da performance","Adaptabilidade física e emocional a diferentes públicos e contextos"],
+    sombra: ["Pode usar performance como substituto para profundidade e autenticidade","Dificuldade em ser 'ordinário' — sempre ligado, sempre performando","Pode ter dificuldade em estabelecer limites quando o público quer mais","Pode confundir atenção com afeto e validação com amor","Quando a performance cansa, a vulnerabilidade pode ser esmagadora"],
+    sobrePressao: "Pressão ativa sua performance — o que pode ser uma força ou uma fuga. Você fica mais intenso, mais presente, mais 'ligado'. O problema é que você pode continuar performando mesmo quando o que a situação pede é parar e ser vulnerável.",
+    pontosCegos: "Não há plateia em relacionamentos verdadeiros. A autenticidade que você busca nas pessoas ao seu redor é a mesma que elas buscam em você — e que a performance, por mais brilhante, não consegue substituir.",
+    relacoes: "Você é um parceiro intenso e estimulante. O risco é que você trate relacionamentos como mais uma audiência. As pessoas mais próximas precisam de você fora do palco — às vezes vulnerável, às vezes entediante, sempre real.",
+    carreiras: ["Teatro, dança e performance","Esportes de expressão","Facilitação e treinamento vivencial","Fisioterapia e educação somática","Animação e eventos","Fotografia e vídeo de performance"],
+    fatoCurioso: "Performers do seu perfil frequentemente descrevem um estado alterado durante a performance — onde o 'eu' desaparece e algo maior assume. É uma forma de acesso a uma inteligência que a mente racional não alcança.",
+    afirmacao: "Você tem o dom de criar experiências que as pessoas não esquecem. Mas a experiência mais importante que você pode oferecer é você mesmo — sem performance."
+  },
+  "Sanguíneo-Musical": {
+    nome: "O Improvisador", emoji: "🎺", cor: "#D68910",
+    frase: "Você não segue partitura. Você cria o próximo compasso em tempo real.",
+    resumo: "Criatividade espontânea, adaptabilidade ao momento e capacidade de transformar qualquer contexto em algo interessante.",
+    base: {
+      arquetipo: "Espontaneidade, adaptabilidade e orientação para o presente. O Sanguíneo não planeja para meses — age no que está acontecendo agora.",
+      inteligencia: "Em expressão sanguínea, a inteligência musical aparece como improvisação — não como leitura rigorosa de partituras, mas como criação responsiva ao momento e ao ambiente.",
+      combinacao: "Sanguíneo com inteligência musical cria o improvisador mais natural da matriz. Você responde ao ambiente como um músico de jazz responde aos outros instrumentistas — em tempo real, com sensibilidade ao que está acontecendo agora, criando algo que só existe naquele momento."
+    },
+    descricao: "Você tem uma capacidade rara: criar no momento. Não improvisa porque não planejou — improvisa porque o presente oferece algo que o plano não poderia antecipar. Sua criatividade é responsiva, viva e nunca exatamente igual duas vezes.",
+    descricao2: "O Improvisador não tem medo do inesperado. De fato, o inesperado é onde você brilha. Enquanto outros ficam paralisados quando o plano falha, você encontra a oportunidade que a falha criou. Isso não é ingenuidade — é uma forma de inteligência situacional que perfis mais planejadores raramente acessam.",
+    forcas: ["Criatividade em tempo real, responsiva ao contexto e ao momento","Alta tolerância ao inesperado e à mudança de planos","Senso de timing excepcional em situações dinâmicas","Capacidade de criar conexão e energia em qualquer ambiente","Adaptabilidade que parece mágica para quem só conhece o planejamento"],
+    sombra: ["Pode usar a improvisação como desculpa para a falta de preparação","Dificuldade em compromissos de longo prazo que exigem consistência","Pode criar caos em situações que precisariam de estrutura","A espontaneidade pode parecer irresponsabilidade para perfis mais planejadores","Pode se entediar com a repetição necessária para consolidar o que criou"],
+    sobrePressao: "Pressão é seu elemento natural. Você não apenas funciona bem em crises — você funciona melhor nelas. O risco é criar crises desnecessárias para ter onde brilhar.",
+    pontosCegos: "Improvisação sem fundamento técnico é ruído. Os melhores improvisadores do mundo têm décadas de prática antes de 'soltar'. Sua espontaneidade é mais poderosa quando tem estrutura embaixo — mesmo que a estrutura não apareça.",
+    relacoes: "Você é um parceiro estimulante e imprevisível — raramente entediante. O risco é que imprevisibilidade pode ser cansativa para quem precisa de segurança. Aprenda a criar consistência nas coisas que importam.",
+    carreiras: ["Música de jazz e improvisação","Comédia e teatro de improv","Facilitação criativa","Consultoria em inovação","Comunicação de crise","Design de experiências"],
+    fatoCurioso: "Improvisadores do seu perfil frequentemente descrevem seus melhores momentos como algo que 'aconteceu através deles' — não deliberado. É criatividade em estado puro, sem o filtro da intenção consciente.",
+    afirmacao: "Você tem o dom do presente. Mas o presente mais rico é construído sobre um passado de prática que ninguém viu. Não pule o treino."
+  },
+  "Sanguíneo-Naturalista": {
+    nome: "O Aventureiro", emoji: "🌍", cor: "#DC7633",
+    frase: "O mundo não é um risco a ser evitado. É um território a ser explorado.",
+    resumo: "Curiosidade pelo mundo natural e humano, energia para ir onde outros hesitam e capacidade de se adaptar a qualquer ambiente.",
+    base: {
+      arquetipo: "Abertura ao novo, energia para exploração e capacidade de se conectar com qualquer ambiente ou pessoa.",
+      inteligencia: "Em expressão sanguínea, a inteligência naturalista aparece como exploração — não como estudo metódico, mas como imersão ativa e curiosa no mundo físico e humano.",
+      combinacao: "Sanguíneo com inteligência naturalista cria o perfil mais orientado à exploração física do mundo. Você não apenas observa — experimenta. Você não estuda ambientes — os habita. Onde outros precisam de teoria, você precisa de imersão."
+    },
+    descricao: "Você tem uma relação com o mundo que é ao mesmo tempo curiosa e física. Você quer ver, tocar, provar, sentir. A teoria é apenas a preparação para a experiência real — e a experiência real é sempre mais complexa, mais interessante e mais viva do que qualquer teoria previa.",
+    descricao2: "O Aventureiro tem uma facilidade rara de se adaptar a ambientes muito diferentes — culturas, climas, comunidades. Você não apenas sobrevive fora da sua zona de conforto: você floresce nela. Cada novo território oferece algo que o anterior não poderia — e você está sempre pronto para o próximo.",
+    forcas: ["Alta adaptabilidade a ambientes físicos, culturais e sociais diferentes","Curiosidade genuína que abre portas onde outros encontram resistência","Capacidade de se conectar com pessoas de origens muito diferentes","Energia física e mental para territórios inexplorados","Leitura rápida de novos ambientes e dinâmicas"],
+    sombra: ["Pode evitar compromissos sedentários que exigiriam ficar em um lugar","Dificuldade em criar raízes — tanto geográficas quanto relacionais","Pode usar a exploração como fuga de algo que precisa ser enfrentado","Tende a subestimar o valor da familiaridade e da profundidade em um lugar","A aventura pode se tornar um fim em si mesmo, sem conexão com propósito maior"],
+    sobrePressao: "Pressão te faz querer se mover — literalmente. Quando situações ficam difíceis, seu instinto é explorar novas opções, novos lugares, novas perspectivas. Isso pode ser genial ou pode ser fuga.",
+    pontosCegos: "O mundo não é apenas um território a ser conquistado. Alguns dos ecossistemas mais ricos — relacionamentos, comunidades, culturas — precisam que você fique. A profundidade que a imobilidade cria é diferente e complementar à que o movimento cria.",
+    relacoes: "Você é um parceiro estimulante — cheio de histórias, experiências e energia. O desafio é que relacionamentos profundos exigem que você fique — fisicamente e emocionalmente — por mais tempo do que seu instinto permite.",
+    carreiras: ["Antropologia e etnografia","Jornalismo de campo e reportagem","Turismo de aventura e expedições","Biologia de campo","Diplomacia e cooperação internacional","Guia e educação ao ar livre"],
+    fatoCurioso: "Aventureiros do seu perfil frequentemente descrevem um estado de hiper-presença em ambientes desconhecidos — todos os sentidos ativados, memória fotográfica do que viveram. É o oposto da distração cotidiana.",
+    afirmacao: "Você foi feito para territórios inexplorados. Mas os territórios mais inexplorados são às vezes os mais próximos — dentro de você, ou na pessoa que você já conhece há anos."
+  },
+  "Sanguíneo-Espacial": {
+    nome: "O Estilista", emoji: "✨", cor: "#AF7AC5",
+    frase: "Você não apenas vê o espaço. Você vê o que ele poderia comunicar.",
+    resumo: "Sensibilidade visual aguçada, capacidade de criar estética com facilidade e dom natural para fazer ambientes e pessoas comunicarem o que precisam.",
+    base: {
+      arquetipo: "Expressividade, orientação para o outro e sensibilidade à impressão que as coisas causam. O Sanguíneo pensa naturalmente em como algo vai ser percebido pelos outros.",
+      inteligencia: "Em expressão sanguínea, a inteligência espacial aparece não como precisão técnica de arquiteto, mas como sensibilidade estética — a capacidade de perceber e criar ambientes que comunicam e seduzem.",
+      combinacao: "Sanguíneo com inteligência espacial cria o perfil mais orientado à estética e à experiência visual da matriz. Você tem a sensibilidade para perceber o que é belo e o instinto social para entender o que comunica para as pessoas certas."
+    },
+    descricao: "Você tem uma relação com o visual que é ao mesmo tempo intuitiva e sofisticada. Você percebe o que está errado num ambiente antes de poder articular por quê. Você tem opinião sobre cores, formas, proporções — e raramente está errado.",
+    descricao2: "O Estilista não cria apenas pelo prazer estético — cria para comunicar. Você entende que espaços, roupas, imagens e objetos falam. E você tem a habilidade de fazer com que digam exatamente o que precisa ser dito para as pessoas certas no momento certo.",
+    forcas: ["Sensibilidade estética excepcional que percebe o que outros não veem","Capacidade de criar ambientes e imagens que comunicam e seduzem","Instinto para o que vai funcionar visualmente antes de testar","Alta adaptabilidade estética — você consegue trabalhar em muitos estilos","Leitura rápida do que um ambiente ou imagem está comunicando"],
+    sombra: ["Pode priorizar a aparência sobre a substância","Dificuldade em aceitar o esteticamente 'imperfeito' mesmo quando é funcional","Pode ser superficial em contextos que pedem profundidade técnica","A preocupação com a imagem pode mascarar vulnerabilidade real","Pode subestimar o que não tem valor visual aparente"],
+    sobrePressao: "Pressão pode ativar sua necessidade de controlar a aparência das coisas — o que pode ser uma forma de ansiedade disfarçada de produtividade. Às vezes você arruma o ambiente quando deveria enfrentar o problema.",
+    pontosCegos: "Beleza sem função é decoração. Você tem sensibilidade para criar o belo — mas o mais duradouro é o belo que serve. Aprenda a equilibrar o que parece com o que funciona.",
+    relacoes: "Você é um parceiro atento à experiência — você cria momentos, ambientes e memórias. O risco é que essa atenção à estética pode mascarar dificuldade com o que é feio, imperfeito ou desordenado na vida real.",
+    carreiras: ["Moda e design de moda","Design de interiores e ambientes","Fotografia e direção de arte","Branding e identidade visual","Cenografia","Curadoria de arte"],
+    fatoCurioso: "Estilistas do seu perfil frequentemente reorganizam espaços quando estão ansiosos — como se a desordem visual fosse uma extensão da desordem interna que precisam resolver.",
+    afirmacao: "Você tem o dom de fazer o mundo mais belo. Mas a beleza mais duradoura emerge de dentro para fora — não de fora para dentro."
+  },
+  "Sanguíneo-Existencial": {
+    nome: "O Buscador", emoji: "🔭", cor: "#EC7063",
+    frase: "Você não faz perguntas sobre a vida. Você faz perguntas que mudam a vida de quem você encontra.",
+    resumo: "Curiosidade existencial combinada com abertura social — você filosofa em voz alta, com pessoas, e raramente em solidão.",
+    base: {
+      arquetipo: "Expressividade, orientação para o outro e necessidade de compartilhar. O Sanguíneo não pensa em silêncio — pensa em conversa.",
+      inteligencia: "Em expressão sanguínea, a inteligência existencial não é contemplação solitária — é diálogo. Você explora as grandes questões com outros, através de conversas, histórias e conexões.",
+      combinacao: "Sanguíneo com inteligência existencial cria o filósofo mais social da matriz. Você não apenas contempla o sentido — você o busca ativamente, em conexão com outros, através de experiências e conversas que poucos ousam ter."
+    },
+    descricao: "Você tem a capacidade rara de trazer questões profundas para conversas cotidianas sem parecer pedante ou pesado. As pessoas saem de encontros com você com perguntas que não tinham antes — e frequentemente agradecem por isso, mesmo sem saber exatamente por quê.",
+    descricao2: "O Buscador não se contenta com o superficial — não como exigência, mas como curiosidade genuína. Você quer saber o que as pessoas realmente acreditam, o que as move, o que as assusta. E tem o carisma para fazer essa profundidade parecer confortável e natural.",
+    forcas: ["Capacidade de criar conversas profundas com facilidade e naturalidade","Curiosidade existencial que enriquece qualquer conexão","Habilidade de fazer perguntas que revelam o que as pessoas não sabiam que pensavam","Alta tolerância para a ambiguidade das grandes questões","Energia para explorar o sentido em experiências, não apenas em textos"],
+    sombra: ["Pode evitar o cotidiano em busca de significado — e o cotidiano também é vida","Dificuldade com relacionamentos que não incluem profundidade filosófica","Pode ser percebido como intenso ou pesado em contextos mais leves","A busca por sentido pode se tornar uma fuga da responsabilidade imediata","Pode colecionar perguntas sem nunca chegar a comprometimentos reais"],
+    sobrePressao: "Pressão existencial te energiza; pressão operacional pode paralisá-lo. Você funciona melhor quando as questões são grandes. Detalhes e urgências pequenas podem parecer ruído irrelevante.",
+    pontosCegos: "Nem toda conversa precisa de profundidade. Nem toda pessoa está pronta para as questões que você quer fazer. Aprender a ler quando a leveza é o que o momento pede é uma forma de sabedoria que você ainda está desenvolvendo.",
+    relacoes: "Você é um parceiro profundo e estimulante — raramente entediante. O risco é exigir que o relacionamento seja sempre significativo. Às vezes amor é silêncio, rotina e a ausência de grandes questões.",
+    carreiras: ["Filosofia pública e divulgação","Educação transformadora","Coaching e desenvolvimento pessoal","Jornalismo de ideias","Liderança espiritual e comunitária","Empreendedorismo com propósito"],
+    fatoCurioso: "Buscadores do seu perfil frequentemente são lembrados por conversas únicas que tiveram com estranhos em situações inesperadas — aviões, filas, festas. Você cria espaço para profundidade onde ninguém esperava que ela coubesse.",
+    afirmacao: "Você tem o dom de fazer as perguntas que importam. Mas as perguntas mais importantes que você pode fazer são aquelas sobre você mesmo — não apenas sobre o mundo."
+  },
+  "Melancólico-Corporal": {
+    nome: "O Asceta", emoji: "🧘", cor: "#5D6D7E",
+    frase: "Você usa o corpo para ir além do corpo.",
+    resumo: "Disciplina física como caminho de autoconhecimento, maestria através do silêncio e da repetição, e capacidade de habitar o corpo com profundidade que outros não acessam.",
+    base: {
+      arquetipo: "Profundidade, introspecção e busca de autenticidade. O Melancólico usa o que tem — inclusive o corpo — como instrumento de descoberta, não de exibição.",
+      inteligencia: "Em expressão melancólica, a inteligência corporal não é performance — é prática. É a disciplina silenciosa que conduz ao domínio. É o corpo como caminho de autoconhecimento.",
+      combinacao: "Melancólico com inteligência corporal cria o perfil mais orientado à maestria interior da matriz. Você não usa o corpo para ser visto — usa o corpo para se conhecer. A prática repetitiva não é tédio para você: é meditação em movimento."
+    },
+    descricao: "Você tem uma relação com o corpo que é ao mesmo tempo disciplinada e espiritual. Para você, a prática física não é sobre performance ou aparência — é sobre o que emerge quando você está completamente presente no movimento. O que você aprende sobre si mesmo durante uma prática intensa não tem equivalente em palavras.",
+    descricao2: "O Asceta encontra nos limites do corpo uma liberdade que outros procuram em outros lugares. A dor, o esforço, a repetição — não são obstáculos para você. São o caminho. Cada limite superado revela algo sobre quem você é que a teoria não conseguia mostrar.",
+    forcas: ["Disciplina física excepcional sustentada por motivação interna, não externa","Presença corporal profunda — você habita o corpo completamente","Alta tolerância à dificuldade física e ao desconforto como processo de crescimento","Aprendizado corporal que vai muito além do técnico — é experiencial e duradouro","Capacidade de usar a prática física como instrumento real de autoconhecimento"],
+    sombra: ["Pode usar a disciplina física como punição ou como fuga emocional","Tendência ao isolamento — a prática pode se tornar um mundo próprio hermético","Pode ser excessivamente duro consigo mesmo em relação ao corpo","Dificuldade em celebrar conquistas físicas — sempre há mais a alcançar","Pode confundir sofrimento com mérito"],
+    sobrePressao: "Pressão te leva para o corpo — você processa emocionalmente através do movimento. Isso pode ser saudável ou pode ser dissociativo. Aprenda a diferenciar quando você está integrando e quando está fugindo.",
+    pontosCegos: "O corpo tem limites. Sua tolerância à dor pode te impedir de ouvir quando ele está pedindo pausa. Maestria corporal sustentável inclui recuperação — não apenas esforço. O descanso também é prática.",
+    relacoes: "Você é um parceiro comprometido e disciplinado. O risco é que sua introversão e sua dedicação à prática podem criar distâncias. Aprenda a trazer a profundidade que você encontra no silêncio para a conexão com o outro.",
+    carreiras: ["Artes marciais tradicionais e meditação em movimento","Yoga e práticas corporais contemplativas","Dança contemporânea e somática","Medicina tradicional e integrativa","Atletismo de resistência","Psicologia somática"],
+    fatoCurioso: "Ascetas do seu perfil frequentemente descrevem momentos de clareza intensa durante práticas físicas exigentes — estados que a filosofia e a psicologia chamam de diferentes nomes, mas que você reconhece como encontros consigo mesmo.",
+    afirmacao: "Você encontrou no corpo um caminho para o que muitos buscam em outros lugares. Cuide para que o caminho não se torne uma prisão."
+  },
+  "Melancólico-Musical": {
+    nome: "O Compositor", emoji: "🎻", cor: "#5B2C6F",
+    frase: "Você não toca para ser ouvido. Toca para dizer o que palavras não alcançam.",
+    resumo: "Profundidade emocional expressa através do som, sensibilidade a nuances que outros não percebem e capacidade de criar música que toca onde palavras não chegam.",
+    base: {
+      arquetipo: "Profundidade emocional e necessidade de expressão autêntica. O Melancólico não cria para agradar — cria para processar e comunicar o que não encontra outro canal adequado.",
+      inteligencia: "Em expressão melancólica, a inteligência musical é menos sobre performance técnica e mais sobre expressão emocional precisa. Você usa o som como linguagem direta do que sente.",
+      combinacao: "Melancólico com inteligência musical cria o compositor mais emocionalmente profundo da matriz. Você tem o vocabulário emocional interno e a linguagem musical para expressá-lo de forma que ressoa em quem ouve — mesmo que nunca tenha vivido o que você viveu."
+    },
+    descricao: "Você tem uma relação com a música que vai além do técnico. Para você, a música não é entretenimento — é linguagem. É o modo mais direto de comunicar o que sua vida interior contém de mais verdadeiro e de mais difícil de articular de outra forma.",
+    descricao2: "O Compositor não separa vida e obra. O que ele vive, soa. O que ele sente, vira harmonia — ou dissonância deliberada. Há uma autenticidade na sua música que quem ouve sente mesmo sem saber nomear: a sensação de que alguém estava lá, nesse lugar, e sobreviveu para criar algo a partir disso.",
+    forcas: ["Expressão musical com profundidade emocional que poucos alcançam","Sensibilidade a nuances harmônicas e melódicas que outros não percebem","Capacidade de criar obras que envelhecem bem — o tempo revela camadas novas","Autenticidade que torna o trabalho reconhecível e inimitável","Processo criativo que transforma experiência vivida em forma sonora universal"],
+    sombra: ["Pode usar a música como substituto para processar emocionalmente no presente","Hipersensibilidade à crítica que paralisa a criação ou a partilha","Dificuldade em criar sob demanda ou para fins que não ressoam internamente","Tende a se isolar durante os períodos de criação mais intensa","Pode romantizar o sofrimento como fonte criativa necessária"],
+    sobrePressao: "Pressão emocional intensa é, paradoxalmente, seu momento de maior criatividade. Não porque você seja masoquista — mas porque é quando mais precisa da música como linguagem. O que não consegue dizer em palavras encontra forma no som.",
+    pontosCegos: "A música mais duradoura combina profundidade emocional com rigor técnico. Sua profundidade está garantida — mas o rigor precisa ser cultivado com a mesma dedicação. A emoção sem forma não chega ao outro com toda a sua força.",
+    relacoes: "Você é um parceiro profundo e raramente superficial. O risco é que sua vida interior intensa pode criar distância — você pode estar presente fisicamente mas ausente em algum lugar onde a próxima obra está se formando.",
+    carreiras: ["Composição e teoria musical","Cinema e trilha sonora","Musicoterapia","Performance musical intimista","Produção musical autoral","Pesquisa em música e emoção"],
+    fatoCurioso: "Compositores do seu perfil frequentemente descrevem obras que 'se escreveram sozinhas' — onde eles eram apenas o veículo. Essa experiência de criação involuntária é um dos estados mais descritos por artistas em flow profundo.",
+    afirmacao: "Você tem um vocabulário emocional que a maioria das pessoas não tem acesso. Compartilhe — mesmo que assuste. Especialmente quando assusta."
+  },
+  "Melancólico-Naturalista": {
+    nome: "O Observador", emoji: "🦋", cor: "#1F618D",
+    frase: "Você vê o que outros passam sem notar. E isso muda como você entende tudo.",
+    resumo: "Atenção minuciosa aos detalhes, capacidade de perceber padrões sutis e profundidade contemplativa diante do mundo natural e humano.",
+    base: {
+      arquetipo: "Profundidade, atenção e necessidade de compreensão genuína. O Melancólico não observa superficialmente — observa até entender de verdade.",
+      inteligencia: "Em expressão melancólica, a inteligência naturalista não é exploração ativa — é contemplação profunda. Você não corre pelo campo. Você se senta e observa até que o campo te revele algo.",
+      combinacao: "Melancólico com inteligência naturalista cria o observador mais paciente e mais profundo da matriz. Você tem a paciência para esperar que o mundo mostre o que quer mostrar — e a profundidade para entender o que viu."
+    },
+    descricao: "Você tem uma atenção ao detalhe que a maioria das pessoas simplesmente não possui. Não porque você force — mas porque você não consegue não notar. A folha que caiu de um jeito diferente, o padrão no comportamento de um animal, a mudança sutil num ecossistema — você vê porque está realmente olhando, não apenas passando os olhos.",
+    descricao2: "O Observador não apressa a compreensão. Você sabe que os sistemas mais complexos revelam sua lógica lentamente — e está disposto a dar esse tempo. Isso torna suas conclusões mais confiáveis do que as de quem chegou primeiro mas olhou de longe.",
+    forcas: ["Atenção ao detalhe que raramente deixa algo importante escapar","Paciência para observar completamente antes de concluir","Capacidade de perceber padrões e conexões sutis em sistemas complexos","Profundidade contemplativa que produz compreensão genuína, não apenas informação","Perspectiva de longo prazo que enxerga tendências antes que se tornem óbvias"],
+    sombra: ["Pode passar tanto tempo observando que esquece de agir","Tende ao isolamento quando os ambientes são muito caóticos ou superficiais","Pode se sentir incompreendido em contextos que valorizam velocidade sobre profundidade","Dificuldade em compartilhar o que vê de formas que os outros consigam acessar","Pode carregar o peso do que observa sem ter onde depositar"],
+    sobrePressao: "Pressão te faz querer mais tempo para observar — o que pode ser uma genuína necessidade ou um adiamento. Aprenda a distinguir quando você ainda está coletando dados essenciais e quando está apenas evitando a conclusão que já chegou.",
+    pontosCegos: "Observação sem participação é solidão. Os sistemas que você estuda mais intensamente — humanos, ecossistemas, comunidades — precisam de você não apenas como observador, mas como participante.",
+    relacoes: "Você é um parceiro atento e cuidadoso — que percebe detalhes que o outro nem sabe que existe. O risco é que sua tendência à observação pode criar distância: você olha de dentro para fora quando a outra pessoa precisa que você esteja simplesmente presente.",
+    carreiras: ["Biologia e zoologia de campo","Ecologia e ciências ambientais","Psicologia observacional","Antropologia e etnografia","Fotografia de natureza","Pesquisa em comportamento animal e humano"],
+    fatoCurioso: "Observadores do seu perfil frequentemente notam detalhes em ambientes que voltam semanas depois e que outras pessoas nunca perceberam que existiam. Seu processamento visual e perceptual opera em camadas que a maioria nunca acessa conscientemente.",
+    afirmacao: "Você foi feito para ver o que outros passam sem notar. Esse dom precisa ser compartilhado — não apenas registrado."
+  },
+  "Melancólico-Espacial": {
+    nome: "O Visionário Silencioso", emoji: "🌑", cor: "#512E5F",
+    frase: "Você projeta mundos inteiros antes de dizer uma palavra — e raramente alguém imagina o que está acontecendo dentro de você.",
+    resumo: "Imaginação visual intensa e privada, capacidade de criar espaços e imagens que expressam o inexprimível e profundidade estética que vai além do decorativo.",
+    base: {
+      arquetipo: "Vida interior intensa, processamento antes de compartilhar e orientação por autenticidade. O Melancólico não cria para impressionar — cria para entender e expressar algo que não encontra outro canal.",
+      inteligencia: "Em expressão melancólica, a inteligência espacial aparece como imaginação visual interior de grande riqueza. Você não apenas vê o espaço — você cria mundos mentais que poucos conseguem acessar.",
+      combinacao: "Melancólico com inteligência espacial cria o artista visual mais profundo da matriz. Você tem a riqueza interior melancólica e a capacidade de expressá-la visualmente com precisão. O resultado é arte e design que transcende o funcional para tocar algo mais fundamental na experiência humana."
+    },
+    descricao: "Você tem uma vida visual interior de grande riqueza — mundos que existem completamente na sua mente antes de qualquer papel, tela ou espaço físico. Quando você finalmente externaliza o que está lá dentro, as pessoas frequentemente ficam surpresas com o quanto estava acontecendo em silêncio.",
+    descricao2: "O Visionário Silencioso não cria para decorar — cria para revelar. Suas obras têm uma qualidade que vai além do estético: há algo que faz o observador sentir que aquele espaço, aquela imagem, aquele objeto sabe algo sobre ele que ele mesmo não sabia.",
+    forcas: ["Imaginação visual de grande riqueza e profundidade interior","Capacidade de criar espaços e imagens que expressam o que linguagem não alcança","Profundidade estética que vai além do decorativo — toca algo essencial","Processo criativo introspectivo que produz trabalho com camadas de significado","Precisão visual que traduz estados internos complexos em formas reconhecíveis"],
+    sombra: ["Pode demorar muito para externalizar o que está desenvolvendo internamente","Hipersensibilidade à recepção do trabalho — separar obra de si mesmo é difícil","Dificuldade em criar para fins que não ressoam autenticamente","Pode se isolar em mundos visuais internos que funcionam como refúgio permanente","Tende a subestimar o próprio trabalho em comparação com o de outros"],
+    sobrePressao: "Pressão bloqueia sua criação. Você precisa de silêncio, de tempo e de espaço interno para criar. Quando esses elementos não existem, o que sai pode parecer vazio — mesmo que tecnicamente correto.",
+    pontosCegos: "O trabalho mais poderoso frequentemente precisa ser compartilhado antes de estar 'pronto'. Sua tendência a esperar a versão perfeita do que está na sua cabeça pode significar que o mundo nunca vê o que você viu.",
+    relacoes: "Você é um parceiro com vida interior rica e presença cuidadosa. O risco é que o outro sinta que está relacionando-se com alguém que está sempre parcialmente em outro lugar — no mundo visual que existe antes das palavras.",
+    carreiras: ["Arte contemporânea e instalações","Arquitetura de conceito","Direção de arte e design editorial","Cenografia e design de exposições","Ilustração e concept art","Fotografia artística"],
+    fatoCurioso: "Visionários Silenciosos do seu perfil têm sketchbooks, arquivos ou pastas de referência visual que nunca mostram a ninguém — uma coleção do mundo que existe dentro deles antes de existir fora.",
+    afirmacao: "Você tem mundos inteiros vivendo em você. Deixe que existam fora também — mesmo imperfeitos, mesmo antes de estar pronto."
+  },
+  "Melancólico-Existencial": {
+    nome: "O Filósofo", emoji: "∞", cor: "#2C3E50",
+    frase: "Você não vive a vida — você a interroga. E é exatamente por isso que a vive com maior profundidade.",
+    resumo: "O perfil de maior profundidade existencial da matriz. Você não aceita respostas fáceis para perguntas difíceis — e isso tem um preço e um valor imensos.",
+    base: {
+      arquetipo: "Profundidade, introspecção e orientação por autenticidade. O Melancólico não se contenta com superfícies. Vai fundo — mesmo quando o fundo é desconfortável ou assustador.",
+      inteligencia: "Em expressão melancólica, a inteligência existencial não é busca externa por sentido — é contemplação interna das grandes questões. Você não apenas pensa sobre a vida e a morte: você as habita como perguntas constantes que atravessam cada escolha.",
+      combinacao: "Melancólico com inteligência existencial é a combinação de maior profundidade filosófica da matriz — e a que produz tanto a maior sabedoria quanto o maior sofrimento existencial. Você não consegue não pensar sobre o que importa. Isso te torna profundo e te custa caro."
+    },
+    descricao: "Você tem uma relação com as questões fundamentais da existência que vai além do interesse intelectual. Para você, perguntas sobre sentido, morte, autenticidade e o valor da vida não são abstrações — são urgências reais que atravessam cada escolha, cada relacionamento, cada momento de quietude.",
+    descricao2: "O Filósofo melancólico não filosofa para impressionar. Filosofa porque não consegue não filosofar. É uma necessidade constitucional — como outros precisam respirar, você precisa questionar. E essa necessidade, quando encontra espaço, produz compreensão de uma profundidade que poucos alcançam.",
+    forcas: ["Profundidade filosófica que ilumina o que outros passam sem perceber","Capacidade de habitar a incerteza e a complexidade sem precisar resolvê-las","Honestidade intelectual que raramente aceita respostas fáceis para questões difíceis","Presença que transmite seriedade e profundidade em momentos de crise existencial","Perspectiva que desafia suposições e convida ao pensamento mais profundo"],
+    sombra: ["Pode se perder em questões existenciais ao ponto de paralisia prática","Tendência à melancolia existencial que pode se tornar depressão sem cuidado","Dificuldade em se conectar com pessoas que vivem mais na superfície","Pode criar distância em relacionamentos com a intensidade do questionamento","Pode usar a filosofia como defesa contra o engajamento emocional direto"],
+    sobrePressao: "Pressão existencial — a sensação de que algo fundamental está em jogo — é o que mais te mobiliza. Pressão operacional pode parecer irrelevante diante das questões mais profundas que você carrega. Isso pode ser sabedoria ou pode ser dissociação.",
+    pontosCegos: "A contemplação que não se conecta com o mundo concreto é introspecção isolada. As respostas que você busca às grandes questões estão, em parte, na vida que você permite acontecer — nos relacionamentos, nas escolhas, nos comprometimentos que você faz apesar da incerteza.",
+    relacoes: "Você é um parceiro de rara profundidade — alguém que nunca se contenta com o superficial. O risco é que a intensidade do seu questionamento pode criar peso em relacionamentos. Aprenda a estar presente sem precisar que cada momento seja filosoficamente significativo.",
+    carreiras: ["Filosofia e história das ideias","Psicologia profunda e psicoterapia existencial","Teologia e espiritualidade","Bioética e ética aplicada","Literatura de ideias","Liderança contemplativa"],
+    fatoCurioso: "Filósofos do seu perfil frequentemente descrevem um momento na adolescência ou infância em que perceberam, de forma aguda, que as pessoas ao seu redor viviam como se as grandes questões não existissem — e que essa percepção mudou tudo. É o momento em que o Filósofo nasce.",
+    afirmacao: "Você vive as perguntas que outros fogem. Esse é um dos dons mais raros da consciência humana. Use-o para iluminar — não apenas para questionar."
   }
 };
 
 const questions = [
-  { id:1, texto:"Quando você precisa resolver um problema complexo, sua primeira reação é:", opcoes:[{texto:"Analisar todas as variáveis e montar um plano de ação",tipo:"logica"},{texto:"Conversar com alguém de confiança para pensar junto",tipo:"interpessoal"},{texto:"Escrever ou verbalizar o problema para organizar as ideias",tipo:"linguistica"},{texto:"Buscar uma solução diferente, fora do padrão",tipo:"criativa"}]},
-  { id:2, texto:"Em um grupo, você naturalmente:", opcoes:[{texto:"Assume a liderança e define o rumo",tipo:"colerico"},{texto:"Mantém a harmonia e evita conflitos",tipo:"fleumatico"},{texto:"Anima o ambiente e conecta as pessoas",tipo:"sanguineo"},{texto:"Observa, analisa e contribui com profundidade",tipo:"melancolico"}]},
-  { id:3, texto:"O que mais te satisfaz em um trabalho bem feito?", opcoes:[{texto:"A eficiência — chegou ao resultado no menor tempo possível",tipo:"logica"},{texto:"O impacto nas pessoas envolvidas",tipo:"interpessoal"},{texto:"A forma como foi comunicado e apresentado",tipo:"linguistica"},{texto:"A originalidade da abordagem",tipo:"criativa"}]},
+  // Temperamento (5) + Inteligência (9) — cada inteligência aparece exatamente 4x
+  { id:1, texto:"Em um grupo, você naturalmente:", opcoes:[{texto:"Assume a liderança e define o rumo",tipo:"colerico"},{texto:"Mantém a harmonia e evita conflitos",tipo:"fleumatico"},{texto:"Anima o ambiente e conecta as pessoas",tipo:"sanguineo"},{texto:"Observa, analisa e contribui com profundidade",tipo:"melancolico"}]},
+  { id:2, texto:"Num projeto novo em grupo, qual papel você assume com mais naturalidade?", opcoes:[{texto:"Estruturar o plano, a lógica e os números por trás de tudo",tipo:"logica"},{texto:"Entender as pessoas do time e alinhar o que cada uma precisa",tipo:"interpessoal"},{texto:"Inventar o conceito e propor o que ninguém ainda pensou",tipo:"criativa"},{texto:"Sentir o ritmo do grupo e ajustar o tom para tudo fluir",tipo:"musical"}]},
+  { id:3, texto:"O que você nota primeiro ao entrar num ambiente novo?", opcoes:[{texto:"O clima entre as pessoas — quem está conectado com quem",tipo:"interpessoal"},{texto:"As conversas: o que é dito e, principalmente, o que não é",tipo:"linguistica"},{texto:"O espaço físico e como meu corpo se sente nele",tipo:"corporal"},{texto:"Os padrões — o que se repete e o que está fora do lugar",tipo:"naturalista"}]},
   { id:4, texto:"Quando algo não sai como planejado, você:", opcoes:[{texto:"Recalcula e toma o controle da situação rapidamente",tipo:"colerico"},{texto:"Mantém a calma e espera o momento certo para agir",tipo:"fleumatico"},{texto:"Fala sobre isso e busca apoio",tipo:"sanguineo"},{texto:"Internaliza, analisa o que deu errado e sente o peso",tipo:"melancolico"}]},
-  { id:5, texto:"Como você aprende melhor?", opcoes:[{texto:"Lendo, pesquisando e estruturando o conhecimento",tipo:"logica"},{texto:"Observando e conversando com quem já sabe",tipo:"interpessoal"},{texto:"Escrevendo, explicando ou ensinando para alguém",tipo:"linguistica"},{texto:"Experimentando, errando e descobrindo na prática",tipo:"criativa"}]},
-  { id:6, texto:"Qual dessas frases mais representa você?", opcoes:[{texto:"Eu prefiro ser respeitado a ser querido",tipo:"colerico"},{texto:"Eu prefiro paz a ter razão",tipo:"fleumatico"},{texto:"Eu prefiro estar cercado de pessoas a estar sozinho",tipo:"sanguineo"},{texto:"Eu prefiro profundidade a popularidade",tipo:"melancolico"}]},
-  { id:7, texto:"Diante de uma decisão importante, você:", opcoes:[{texto:"Confia nos dados e na lógica acima de tudo",tipo:"logica"},{texto:"Considera como vai afetar as pessoas envolvidas",tipo:"interpessoal"},{texto:"Pensa em como vai comunicar e justificar a decisão",tipo:"linguistica"},{texto:"Busca uma terceira via que ninguém considerou",tipo:"criativa"}]},
-  { id:8, texto:"Qual é sua maior fonte de energia?", opcoes:[{texto:"Conquistar metas e superar desafios",tipo:"colerico"},{texto:"Ambientes estáveis e relacionamentos seguros",tipo:"fleumatico"},{texto:"Interações sociais e novas conexões",tipo:"sanguineo"},{texto:"Tempo sozinho para pensar e criar",tipo:"melancolico"}]},
-  { id:9, texto:"Quando você tem uma tarde inteira só para você, o que te atrai primeiro?", opcoes:[{texto:"Desvendar como algo funciona — montar, calcular ou resolver",tipo:"logica"},{texto:"Encontrar pessoas, ouvir histórias e fortalecer laços",tipo:"interpessoal"},{texto:"Ler, escrever ou mergulhar em uma conversa profunda",tipo:"linguistica"},{texto:"Criar, imaginar ou dar forma a algo que ainda não existe",tipo:"criativa"}]},
-  { id:10, texto:"No fundo, o que mais te move quando ninguém está olhando?", opcoes:[{texto:"A vontade de vencer e provar do que sou capaz",tipo:"colerico"},{texto:"O desejo de paz e de seguir no meu próprio ritmo",tipo:"fleumatico"},{texto:"A busca por emoção, novidade e pessoas",tipo:"sanguineo"},{texto:"A necessidade de dar sentido profundo ao que vivo",tipo:"melancolico"}]}
+  { id:5, texto:"Como você prefere dar forma a uma ideia que considera importante?", opcoes:[{texto:"Escrevendo ou falando, com as palavras exatas",tipo:"linguistica"},{texto:"Criando algo original que a traduza",tipo:"criativa"},{texto:"Pelo ritmo e pela cadência — por como aquilo 'soa'",tipo:"musical"},{texto:"Desenhando, mapeando, mostrando de forma visual",tipo:"espacial"}]},
+  { id:6, texto:"O que mais te dá a sensação de 'isso faz sentido pra mim'?", opcoes:[{texto:"Criar algo que não existia antes",tipo:"criativa"},{texto:"Usar o corpo com maestria — fazer com as próprias mãos",tipo:"corporal"},{texto:"Entender como os sistemas e a natureza se conectam",tipo:"naturalista"},{texto:"Tocar nas questões profundas sobre o sentido das coisas",tipo:"existencial"}]},
+  { id:7, texto:"Qual dessas frases mais representa você?", opcoes:[{texto:"Eu prefiro ser respeitado a ser querido",tipo:"colerico"},{texto:"Eu prefiro paz a ter razão",tipo:"fleumatico"},{texto:"Eu prefiro estar cercado de pessoas a estar sozinho",tipo:"sanguineo"},{texto:"Eu prefiro profundidade a popularidade",tipo:"melancolico"}]},
+  { id:8, texto:"Qual habilidade as pessoas mais reconhecem em você?", opcoes:[{texto:"Destreza física, coordenação e presença",tipo:"corporal"},{texto:"Senso de ritmo e de timing",tipo:"musical"},{texto:"Visão espacial — enxergar como as coisas se encaixam",tipo:"espacial"},{texto:"Raciocínio lógico e capacidade de resolver problemas",tipo:"logica"}]},
+  { id:9, texto:"O que te absorve a ponto de fazer você perder a noção do tempo?", opcoes:[{texto:"Música, ritmo e som",tipo:"musical"},{texto:"Observar a natureza, os animais, os padrões do mundo",tipo:"naturalista"},{texto:"Refletir sobre a vida, o universo e o sentido de tudo",tipo:"existencial"},{texto:"Uma conversa profunda com alguém",tipo:"interpessoal"}]},
+  { id:10, texto:"Qual é sua maior fonte de energia?", opcoes:[{texto:"Conquistar metas e superar desafios",tipo:"colerico"},{texto:"Ambientes estáveis e relacionamentos seguros",tipo:"fleumatico"},{texto:"Interações sociais e novas conexões",tipo:"sanguineo"},{texto:"Tempo sozinho para pensar e criar",tipo:"melancolico"}]},
+  { id:11, texto:"Diante de um problema complexo, qual é o seu instinto?", opcoes:[{texto:"Observar o sistema inteiro e como as partes se relacionam",tipo:"naturalista"},{texto:"Visualizar a solução como uma estrutura ou um mapa",tipo:"espacial"},{texto:"Quebrar em partes lógicas e resolver passo a passo",tipo:"logica"},{texto:"Colocar o problema em palavras para enxergá-lo melhor",tipo:"linguistica"}]},
+  { id:12, texto:"O que você mais valoriza numa experiência marcante?", opcoes:[{texto:"A beleza visual e como o espaço foi organizado",tipo:"espacial"},{texto:"O significado mais profundo por trás dela",tipo:"existencial"},{texto:"As pessoas e as conexões que você criou ali",tipo:"interpessoal"},{texto:"A originalidade — algo que te surpreendeu",tipo:"criativa"}]},
+  { id:13, texto:"No fundo, o que mais te move quando ninguém está olhando?", opcoes:[{texto:"A vontade de vencer e provar do que sou capaz",tipo:"colerico"},{texto:"O desejo de paz e de seguir no meu próprio ritmo",tipo:"fleumatico"},{texto:"A busca por emoção, novidade e pessoas",tipo:"sanguineo"},{texto:"A necessidade de dar sentido profundo ao que vivo",tipo:"melancolico"}]},
+  { id:14, texto:"Quando você aprende algo novo, o que mais te motiva?", opcoes:[{texto:"Entender o 'porquê' último daquilo",tipo:"existencial"},{texto:"Dominar a lógica e a estrutura do assunto",tipo:"logica"},{texto:"Conseguir explicar e ensinar com clareza",tipo:"linguistica"},{texto:"Colocar a mão na massa e praticar de verdade",tipo:"corporal"}]}
 ];
 
 function calcularPerfil(respostas) {
-  const s = { logica:0,interpessoal:0,linguistica:0,criativa:0,colerico:0,fleumatico:0,sanguineo:0,melancolico:0 };
+  const s = { logica:0,interpessoal:0,linguistica:0,criativa:0,corporal:0,musical:0,naturalista:0,espacial:0,existencial:0,colerico:0,fleumatico:0,sanguineo:0,melancolico:0 };
   respostas.forEach(r=>{ if(r&&s[r]!==undefined) s[r]++; });
-  const iTop = ["logica","interpessoal","linguistica","criativa"].reduce((a,b)=>s[a]>=s[b]?a:b);
+  const iTop = ["logica","interpessoal","linguistica","criativa","corporal","musical","naturalista","espacial","existencial"].reduce((a,b)=>s[a]>=s[b]?a:b);
   const tTop = ["colerico","fleumatico","sanguineo","melancolico"].reduce((a,b)=>s[a]>=s[b]?a:b);
   const tN={colerico:"Colérico",fleumatico:"Fleumático",sanguineo:"Sanguíneo",melancolico:"Melancólico"};
-  const iN={logica:"Lógica",interpessoal:"Interpessoal",linguistica:"Linguística",criativa:"Criativa"};
+  const iN={logica:"Lógica",interpessoal:"Interpessoal",linguistica:"Linguística",criativa:"Criativa",corporal:"Corporal",musical:"Musical",naturalista:"Naturalista",espacial:"Espacial",existencial:"Existencial"};
   return `${tN[tTop]}-${iN[iTop]}`;
 }
 
@@ -556,7 +961,7 @@ export default function MindCode() {
         <div style={{width:60,height:1,background:"linear-gradient(90deg,transparent,#7C3AED,transparent)",margin:"22px auto"}}/>
         <p style={{fontSize:"clamp(15px,2.3vw,19px)",color:"#C4C0BB",maxWidth:500,lineHeight:1.8,margin:"0 0 44px",fontStyle:"italic"}}>Descubra o código único da sua mente — onde seu temperamento encontra sua inteligência dominante.</p>
         <div style={{display:"flex",gap:36,marginBottom:44,flexWrap:"wrap",justifyContent:"center"}}>
-          {[["10","perguntas"],["16","perfis únicos"],["5","minutos"]].map(([n,l])=>(
+          {[["14","perguntas"],["36","perfis únicos"],["5","minutos"]].map(([n,l])=>(
             <div key={l} style={{textAlign:"center"}}><div style={{fontSize:26,fontWeight:300,color:"#7C3AED"}}>{n}</div><div style={{fontSize:11,color:"#4B5563",letterSpacing:"0.1em"}}>{l}</div></div>
           ))}
         </div>
