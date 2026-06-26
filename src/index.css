@@ -1,0 +1,86 @@
+/* ─── MindCode · base, tema e responsividade ─────────────────────── */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Tema claro (padrão) — regra 60-30-10 */
+:root {
+  --bg:        #F8FAFC;
+  --surface:   #FFFFFF;
+  --surface-2: #F1F5F9;
+  --text:      #1E293B;
+  --muted:     #475569;
+  --faint:     #94A3B8;
+  --ghost:     #CBD5E1;
+  --border:    rgba(15, 23, 42, 0.10);
+  --border-2:  rgba(15, 23, 42, 0.06);
+  --cta:       #6366F1;
+  --cta-2:     #8B5CF6;
+  --shadow:    0 6px 24px rgba(15, 23, 42, 0.08);
+  --orb-op:    0.10;
+  --track:     #E2E8F0;
+  color-scheme: light;
+}
+
+/* Tema escuro — navy suave (não preto puro) */
+[data-theme="dark"] {
+  --bg:        #0F172A;
+  --surface:   #172033;
+  --surface-2: #1E293B;
+  --text:      #E2E8F0;
+  --muted:     #94A3B8;
+  --faint:     #64748B;
+  --ghost:     #475569;
+  --border:    rgba(255, 255, 255, 0.10);
+  --border-2:  rgba(255, 255, 255, 0.06);
+  --cta:       #6366F1;
+  --cta-2:     #8B5CF6;
+  --shadow:    0 6px 24px rgba(0, 0, 0, 0.45);
+  --orb-op:    0.16;
+  --track:     #1E293B;
+  color-scheme: dark;
+}
+
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* No dark, texto branco "irradia" — aliviamos o peso */
+[data-theme="dark"] body { font-weight: 300; }
+
+#root { min-height: 100vh; }
+
+h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+
+button, input { font-family: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+/* Acessibilidade de foco */
+button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+::selection { background: rgba(99, 102, 241, 0.22); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ─── Responsividade ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+  .mc-pad { padding-left: 18px !important; padding-right: 18px !important; }
+  .mc-grid-2 { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 380px) {
+  html { font-size: 14px; }
+}

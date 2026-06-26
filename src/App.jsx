@@ -867,9 +867,27 @@ async function gerarPDF(perfil, perfilKey, nome) {
   doc.save(`MindCode_${perfil.nome.replace(/\s/g,"_")}_${(nome||"perfil").replace(/\s/g,"_")}.pdf`);
 }
 
-const Orb=({color,size,x,y,blur=120})=>(<div style={{position:"absolute",borderRadius:"50%",background:color,width:size,height:size,left:x,top:y,filter:`blur(${blur}px)`,opacity:0.13,pointerEvents:"none"}}/>);
-const Sec=({title,cor,children})=>(<div style={{marginBottom:34}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}><div style={{width:3,height:16,background:cor,borderRadius:2,flexShrink:0}}/><h3 style={{fontSize:10,letterSpacing:"0.25em",textTransform:"uppercase",color:"#9CA3AF",margin:0}}>{title}</h3></div>{children}</div>);
-const bg={minHeight:"100vh",background:"#060409",fontFamily:"'Georgia','Times New Roman',serif",color:"#f0ede8",position:"relative",overflow:"hidden"};
+const Orb=({color,size,x,y,blur=120})=>(<div style={{position:"absolute",borderRadius:"50%",background:color,width:size,height:size,left:x,top:y,filter:`blur(${blur}px)`,opacity:"var(--orb-op)",pointerEvents:"none"}}/>);
+const Sec=({title,cor,children})=>(<div style={{marginBottom:34}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}><div style={{width:3,height:16,background:cor,borderRadius:2,flexShrink:0}}/><h3 style={{fontSize:11,letterSpacing:"0.22em",textTransform:"uppercase",color:"var(--muted)",margin:0,fontWeight:700}}>{title}</h3></div>{children}</div>);
+const bg={minHeight:"100vh",background:"var(--bg)",color:"var(--text)",position:"relative",overflow:"hidden",transition:"background 0.3s ease,color 0.3s ease"};
+
+/* Paleta por temperamento (acentos do resultado) */
+const TEMP_COLORS={"Colérico":"#EF4444","Sanguíneo":"#F59E0B","Melancólico":"#3B82F6","Fleumático":"#10B981"};
+/* Paleta por inteligência (tags) */
+const INTEL_COLORS={"Lógica":"#4F46E5","Espacial":"#06B6D4","Musical":"#8B5CF6","Corporal":"#F97316","Naturalista":"#22C55E","Linguística":"#EC4899","Interpessoal":"#0EA5E9","Existencial":"#312E81","Criativa":"#14B8A6"};
+
+/* Ícones minimalistas de linha */
+const LineIcon=({name,size=18,stroke=1.7})=>{
+  const p={width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:stroke,strokeLinecap:"round",strokeLinejoin:"round","aria-hidden":"true"};
+  if(name==="moon") return(<svg {...p}><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>);
+  if(name==="sun") return(<svg {...p}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>);
+  if(name==="temperamento") return(<svg {...p}><path d="M12 2C9 5.5 7.5 8 7.5 11.5a4.5 4.5 0 0 0 9 0c0-1.7-.7-3.3-2-4.8-.9 1.6-1.8 1.8-2.6 1C11 6.4 11.4 4.3 12 2z"/></svg>);
+  if(name==="inteligencia") return(<svg {...p}><path d="M12 3l1.7 4.1L18 9l-4.3 1.9L12 15l-1.7-4.1L6 9l4.3-1.9z"/><path d="M18 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>);
+  if(name==="combinacao") return(<svg {...p}><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>);
+  if(name==="download") return(<svg {...p}><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>);
+  if(name==="lock") return(<svg {...p}><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>);
+  return null;
+};
 
 /* ─── Ícones oficiais das marcas (SVG) ─── */
 const BrandIcon=({name,size=16})=>{
@@ -903,8 +921,26 @@ export default function MindCode() {
   const [pixOk,setPixOk]=useState(false);
   const [gerando,setGerando]=useState(false);
   const [copiado,setCopiado]=useState(null);
+  const [tema,setTema]=useState(()=> (typeof document!=="undefined" && document.documentElement.getAttribute("data-theme")) || "light");
   const top=useRef(null);
   const perfil=perfilKey?profiles[perfilKey]:null;
+  const temperamento=perfilKey?perfilKey.split("-")[0]:null;
+  const inteligencia=perfilKey?perfilKey.split("-")[1]:null;
+  const cor=perfil?(TEMP_COLORS[temperamento]||"#6366F1"):"#6366F1";
+  const intelCor=perfil?(INTEL_COLORS[inteligencia]||cor):cor;
+
+  function toggleTema(){
+    const novo = tema==="dark"?"light":"dark";
+    setTema(novo);
+    document.documentElement.setAttribute("data-theme",novo);
+    try{ localStorage.setItem("mc-theme",novo); }catch(e){}
+  }
+  const themeToggle=(
+    <button onClick={toggleTema} aria-label="Alternar tema claro e escuro" title="Alternar tema"
+      style={{position:"fixed",top:16,right:16,zIndex:50,width:42,height:42,borderRadius:"50%",background:"var(--surface)",border:"1px solid var(--border)",color:"var(--muted)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"var(--shadow)"}}>
+      <LineIcon name={tema==="dark"?"sun":"moon"} size={18}/>
+    </button>
+  );
   const prog=Math.round((respostas.filter(r=>r!==null).length/questions.length)*100);
   const ir=t=>{ setTela(t); setTimeout(()=>top.current?.scrollIntoView({behavior:"smooth"}),50); };
 
@@ -954,37 +990,39 @@ export default function MindCode() {
 
   if(tela==="intro") return(
     <div style={bg} ref={top}>
-      <Orb color="#7C3AED" size={500} x="-8%" y="-8%"/><Orb color="#DB2777" size={380} x="58%" y="28%"/><Orb color="#1D4ED8" size={280} x="18%" y="68%"/>
-      <div style={{position:"relative",zIndex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:"40px 24px",textAlign:"center"}}>
-        <div style={{letterSpacing:"0.3em",fontSize:10,color:"#6B7280",textTransform:"uppercase",marginBottom:16}}>Sistema de Autoconhecimento</div>
-        <h1 style={{fontSize:"clamp(52px,10vw,88px)",fontWeight:400,letterSpacing:"-0.02em",margin:"0 0 8px",lineHeight:1,fontStyle:"italic"}}><span style={{color:"#f0ede8"}}>Mind</span><span style={{color:"#7C3AED"}}>Code</span></h1>
-        <div style={{width:60,height:1,background:"linear-gradient(90deg,transparent,#7C3AED,transparent)",margin:"22px auto"}}/>
-        <p style={{fontSize:"clamp(15px,2.3vw,19px)",color:"#C4C0BB",maxWidth:500,lineHeight:1.8,margin:"0 0 44px",fontStyle:"italic"}}>Descubra o código único da sua mente — onde seu temperamento encontra sua inteligência dominante.</p>
-        <div style={{display:"flex",gap:36,marginBottom:44,flexWrap:"wrap",justifyContent:"center"}}>
+      {themeToggle}
+      <Orb color="#6366F1" size={500} x="-8%" y="-8%"/><Orb color="#8B5CF6" size={380} x="58%" y="28%"/><Orb color="#06B6D4" size={280} x="18%" y="68%"/>
+      <div className="mc-pad" style={{position:"relative",zIndex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:"40px 24px",textAlign:"center"}}>
+        <div style={{letterSpacing:"0.28em",fontSize:12,color:"var(--faint)",textTransform:"uppercase",marginBottom:18,fontWeight:600}}>Sistema de Autoconhecimento</div>
+        <h1 style={{fontSize:"clamp(48px,9vw,84px)",fontWeight:800,letterSpacing:"-0.03em",margin:"0 0 10px",lineHeight:1}}><span style={{color:"var(--text)"}}>Mind</span><span style={{color:"var(--cta)"}}>Code</span></h1>
+        <div style={{width:60,height:3,borderRadius:3,background:"linear-gradient(90deg,var(--cta),var(--cta-2))",margin:"20px auto 24px"}}/>
+        <p style={{fontSize:"clamp(16px,2.3vw,20px)",color:"var(--muted)",maxWidth:520,lineHeight:1.7,margin:"0 0 44px"}}>Descubra o código único da sua mente — onde seu temperamento encontra sua inteligência dominante.</p>
+        <div style={{display:"flex",gap:36,marginBottom:46,flexWrap:"wrap",justifyContent:"center"}}>
           {[["14","perguntas"],["36","perfis únicos"],["5","minutos"]].map(([n,l])=>(
-            <div key={l} style={{textAlign:"center"}}><div style={{fontSize:26,fontWeight:300,color:"#7C3AED"}}>{n}</div><div style={{fontSize:11,color:"#4B5563",letterSpacing:"0.1em"}}>{l}</div></div>
+            <div key={l} style={{textAlign:"center"}}><div style={{fontSize:30,fontWeight:700,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{n}</div><div style={{fontSize:12,color:"var(--faint)",letterSpacing:"0.08em",marginTop:2}}>{l}</div></div>
           ))}
         </div>
-        <button onClick={()=>ir("nome")} style={{background:"linear-gradient(135deg,#7C3AED,#DB2777)",border:"none",color:"white",padding:"17px 52px",fontSize:15,letterSpacing:"0.1em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",boxShadow:"0 0 40px rgba(124,58,237,0.4)"}}>Iniciar o Teste</button>
-        <p style={{marginTop:22,fontSize:11,color:"#374151"}}>Gratuito · Resultado disponível ao final</p>
+        <button onClick={()=>ir("nome")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 52px",fontSize:16,letterSpacing:"0.02em",cursor:"pointer",borderRadius:12,fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Iniciar o Teste</button>
+        <p style={{marginTop:22,fontSize:12,color:"var(--faint)"}}>Gratuito · Resultado disponível ao final</p>
       </div>
     </div>
   );
 
   if(tela==="nome") return(
     <div style={bg} ref={top}>
-      <Orb color="#7C3AED" size={400} x="50%" y="0%" blur={160}/>
-      <div style={{position:"relative",zIndex:1,maxWidth:520,margin:"0 auto",padding:"80px 24px",textAlign:"center"}}>
-        <div style={{fontSize:10,letterSpacing:"0.3em",color:"#6B7280",textTransform:"uppercase",marginBottom:20}}>Antes de começar</div>
-        <h2 style={{fontSize:"clamp(24px,5vw,36px)",fontWeight:400,fontStyle:"italic",margin:"0 0 12px"}}>Como posso te chamar?</h2>
-        <p style={{color:"#6B7280",fontSize:14,marginBottom:40,lineHeight:1.75}}>Seu nome tornará a análise mais pessoal — e o relatório PDF gerado ao final será personalizado para você.</p>
+      {themeToggle}
+      <Orb color="#6366F1" size={400} x="50%" y="0%" blur={160}/>
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:520,margin:"0 auto",padding:"80px 24px",textAlign:"center"}}>
+        <div style={{fontSize:12,letterSpacing:"0.28em",color:"var(--faint)",textTransform:"uppercase",marginBottom:20,fontWeight:600}}>Antes de começar</div>
+        <h2 style={{fontSize:"clamp(26px,5vw,38px)",fontWeight:700,margin:"0 0 14px",letterSpacing:"-0.02em"}}>Como posso te chamar?</h2>
+        <p style={{color:"var(--muted)",fontSize:15,marginBottom:40,lineHeight:1.7}}>Seu nome tornará a análise mais pessoal — e o relatório PDF gerado ao final será personalizado para você.</p>
         <input type="text" value={nomeInput} onChange={e=>setNomeInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&nomeInput.trim()&&(setNome(nomeInput.trim()),ir("teste"))} placeholder="Digite seu primeiro nome..." autoFocus
-          style={{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:3,padding:"16px 20px",color:"#f0ede8",fontSize:18,fontFamily:"inherit",textAlign:"center",outline:"none",boxSizing:"border-box",marginBottom:28}}/>
+          style={{width:"100%",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:12,padding:"16px 20px",color:"var(--text)",fontSize:18,textAlign:"center",outline:"none",boxSizing:"border-box",marginBottom:28,boxShadow:"var(--shadow)"}}/>
         <button onClick={()=>{ if(nomeInput.trim()){ setNome(nomeInput.trim()); ir("teste"); }}} disabled={!nomeInput.trim()}
-          style={{background:nomeInput.trim()?"linear-gradient(135deg,#7C3AED,#DB2777)":"rgba(255,255,255,0.04)",border:"none",color:nomeInput.trim()?"white":"#374151",padding:"15px 52px",fontSize:14,letterSpacing:"0.1em",cursor:nomeInput.trim()?"pointer":"default",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",transition:"all 0.3s",marginBottom:14,display:"block",width:"100%"}}>
+          style={{background:nomeInput.trim()?"linear-gradient(135deg,var(--cta),var(--cta-2))":"var(--surface-2)",border:nomeInput.trim()?"none":"1px solid var(--border)",color:nomeInput.trim()?"#fff":"var(--faint)",padding:"16px 52px",fontSize:15,letterSpacing:"0.02em",cursor:nomeInput.trim()?"pointer":"default",borderRadius:12,fontWeight:600,transition:"all 0.3s",marginBottom:16,display:"block",width:"100%",boxShadow:nomeInput.trim()?"0 10px 30px rgba(99,102,241,0.30)":"none"}}>
           Continuar
         </button>
-        <button onClick={()=>{ setNome(""); ir("teste"); }} style={{background:"none",border:"none",color:"#2D3748",cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>Continuar sem informar nome</button>
+        <button onClick={()=>{ setNome(""); ir("teste"); }} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13}}>Continuar sem informar nome</button>
       </div>
     </div>
   );
@@ -993,22 +1031,23 @@ export default function MindCode() {
     const q=questions[pergunta];
     return(
       <div style={bg} ref={top}>
-        <Orb color="#7C3AED" size={380} x="-5%" y="5%" blur={150}/><Orb color="#DB2777" size={280} x="68%" y="55%" blur={150}/>
-        <div style={{position:"relative",zIndex:1,maxWidth:660,margin:"0 auto",padding:"40px 24px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+        {themeToggle}
+        <Orb color="#6366F1" size={380} x="-5%" y="5%" blur={150}/><Orb color="#8B5CF6" size={280} x="68%" y="55%" blur={150}/>
+        <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:680,margin:"0 auto",padding:"56px 24px 40px",minHeight:"100vh",display:"flex",flexDirection:"column"}}>
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:44}}>
-            <div style={{flex:1,height:2,background:"#0f0c18"}}><div style={{height:"100%",background:"linear-gradient(90deg,#7C3AED,#DB2777)",width:`${prog}%`,transition:"width 0.4s ease"}}/></div>
-            <span style={{fontSize:11,color:"#4B5563",whiteSpace:"nowrap"}}>{pergunta+1} / {questions.length}</span>
+            <div style={{flex:1,height:6,borderRadius:6,background:"var(--track)",overflow:"hidden"}}><div style={{height:"100%",borderRadius:6,background:"linear-gradient(90deg,var(--cta),var(--cta-2))",width:`${prog}%`,transition:"width 0.4s ease"}}/></div>
+            <span style={{fontSize:12,color:"var(--faint)",whiteSpace:"nowrap",fontWeight:600}}>{pergunta+1} / {questions.length}</span>
           </div>
-          {nome&&<div style={{fontSize:12,color:"#374151",marginBottom:6}}>Olá, <span style={{color:"#9CA3AF"}}>{nome}</span></div>}
+          {nome&&<div style={{fontSize:13,color:"var(--faint)",marginBottom:6}}>Olá, <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span></div>}
           <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center"}}>
-            <div style={{fontSize:10,letterSpacing:"0.3em",color:"#374151",textTransform:"uppercase",marginBottom:18}}>Pergunta {pergunta+1}</div>
-            <h2 style={{fontSize:"clamp(18px,2.8vw,24px)",fontWeight:400,lineHeight:1.6,marginBottom:34,fontStyle:"italic"}}>{q.texto}</h2>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            <div style={{fontSize:12,letterSpacing:"0.22em",color:"var(--cta)",textTransform:"uppercase",marginBottom:18,fontWeight:700}}>Pergunta {pergunta+1}</div>
+            <h2 style={{fontSize:"clamp(20px,2.8vw,26px)",fontWeight:700,lineHeight:1.45,marginBottom:30,letterSpacing:"-0.01em"}}>{q.texto}</h2>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
               {q.opcoes.map((op,i)=>(
-                <button key={i} onClick={()=>responder(op.tipo)} style={{background:sel===op.tipo?"rgba(124,58,237,0.2)":"rgba(255,255,255,0.025)",border:sel===op.tipo?"1px solid rgba(124,58,237,0.55)":"1px solid rgba(255,255,255,0.07)",color:"#f0ede8",padding:"16px 22px",textAlign:"left",cursor:"pointer",fontSize:14,fontFamily:"inherit",lineHeight:1.55,borderRadius:3,transition:"all 0.18s",opacity:anim&&sel!==op.tipo?0.3:1}}
-                  onMouseEnter={e=>{ if(!anim){e.currentTarget.style.background="rgba(124,58,237,0.08)";e.currentTarget.style.borderColor="rgba(124,58,237,0.35)";}}}
-                  onMouseLeave={e=>{ if(sel!==op.tipo){e.currentTarget.style.background="rgba(255,255,255,0.025)";e.currentTarget.style.borderColor="rgba(255,255,255,0.07)";}}}
-                ><span style={{color:"#7C3AED",marginRight:10}}>{String.fromCharCode(65+i)}.</span>{op.texto}</button>
+                <button key={i} onClick={()=>responder(op.tipo)} style={{background:sel===op.tipo?"rgba(99,102,241,0.10)":"var(--surface)",border:sel===op.tipo?"1.5px solid var(--cta)":"1px solid var(--border)",color:"var(--text)",padding:"17px 20px",textAlign:"left",cursor:"pointer",fontSize:15,lineHeight:1.5,borderRadius:12,transition:"all 0.18s",opacity:anim&&sel!==op.tipo?0.35:1,boxShadow:sel===op.tipo?"0 6px 18px rgba(99,102,241,0.18)":"var(--shadow)",display:"flex",alignItems:"flex-start",gap:10}}
+                  onMouseEnter={e=>{ if(!anim&&sel!==op.tipo){e.currentTarget.style.borderColor="var(--cta)";}}}
+                  onMouseLeave={e=>{ if(sel!==op.tipo){e.currentTarget.style.borderColor="var(--border)";}}}
+                ><span style={{color:"var(--cta)",fontWeight:700,flexShrink:0}}>{String.fromCharCode(65+i)}.</span>{op.texto}</button>
               ))}
             </div>
           </div>
@@ -1019,184 +1058,174 @@ export default function MindCode() {
 
   if(tela==="preview"&&perfil) return(
     <div style={bg} ref={top}>
-      <Orb color={perfil.cor} size={480} x="18%" y="-8%" blur={180}/><Orb color="#7C3AED" size={280} x="-8%" y="55%"/>
-      <div style={{position:"relative",zIndex:1,maxWidth:660,margin:"0 auto",padding:"60px 24px",textAlign:"center"}}>
-        {nome&&<div style={{fontSize:13,color:"#4B5563",marginBottom:8}}>Resultado de <span style={{color:"#9CA3AF"}}>{nome}</span></div>}
-        <div style={{fontSize:10,letterSpacing:"0.3em",color:"#4B5563",textTransform:"uppercase",marginBottom:14}}>Seu perfil foi identificado</div>
-        <div style={{fontSize:52,marginBottom:14}}>{perfil.emoji}</div>
-        <h2 style={{fontSize:"clamp(28px,6vw,48px)",fontWeight:400,fontStyle:"italic",margin:"0 0 8px"}}>{perfil.nome}</h2>
-        <div style={{display:"inline-block",padding:"4px 16px",borderRadius:2,border:`1px solid ${perfil.cor}38`,color:perfil.cor,fontSize:11,letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:26}}>{perfilKey}</div>
-        <div style={{width:55,height:1,background:`linear-gradient(90deg,transparent,${perfil.cor},transparent)`,margin:"0 auto 26px"}}/>
-        <p style={{fontSize:17,fontStyle:"italic",color:"#D1D5DB",lineHeight:1.75,marginBottom:12}}>"{perfil.frase}"</p>
-        <p style={{fontSize:14,color:"#6B7280",lineHeight:1.75,maxWidth:480,margin:"0 auto 40px"}}>{perfil.resumo}</p>
-        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:4,padding:"26px 22px",marginBottom:34,textAlign:"left"}}>
-          <div style={{fontSize:11,color:"#2D3748",marginBottom:14,letterSpacing:"0.05em"}}>O relatório completo inclui:</div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px 14px"}}>
+      {themeToggle}
+      <Orb color={cor} size={480} x="18%" y="-8%" blur={180}/><Orb color="#6366F1" size={280} x="-8%" y="55%"/>
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:660,margin:"0 auto",padding:"60px 24px",textAlign:"center"}}>
+        {nome&&<div style={{fontSize:13,color:"var(--faint)",marginBottom:8}}>Resultado de <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span></div>}
+        <div style={{fontSize:12,letterSpacing:"0.24em",color:"var(--faint)",textTransform:"uppercase",marginBottom:16,fontWeight:600}}>Seu perfil foi identificado</div>
+        <h2 style={{fontSize:"clamp(30px,6vw,50px)",fontWeight:800,margin:"0 0 14px",letterSpacing:"-0.02em"}}>{perfil.nome}</h2>
+        <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:24}}>
+          <span style={{padding:"5px 14px",borderRadius:999,background:`${cor}1A`,border:`1px solid ${cor}44`,color:cor,fontSize:12,letterSpacing:"0.04em",fontWeight:600}}>{temperamento}</span>
+          <span style={{padding:"5px 14px",borderRadius:999,background:`${intelCor}1A`,border:`1px solid ${intelCor}44`,color:intelCor,fontSize:12,letterSpacing:"0.04em",fontWeight:600}}>{inteligencia}</span>
+        </div>
+        <p style={{fontSize:18,color:"var(--text)",lineHeight:1.6,marginBottom:12,fontWeight:500}}>“{perfil.frase}”</p>
+        <p style={{fontSize:15,color:"var(--muted)",lineHeight:1.7,maxWidth:480,margin:"0 auto 38px"}}>{perfil.resumo}</p>
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:34,textAlign:"left",boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:12,color:"var(--muted)",marginBottom:14,letterSpacing:"0.04em",fontWeight:600}}>O relatório completo inclui:</div>
+          <div className="mc-grid-2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 14px"}}>
             {["Quem você é — análise profunda","Indo mais fundo","Pontos fortes detalhados","Sua sombra","Você sob pressão","Pontos cegos","Você nos relacionamentos","Carreiras ideais","Fato único sobre seu perfil","Download PDF personalizado"].map(it=>(
-              <div key={it} style={{display:"flex",alignItems:"center",gap:7,fontSize:12,color:"#374151"}}>
-                <div style={{width:4,height:4,borderRadius:"50%",background:"#1F2937",flexShrink:0}}/><span style={{filter:"blur(2px)"}}>{it}</span>
+              <div key={it} style={{display:"flex",alignItems:"center",gap:8,fontSize:13,color:"var(--faint)"}}>
+                <div style={{width:5,height:5,borderRadius:"50%",background:cor,flexShrink:0,opacity:0.55}}/><span style={{filter:"blur(2px)"}}>{it}</span>
               </div>
             ))}
           </div>
-          <div style={{textAlign:"center",marginTop:16,paddingTop:12,borderTop:"1px solid rgba(255,255,255,0.04)",fontSize:11,color:"#2D3748"}}>Conteúdo completo disponível após desbloqueio</div>
+          <div style={{textAlign:"center",marginTop:16,paddingTop:14,borderTop:"1px solid var(--border-2)",fontSize:12,color:"var(--faint)"}}>Conteúdo completo disponível após desbloqueio</div>
         </div>
         {/* ─── CHAMADA PERSUASIVA (PNL) ─── */}
         <div style={{marginBottom:30,textAlign:"left",maxWidth:540,marginLeft:"auto",marginRight:"auto"}}>
-          <h3 style={{fontSize:"clamp(20px,3.4vw,27px)",fontWeight:400,fontStyle:"italic",color:"#f0ede8",lineHeight:1.45,marginBottom:18,textAlign:"center"}}>
+          <h3 style={{fontSize:"clamp(21px,3.4vw,28px)",fontWeight:700,color:"var(--text)",lineHeight:1.35,marginBottom:18,textAlign:"center",letterSpacing:"-0.02em"}}>
             {nome?`${nome}, você acabou de ver apenas a ponta do iceberg.`:"Você acabou de ver apenas a ponta do iceberg."}
           </h3>
-          <p style={{fontSize:15,color:"#C4C0BB",lineHeight:1.85,marginBottom:14}}>
+          <p style={{fontSize:16,color:"var(--muted)",lineHeight:1.8,marginBottom:14}}>
             Tudo o que você sempre sentiu sobre si mesmo — mas nunca conseguiu colocar em palavras — está descrito, com precisão, no seu relatório completo. Não é horóscopo. É o mapa de como a sua mente realmente funciona.
           </p>
-          <p style={{fontSize:15,color:"#C4C0BB",lineHeight:1.85,marginBottom:14}}>
-            <span style={{color:"#f0ede8"}}>Imagine</span> abrir esse documento e finalmente entender por que você reage do jeito que reage, onde está a sua maior força e qual é o ponto cego que vem te custando caro há anos. Quando você se enxerga com clareza, decisões que pareciam difíceis simplesmente se resolvem.
+          <p style={{fontSize:16,color:"var(--muted)",lineHeight:1.8,marginBottom:14}}>
+            <span style={{color:"var(--text)",fontWeight:600}}>Imagine</span> abrir esse documento e finalmente entender por que você reage do jeito que reage, onde está a sua maior força e qual é o ponto cego que vem te custando caro há anos. Quando você se enxerga com clareza, decisões que pareciam difíceis simplesmente se resolvem.
           </p>
-          <p style={{fontSize:15,color:"#9CA3AF",lineHeight:1.85}}>
-            A maioria das pessoas atravessa a vida inteira sem nunca se conhecer de verdade. <span style={{color:"#f0ede8"}}>Você está a um clique de não ser uma delas.</span>
+          <p style={{fontSize:16,color:"var(--muted)",lineHeight:1.8}}>
+            A maioria das pessoas atravessa a vida inteira sem nunca se conhecer de verdade. <span style={{color:"var(--text)",fontWeight:600}}>Você está a um clique de não ser uma delas.</span>
           </p>
         </div>
 
-        <div style={{background:`linear-gradient(135deg,${perfil.cor}10,rgba(124,58,237,0.07))`,border:`1px solid ${perfil.cor}25`,borderRadius:4,padding:"30px 22px",marginBottom:16}}>
-          <div style={{fontSize:11,letterSpacing:"0.18em",color:"#9CA3AF",textTransform:"uppercase",marginBottom:10}}>Seu relatório completo · {perfil.nome}</div>
-          <div style={{display:"flex",alignItems:"baseline",justifyContent:"center",gap:10,marginBottom:4}}>
-            <span style={{fontSize:15,color:"#6B7280",textDecoration:"line-through"}}>R$ 47</span>
-            <span style={{fontSize:36,fontWeight:300,color:perfil.cor}}>R$ 19,90</span>
+        <div style={{background:"var(--surface)",border:`1px solid ${cor}33`,borderRadius:16,padding:"30px 22px",marginBottom:16,boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:12,letterSpacing:"0.14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:12,fontWeight:600}}>Seu relatório completo · {perfil.nome}</div>
+          <div style={{display:"flex",alignItems:"baseline",justifyContent:"center",gap:10,marginBottom:6}}>
+            <span style={{fontSize:16,color:"var(--faint)",textDecoration:"line-through"}}>R$ 47</span>
+            <span style={{fontSize:40,fontWeight:800,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</span>
           </div>
-          <div style={{fontSize:12,color:"#4B5563",marginBottom:22}}>pagamento único · acesso imediato + PDF personalizado para {nome||"você"}</div>
-          <button onClick={()=>ir("pagamento")} style={{background:`linear-gradient(135deg,${perfil.cor},#7C3AED)`,border:"none",color:"white",padding:"17px 44px",fontSize:15,letterSpacing:"0.08em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",width:"100%",fontWeight:600,boxShadow:`0 0 32px ${perfil.cor}45`}}>Quero Conhecer Minha Mente Agora</button>
-          <div style={{fontSize:11,color:"#6B7280",marginTop:14}}>🔒 Compra 100% segura · Você recebe o acesso na hora</div>
+          <div style={{fontSize:13,color:"var(--faint)",marginBottom:22}}>pagamento único · acesso imediato + PDF personalizado para {nome||"você"}</div>
+          <button onClick={()=>ir("pagamento")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Quero Conhecer Minha Mente Agora</button>
+          <div style={{fontSize:12,color:"var(--faint)",marginTop:14,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><LineIcon name="lock" size={13}/> Compra 100% segura · Você recebe o acesso na hora</div>
         </div>
-        <p style={{fontSize:11,color:"#374151"}}>Menos que um café por semana — por algo que você leva para o resto da vida.</p>
+        <p style={{fontSize:12,color:"var(--faint)"}}>Menos que um café por semana — por algo que você leva para o resto da vida.</p>
       </div>
     </div>
   );
 
   if(tela==="pagamento") return(
     <div style={bg} ref={top}>
-      <Orb color="#7C3AED" size={380} x="48%" y="-2%" blur={180}/>
-      <div style={{position:"relative",zIndex:1,maxWidth:460,margin:"0 auto",padding:"60px 24px",textAlign:"center"}}>
-        <button onClick={()=>ir("preview")} style={{background:"none",border:"none",color:"#4B5563",cursor:"pointer",fontSize:12,marginBottom:28,fontFamily:"inherit"}}>← Voltar</button>
-        <div style={{fontSize:10,letterSpacing:"0.3em",color:"#4B5563",textTransform:"uppercase",marginBottom:20}}>Último passo</div>
-        <h2 style={{fontSize:"clamp(23px,4.5vw,30px)",fontWeight:400,fontStyle:"italic",marginBottom:14,lineHeight:1.4}}>{nome?`${nome}, seu relatório já está pronto.`:"Seu relatório já está pronto."}</h2>
-        <p style={{color:"#9CA3AF",fontSize:14,lineHeight:1.8,marginBottom:30,maxWidth:400,marginLeft:"auto",marginRight:"auto"}}>Falta só um PIX para você desbloquear tudo o que descobrimos sobre a sua mente. Em segundos, ele estará na sua tela — e você não vai mais olhar para si mesmo da mesma forma.</p>
-        <div style={{fontSize:10,letterSpacing:"0.25em",color:"#4B5563",textTransform:"uppercase",marginBottom:8}}>Pague com PIX</div>
-        <p style={{color:"#374151",fontSize:13,marginBottom:30}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
-        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:4,padding:28,marginBottom:20}}>
-          <div style={{background:"white",padding:14,borderRadius:3,display:"inline-block",marginBottom:18}}>
-            <div style={{width:150,height:150,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      {themeToggle}
+      <Orb color="#6366F1" size={380} x="48%" y="-2%" blur={180}/>
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:460,margin:"0 auto",padding:"60px 24px",textAlign:"center"}}>
+        <button onClick={()=>ir("preview")} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13,marginBottom:28}}>← Voltar</button>
+        <div style={{fontSize:12,letterSpacing:"0.24em",color:"var(--faint)",textTransform:"uppercase",marginBottom:18,fontWeight:600}}>Último passo</div>
+        <h2 style={{fontSize:"clamp(24px,4.5vw,32px)",fontWeight:700,marginBottom:14,lineHeight:1.3,letterSpacing:"-0.02em"}}>{nome?`${nome}, seu relatório já está pronto.`:"Seu relatório já está pronto."}</h2>
+        <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.75,marginBottom:30,maxWidth:400,marginLeft:"auto",marginRight:"auto"}}>Falta só um PIX para você desbloquear tudo o que descobrimos sobre a sua mente. Em segundos, ele estará na sua tela — e você não vai mais olhar para si mesmo da mesma forma.</p>
+        <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--faint)",textTransform:"uppercase",marginBottom:8,fontWeight:600}}>Pague com PIX</div>
+        <p style={{color:"var(--faint)",fontSize:13,marginBottom:26}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>
+          <div style={{background:"#fff",padding:14,borderRadius:12,display:"inline-block",marginBottom:18,boxShadow:"0 2px 10px rgba(15,23,42,0.10)"}}>
+            <div style={{width:150,height:150,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6}}>
               <svg width="120" height="120" viewBox="0 0 120 120">{[...Array(6)].map((_,r)=>[...Array(6)].map((_,c)=>(<rect key={`${r}-${c}`} x={c*20} y={r*20} width={18} height={18} fill={(r+c)%3===0?"#111":"transparent"} rx={1}/>)))}</svg>
             </div>
           </div>
-          <div style={{fontSize:30,fontWeight:300,color:"#7C3AED",marginBottom:4}}>R$ 19,90</div>
-          <div style={{fontSize:11,color:"#374151",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
-          <button onClick={()=>{ navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136mindcode@email.com.br520400005303986580 2BR5925MindCode6009SAOPAULO62070503***6304ABCD").catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000); }} style={{background:"rgba(124,58,237,0.08)",border:"1px solid rgba(124,58,237,0.22)",color:"#A78BFA",padding:"11px 22px",fontSize:12,cursor:"pointer",borderRadius:2,fontFamily:"inherit",width:"100%"}}>
+          <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+          <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
+          <button onClick={()=>{ navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136mindcode@email.com.br520400005303986580 2BR5925MindCode6009SAOPAULO62070503***6304ABCD").catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000); }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
             {pixOk?"✓ Código copiado!":"Copiar código PIX"}
           </button>
         </div>
-        <div style={{background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:3,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:12,color:"#4B5563",lineHeight:2.1}}>
+        <div style={{background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:13,color:"var(--muted)",lineHeight:2}}>
           <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 19,90</div>
         </div>
-        <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:26,fontSize:11,color:"#6B7280"}}>
-          <span>✓ Acesso imediato</span><span style={{color:"#2D3748"}}>·</span><span>✓ PDF para sempre</span><span style={{color:"#2D3748"}}>·</span><span>✓ Pagamento único</span>
+        <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:24,fontSize:12,color:"var(--faint)"}}>
+          <span>✓ Acesso imediato</span><span style={{color:"var(--ghost)"}}>·</span><span>✓ PDF para sempre</span><span style={{color:"var(--ghost)"}}>·</span><span>✓ Pagamento único</span>
         </div>
-        <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#059669,#047857)",border:"none",color:"white",padding:"17px 44px",fontSize:15,letterSpacing:"0.08em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",width:"100%",fontWeight:600,boxShadow:"0 0 28px rgba(5,150,105,0.3)"}}>Já paguei · Liberar meu resultado</button>
-        <p style={{fontSize:12,color:"#4B5563",marginTop:16,fontStyle:"italic"}}>O autoconhecimento é a única decisão que você nunca se arrepende de tomar.</p>
-        <p style={{fontSize:10,color:"#1F2937",marginTop:10}}>Em produção: confirmação automática via webhook PIX</p>
+        <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#10B981,#059669)",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(16,185,129,0.32)"}}>Já paguei · Liberar meu resultado</button>
+        <p style={{fontSize:13,color:"var(--faint)",marginTop:16}}>O autoconhecimento é a única decisão que você nunca se arrepende de tomar.</p>
+        <p style={{fontSize:11,color:"var(--ghost)",marginTop:10}}>Em produção: confirmação automática via webhook PIX</p>
       </div>
     </div>
   );
 
   if(tela==="resultado"&&perfil) return(
     <div style={bg} ref={top}>
-      <Orb color={perfil.cor} size={580} x="8%" y="-4%" blur={200}/><Orb color="#7C3AED" size={380} x="58%" y="48%" blur={150}/>
-      <div style={{position:"relative",zIndex:1,maxWidth:700,margin:"0 auto",padding:"60px 24px 80px"}}>
-        <div style={{textAlign:"center",marginBottom:54}}>
-          <div style={{fontSize:10,letterSpacing:"0.3em",color:"#4B5563",textTransform:"uppercase",marginBottom:14}}>MindCode · Perfil Completo</div>
-          {nome&&<div style={{fontSize:14,color:"#4B5563",marginBottom:12}}>Análise de <span style={{color:"#C4C0BB",fontStyle:"italic"}}>{nome}</span></div>}
-          <div style={{fontSize:58,marginBottom:14}}>{perfil.emoji}</div>
-          <h1 style={{fontSize:"clamp(32px,6vw,56px)",fontWeight:400,fontStyle:"italic",margin:"0 0 10px"}}>{perfil.nome}</h1>
-          <div style={{display:"inline-block",padding:"4px 18px",border:`1px solid ${perfil.cor}50`,color:perfil.cor,fontSize:10,letterSpacing:"0.25em",textTransform:"uppercase",marginBottom:26}}>{perfilKey}</div>
-          <div style={{width:72,height:1,background:`linear-gradient(90deg,transparent,${perfil.cor},transparent)`,margin:"0 auto 26px"}}/>
-          <p style={{fontSize:"clamp(15px,2.3vw,18px)",fontStyle:"italic",color:"#E5E7EB",lineHeight:1.8,maxWidth:530,margin:"0 auto 10px"}}>"{perfil.frase}"</p>
-          <p style={{fontSize:14,color:"#6B7280",fontStyle:"italic",maxWidth:470,margin:"0 auto"}}>{perfil.resumo}</p>
+      {themeToggle}
+      <Orb color={cor} size={580} x="8%" y="-4%" blur={200}/><Orb color="#6366F1" size={380} x="58%" y="48%" blur={150}/>
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:720,margin:"0 auto",padding:"60px 24px 80px"}}>
+        <div style={{textAlign:"center",marginBottom:50}}>
+          <div style={{fontSize:12,letterSpacing:"0.24em",color:"var(--faint)",textTransform:"uppercase",marginBottom:14,fontWeight:600}}>MindCode · Perfil Completo</div>
+          {nome&&<div style={{fontSize:14,color:"var(--faint)",marginBottom:14}}>Análise de <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span></div>}
+          <h1 style={{fontSize:"clamp(34px,6vw,58px)",fontWeight:800,margin:"0 0 16px",letterSpacing:"-0.02em"}}>{perfil.nome}</h1>
+          <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:24}}>
+            <span style={{padding:"6px 16px",borderRadius:999,background:`${cor}1A`,border:`1px solid ${cor}44`,color:cor,fontSize:12,letterSpacing:"0.04em",fontWeight:600}}>{temperamento}</span>
+            <span style={{padding:"6px 16px",borderRadius:999,background:`${intelCor}1A`,border:`1px solid ${intelCor}44`,color:intelCor,fontSize:12,letterSpacing:"0.04em",fontWeight:600}}>{inteligencia}</span>
+          </div>
+          <p style={{fontSize:"clamp(16px,2.3vw,19px)",color:"var(--text)",lineHeight:1.6,maxWidth:540,margin:"0 auto 10px",fontWeight:500}}>“{perfil.frase}”</p>
+          <p style={{fontSize:15,color:"var(--muted)",maxWidth:480,margin:"0 auto",lineHeight:1.7}}>{perfil.resumo}</p>
         </div>
 
         {/* BASE TEÓRICA */}
-        <div style={{background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:6,padding:"28px 26px",marginBottom:36}}>
-          <div style={{fontSize:10,letterSpacing:"0.28em",color:"#6B7280",textTransform:"uppercase",marginBottom:22}}>A origem do seu perfil</div>
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:18,padding:"28px 26px",marginBottom:36,boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--muted)",textTransform:"uppercase",marginBottom:22,fontWeight:700}}>A origem do seu perfil</div>
           <div style={{display:"flex",flexDirection:"column",gap:20}}>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                <div style={{width:28,height:28,borderRadius:"50%",background:`${perfil.cor}18`,border:`1px solid ${perfil.cor}35`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  <span style={{fontSize:13}}>🌡</span>
+            {[["temperamento",cor,`Seu temperamento — ${temperamento}`,perfil.base.arquetipo],
+              ["inteligencia",intelCor,`Sua inteligência dominante — ${inteligencia}`,perfil.base.inteligencia],
+              ["combinacao","#6366F1","Como eles se combinam em você",perfil.base.combinacao]].map(([ic,c,label,texto],idx)=>(
+              <div key={ic}>
+                {idx>0&&<div style={{height:1,background:"var(--border-2)",marginBottom:20}}/>}
+                <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:10}}>
+                  <div style={{width:30,height:30,borderRadius:9,background:`${c}18`,border:`1px solid ${c}38`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:c}}>
+                    <LineIcon name={ic} size={16}/>
+                  </div>
+                  <span style={{fontSize:12,letterSpacing:"0.1em",textTransform:"uppercase",color:c,fontWeight:700}}>{label}</span>
                 </div>
-                <span style={{fontSize:11,letterSpacing:"0.15em",textTransform:"uppercase",color:perfil.cor}}>Seu temperamento — {perfilKey.split("-")[0]}</span>
+                <p style={{fontSize:15,lineHeight:1.8,color:"var(--muted)",margin:0,paddingLeft:41}}>{texto}</p>
               </div>
-              <p style={{fontSize:14,lineHeight:1.85,color:"#9CA3AF",margin:0,paddingLeft:38}}>{perfil.base.arquetipo}</p>
-            </div>
-            <div style={{height:1,background:"rgba(255,255,255,0.04)"}}/>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                <div style={{width:28,height:28,borderRadius:"50%",background:`${perfil.cor}18`,border:`1px solid ${perfil.cor}35`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  <span style={{fontSize:13}}>🧠</span>
-                </div>
-                <span style={{fontSize:11,letterSpacing:"0.15em",textTransform:"uppercase",color:perfil.cor}}>Sua inteligência dominante — {perfilKey.split("-")[1]}</span>
-              </div>
-              <p style={{fontSize:14,lineHeight:1.85,color:"#9CA3AF",margin:0,paddingLeft:38}}>{perfil.base.inteligencia}</p>
-            </div>
-            <div style={{height:1,background:"rgba(255,255,255,0.04)"}}/>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                <div style={{width:28,height:28,borderRadius:"50%",background:`${perfil.cor}25`,border:`1px solid ${perfil.cor}50`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  <span style={{fontSize:13}}>⚡</span>
-                </div>
-                <span style={{fontSize:11,letterSpacing:"0.15em",textTransform:"uppercase",color:perfil.cor}}>Como eles se combinam em você</span>
-              </div>
-              <p style={{fontSize:14,lineHeight:1.85,color:"#C4C0BB",margin:0,paddingLeft:38}}>{perfil.base.combinacao}</p>
-            </div>
+            ))}
           </div>
         </div>
 
-        <Sec title="Quem você é" cor={perfil.cor}>
-          <p style={{fontSize:15,lineHeight:1.9,color:"#D1D5DB",marginBottom:14}}>{perfil.descricao}</p>
-          <p style={{fontSize:15,lineHeight:1.9,color:"#C4C0BB"}}>{perfil.descricao2}</p>
+        <Sec title="Quem você é" cor={cor}>
+          <p style={{fontSize:16,lineHeight:1.85,color:"var(--text)",marginBottom:14}}>{perfil.descricao}</p>
+          <p style={{fontSize:16,lineHeight:1.85,color:"var(--muted)"}}>{perfil.descricao2}</p>
         </Sec>
-        <Sec title="Seus pontos fortes" cor={perfil.cor}>
-          {perfil.forcas.map((f,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:13,alignItems:"flex-start"}}><div style={{width:17,height:17,borderRadius:"50%",background:`${perfil.cor}15`,border:`1px solid ${perfil.cor}35`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:5,height:5,borderRadius:"50%",background:perfil.cor}}/></div><p style={{fontSize:14,lineHeight:1.75,color:"#D1D5DB",margin:0}}>{f}</p></div>))}
+        <Sec title="Seus pontos fortes" cor={cor}>
+          {perfil.forcas.map((f,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:13,alignItems:"flex-start"}}><div style={{width:18,height:18,borderRadius:"50%",background:`${cor}1A`,border:`1px solid ${cor}40`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:5,height:5,borderRadius:"50%",background:cor}}/></div><p style={{fontSize:15,lineHeight:1.7,color:"var(--text)",margin:0}}>{f}</p></div>))}
         </Sec>
-        <Sec title="Sua sombra — o que você evita ver" cor={perfil.cor}>
-          {perfil.sombra.map((s,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:13,alignItems:"flex-start"}}><div style={{width:17,height:17,borderRadius:"50%",background:"rgba(239,68,68,0.07)",border:"1px solid rgba(239,68,68,0.22)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:5,height:5,borderRadius:"50%",background:"#EF4444"}}/></div><p style={{fontSize:14,lineHeight:1.75,color:"#D1D5DB",margin:0}}>{s}</p></div>))}
+        <Sec title="Sua sombra — o que você evita ver" cor={cor}>
+          {perfil.sombra.map((s,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:13,alignItems:"flex-start"}}><div style={{width:18,height:18,borderRadius:"50%",background:"rgba(239,68,68,0.10)",border:"1px solid rgba(239,68,68,0.30)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:5,height:5,borderRadius:"50%",background:"#EF4444"}}/></div><p style={{fontSize:15,lineHeight:1.7,color:"var(--text)",margin:0}}>{s}</p></div>))}
         </Sec>
-        <Sec title="Você sob pressão" cor={perfil.cor}><p style={{fontSize:15,lineHeight:1.9,color:"#D1D5DB"}}>{perfil.sobrePressao}</p></Sec>
-        <Sec title="Seus pontos cegos" cor={perfil.cor}><p style={{fontSize:15,lineHeight:1.9,color:"#D1D5DB"}}>{perfil.pontosCegos}</p></Sec>
-        <Sec title="Você nos relacionamentos" cor={perfil.cor}><p style={{fontSize:15,lineHeight:1.9,color:"#D1D5DB"}}>{perfil.relacoes}</p></Sec>
-        <Sec title="Onde você prospera" cor={perfil.cor}>
-          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>{perfil.carreiras.map((c,i)=>(<span key={i} style={{padding:"7px 14px",background:`${perfil.cor}10`,border:`1px solid ${perfil.cor}25`,borderRadius:2,fontSize:12,color:"#D1D5DB"}}>{c}</span>))}</div>
+        <Sec title="Você sob pressão" cor={cor}><p style={{fontSize:16,lineHeight:1.85,color:"var(--text)"}}>{perfil.sobrePressao}</p></Sec>
+        <Sec title="Seus pontos cegos" cor={cor}><p style={{fontSize:16,lineHeight:1.85,color:"var(--text)"}}>{perfil.pontosCegos}</p></Sec>
+        <Sec title="Você nos relacionamentos" cor={cor}><p style={{fontSize:16,lineHeight:1.85,color:"var(--text)"}}>{perfil.relacoes}</p></Sec>
+        <Sec title="Onde você prospera" cor={cor}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>{perfil.carreiras.map((c,i)=>(<span key={i} style={{padding:"8px 14px",background:`${cor}14`,border:`1px solid ${cor}33`,borderRadius:999,fontSize:13,color:"var(--text)"}}>{c}</span>))}</div>
         </Sec>
-        <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:4,padding:"22px 24px",marginBottom:32}}>
-          <div style={{fontSize:10,letterSpacing:"0.25em",color:perfil.cor,textTransform:"uppercase",marginBottom:12}}>Fato sobre seu perfil</div>
-          <p style={{fontSize:15,fontStyle:"italic",lineHeight:1.85,color:"#E5E7EB",margin:0}}>{perfil.fatoCurioso}</p>
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 24px",marginBottom:24,boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:11,letterSpacing:"0.2em",color:intelCor,textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Fato sobre seu perfil</div>
+          <p style={{fontSize:16,lineHeight:1.8,color:"var(--text)",margin:0}}>{perfil.fatoCurioso}</p>
         </div>
-        <div style={{background:`linear-gradient(135deg,${perfil.cor}08,rgba(124,58,237,0.06))`,border:`1px solid ${perfil.cor}20`,borderRadius:4,padding:"24px 24px",marginBottom:46}}>
-          <div style={{fontSize:10,letterSpacing:"0.25em",color:perfil.cor,textTransform:"uppercase",marginBottom:12}}>Para levar</div>
-          <p style={{fontSize:16,fontStyle:"italic",lineHeight:1.85,color:"#E5E7EB",margin:0}}>{perfil.afirmacao}</p>
+        <div style={{background:"var(--surface)",border:`1px solid ${cor}33`,borderRadius:16,padding:"24px 24px",marginBottom:46,boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:11,letterSpacing:"0.2em",color:cor,textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Para levar</div>
+          <p style={{fontSize:17,lineHeight:1.75,color:"var(--text)",margin:0,fontWeight:500}}>{perfil.afirmacao}</p>
         </div>
 
-        <div style={{borderTop:"1px solid rgba(255,255,255,0.05)",paddingTop:34,textAlign:"center"}}>
-          <div style={{fontSize:10,letterSpacing:"0.15em",color:"#374151",marginBottom:18,textTransform:"uppercase"}}>Salve e compartilhe</div>
-          <button onClick={baixarPDF} disabled={gerando} style={{background:gerando?"rgba(255,255,255,0.03)":`linear-gradient(135deg,${perfil.cor},#7C3AED)`,border:"none",color:gerando?"#374151":"white",padding:"15px 40px",fontSize:14,letterSpacing:"0.1em",cursor:gerando?"default":"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",marginBottom:18,boxShadow:gerando?"none":`0 0 28px ${perfil.cor}28`,width:"100%",maxWidth:380,display:"block",margin:"0 auto 18px"}}>
-            {gerando?"Gerando PDF...":"⬇  Baixar PDF Personalizado"}
+        <div style={{borderTop:"1px solid var(--border)",paddingTop:34,textAlign:"center"}}>
+          <div style={{fontSize:11,letterSpacing:"0.14em",color:"var(--faint)",marginBottom:18,textTransform:"uppercase",fontWeight:600}}>Salve e compartilhe</div>
+          <button onClick={baixarPDF} disabled={gerando} style={{background:gerando?"var(--surface-2)":"linear-gradient(135deg,var(--cta),var(--cta-2))",border:gerando?"1px solid var(--border)":"none",color:gerando?"var(--faint)":"#fff",padding:"16px 40px",fontSize:15,letterSpacing:"0.01em",cursor:gerando?"default":"pointer",borderRadius:12,fontWeight:600,marginBottom:18,boxShadow:gerando?"none":"0 10px 30px rgba(99,102,241,0.30)",width:"100%",maxWidth:380,display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginLeft:"auto",marginRight:"auto"}}>
+            {gerando?"Gerando PDF...":(<><LineIcon name="download" size={18}/> Baixar PDF Personalizado</>)}
           </button>
           <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
             {["WhatsApp","Instagram","TikTok","Copiar link"].map(b=>(
-              <button key={b} onClick={()=>compartilhar(b)} style={{background:copiado===b?"rgba(124,58,237,0.12)":"rgba(255,255,255,0.025)",border:copiado===b?"1px solid rgba(124,58,237,0.35)":"1px solid rgba(255,255,255,0.07)",color:copiado===b?"#A78BFA":"#9CA3AF",padding:"10px 18px",fontSize:11,cursor:"pointer",borderRadius:2,fontFamily:"inherit",letterSpacing:"0.08em",transition:"all 0.2s",display:"flex",alignItems:"center",gap:7}}
-                onMouseEnter={e=>{ if(copiado!==b){e.currentTarget.style.borderColor="rgba(124,58,237,0.3)";e.currentTarget.style.color="#D1D5DB";} }}
-                onMouseLeave={e=>{ if(copiado!==b){e.currentTarget.style.borderColor="rgba(255,255,255,0.07)";e.currentTarget.style.color="#9CA3AF";} }}
+              <button key={b} onClick={()=>compartilhar(b)} style={{background:copiado===b?"rgba(99,102,241,0.10)":"var(--surface)",border:copiado===b?"1px solid var(--cta)":"1px solid var(--border)",color:copiado===b?"var(--cta)":"var(--muted)",padding:"11px 18px",fontSize:12,cursor:"pointer",borderRadius:10,letterSpacing:"0.02em",transition:"all 0.2s",display:"flex",alignItems:"center",gap:7,fontWeight:500,boxShadow:"var(--shadow)"}}
+                onMouseEnter={e=>{ if(copiado!==b){e.currentTarget.style.borderColor="var(--cta)";} }}
+                onMouseLeave={e=>{ if(copiado!==b){e.currentTarget.style.borderColor="var(--border)";} }}
               ><BrandIcon name={b}/>{copiado===b?(b==="Copiar link"?"Link copiado!":"Legenda copiada!"):b}</button>
             ))}
           </div>
-          <p style={{marginTop:12,fontSize:10,color:"#374151",lineHeight:1.6}}>No Instagram e TikTok, a legenda é copiada automaticamente — é só colar na sua publicação.</p>
-          {nome&&<p style={{marginTop:26,fontSize:12,color:"#1F2937",fontStyle:"italic"}}>Análise gerada para <span style={{color:"#2D3748"}}>{nome}</span> · MindCode</p>}
+          <p style={{marginTop:12,fontSize:11,color:"var(--faint)",lineHeight:1.6}}>No Instagram e TikTok, a legenda é copiada automaticamente — é só colar na sua publicação.</p>
+          {nome&&<p style={{marginTop:26,fontSize:12,color:"var(--faint)"}}>Análise gerada para <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span> · MindCode</p>}
         </div>
       </div>
     </div>
