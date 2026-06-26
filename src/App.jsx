@@ -332,7 +332,9 @@ const questions = [
   { id:5, texto:"Como você aprende melhor?", opcoes:[{texto:"Lendo, pesquisando e estruturando o conhecimento",tipo:"logica"},{texto:"Observando e conversando com quem já sabe",tipo:"interpessoal"},{texto:"Escrevendo, explicando ou ensinando para alguém",tipo:"linguistica"},{texto:"Experimentando, errando e descobrindo na prática",tipo:"criativa"}]},
   { id:6, texto:"Qual dessas frases mais representa você?", opcoes:[{texto:"Eu prefiro ser respeitado a ser querido",tipo:"colerico"},{texto:"Eu prefiro paz a ter razão",tipo:"fleumatico"},{texto:"Eu prefiro estar cercado de pessoas a estar sozinho",tipo:"sanguineo"},{texto:"Eu prefiro profundidade a popularidade",tipo:"melancolico"}]},
   { id:7, texto:"Diante de uma decisão importante, você:", opcoes:[{texto:"Confia nos dados e na lógica acima de tudo",tipo:"logica"},{texto:"Considera como vai afetar as pessoas envolvidas",tipo:"interpessoal"},{texto:"Pensa em como vai comunicar e justificar a decisão",tipo:"linguistica"},{texto:"Busca uma terceira via que ninguém considerou",tipo:"criativa"}]},
-  { id:8, texto:"Qual é sua maior fonte de energia?", opcoes:[{texto:"Conquistar metas e superar desafios",tipo:"colerico"},{texto:"Ambientes estáveis e relacionamentos seguros",tipo:"fleumatico"},{texto:"Interações sociais e novas conexões",tipo:"sanguineo"},{texto:"Tempo sozinho para pensar e criar",tipo:"melancolico"}]}
+  { id:8, texto:"Qual é sua maior fonte de energia?", opcoes:[{texto:"Conquistar metas e superar desafios",tipo:"colerico"},{texto:"Ambientes estáveis e relacionamentos seguros",tipo:"fleumatico"},{texto:"Interações sociais e novas conexões",tipo:"sanguineo"},{texto:"Tempo sozinho para pensar e criar",tipo:"melancolico"}]},
+  { id:9, texto:"Quando você tem uma tarde inteira só para você, o que te atrai primeiro?", opcoes:[{texto:"Desvendar como algo funciona — montar, calcular ou resolver",tipo:"logica"},{texto:"Encontrar pessoas, ouvir histórias e fortalecer laços",tipo:"interpessoal"},{texto:"Ler, escrever ou mergulhar em uma conversa profunda",tipo:"linguistica"},{texto:"Criar, imaginar ou dar forma a algo que ainda não existe",tipo:"criativa"}]},
+  { id:10, texto:"No fundo, o que mais te move quando ninguém está olhando?", opcoes:[{texto:"A vontade de vencer e provar do que sou capaz",tipo:"colerico"},{texto:"O desejo de paz e de seguir no meu próprio ritmo",tipo:"fleumatico"},{texto:"A busca por emoção, novidade e pessoas",tipo:"sanguineo"},{texto:"A necessidade de dar sentido profundo ao que vivo",tipo:"melancolico"}]}
 ];
 
 function calcularPerfil(respostas) {
@@ -464,6 +466,26 @@ const Orb=({color,size,x,y,blur=120})=>(<div style={{position:"absolute",borderR
 const Sec=({title,cor,children})=>(<div style={{marginBottom:34}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}><div style={{width:3,height:16,background:cor,borderRadius:2,flexShrink:0}}/><h3 style={{fontSize:10,letterSpacing:"0.25em",textTransform:"uppercase",color:"#9CA3AF",margin:0}}>{title}</h3></div>{children}</div>);
 const bg={minHeight:"100vh",background:"#060409",fontFamily:"'Georgia','Times New Roman',serif",color:"#f0ede8",position:"relative",overflow:"hidden"};
 
+/* ─── Ícones oficiais das marcas (SVG) ─── */
+const BrandIcon=({name,size=16})=>{
+  if(name==="WhatsApp") return(
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="#25D366" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.477-.999zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413z"/></svg>
+  );
+  if(name==="Instagram") return(
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
+      <defs><linearGradient id="igGrad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#FED576"/><stop offset="26%" stopColor="#F47133"/><stop offset="61%" stopColor="#BC3081"/><stop offset="100%" stopColor="#4C63D2"/></linearGradient></defs>
+      <path fill="url(#igGrad)" d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.336 3.608 1.311.975.975 1.249 2.242 1.311 3.608.058 1.266.069 1.646.069 4.85s-.012 3.584-.07 4.85c-.062 1.366-.336 2.633-1.311 3.608-.975.975-2.242 1.249-3.608 1.311-1.266.058-1.646.069-4.85.069s-3.584-.012-4.85-.07c-1.366-.062-2.633-.336-3.608-1.311-.975-.975-1.249-2.242-1.311-3.608C2.175 15.585 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.336-2.633 1.311-3.608.975-.975 2.242-1.249 3.608-1.311C8.418 2.175 8.797 2.163 12 2.163zm0 1.802c-3.15 0-3.522.012-4.764.069-1.024.047-1.58.218-1.95.362-.49.19-.84.418-1.207.785-.367.367-.595.717-.785 1.207-.144.37-.315.926-.362 1.95-.057 1.242-.069 1.614-.069 4.764s.012 3.522.069 4.764c.047 1.024.218 1.58.362 1.95.19.49.418.84.785 1.207.367.367.717.595 1.207.785.37.144.926.315 1.95.362 1.242.057 1.614.069 4.764.069s3.522-.012 4.764-.069c1.024-.047 1.58-.218 1.95-.362.49-.19.84-.418 1.207-.785.367-.367.595-.717.785-1.207.144-.37.315-.926.362-1.95.057-1.242.069-1.614.069-4.764s-.012-3.522-.069-4.764c-.047-1.024-.218-1.58-.362-1.95-.19-.49-.418-.84-.785-1.207-.367-.367-.717-.595-1.207-.785-.37-.144-.926-.315-1.95-.362-1.242-.057-1.614-.069-4.764-.069zm0 3.064a4.971 4.971 0 110 9.942 4.971 4.971 0 010-9.942zm0 8.198a3.227 3.227 0 100-6.454 3.227 3.227 0 000 6.454zm6.323-8.392a1.162 1.162 0 11-2.324 0 1.162 1.162 0 012.324 0z"/>
+    </svg>
+  );
+  if(name==="TikTok") return(
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true"><path fill="#fff" d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+  );
+  // Copiar link — ícone de corrente/link
+  return(
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+  );
+};
+
 export default function MindCode() {
   const [tela,setTela]=useState("intro");
   const [pergunta,setPergunta]=useState(0);
@@ -475,6 +497,7 @@ export default function MindCode() {
   const [anim,setAnim]=useState(false);
   const [pixOk,setPixOk]=useState(false);
   const [gerando,setGerando]=useState(false);
+  const [copiado,setCopiado]=useState(null);
   const top=useRef(null);
   const perfil=perfilKey?profiles[perfilKey]:null;
   const prog=Math.round((respostas.filter(r=>r!==null).length/questions.length)*100);
@@ -500,6 +523,30 @@ export default function MindCode() {
     setGerando(false);
   }
 
+  // ─── Compartilhamento ───
+  const linkSite = "https://mindcode.app";
+  function compartilhar(rede) {
+    const texto = perfil
+      ? `Acabei de descobrir meu perfil no MindCode: ${perfil.nome} (${perfilKey}). "${perfil.frase}" Descubra o seu 👇`
+      : "Descobri meu perfil no MindCode. Descubra o seu 👇";
+    const full = `${texto} ${linkSite}`;
+    const feedback = r => { setCopiado(r); setTimeout(() => setCopiado(null), 2500); };
+
+    if (rede === "WhatsApp") {
+      window.open(`https://wa.me/?text=${encodeURIComponent(full)}`, "_blank", "noopener");
+    } else if (rede === "Copiar link") {
+      navigator.clipboard?.writeText(linkSite).catch(() => {});
+      feedback(rede);
+    } else {
+      // Instagram e TikTok não aceitam texto pré-preenchido via web:
+      // copiamos a legenda e abrimos o app/site para o usuário colar.
+      navigator.clipboard?.writeText(full).catch(() => {});
+      feedback(rede);
+      const dest = rede === "Instagram" ? "https://www.instagram.com" : "https://www.tiktok.com";
+      window.open(dest, "_blank", "noopener");
+    }
+  }
+
   if(tela==="intro") return(
     <div style={bg} ref={top}>
       <Orb color="#7C3AED" size={500} x="-8%" y="-8%"/><Orb color="#DB2777" size={380} x="58%" y="28%"/><Orb color="#1D4ED8" size={280} x="18%" y="68%"/>
@@ -509,7 +556,7 @@ export default function MindCode() {
         <div style={{width:60,height:1,background:"linear-gradient(90deg,transparent,#7C3AED,transparent)",margin:"22px auto"}}/>
         <p style={{fontSize:"clamp(15px,2.3vw,19px)",color:"#C4C0BB",maxWidth:500,lineHeight:1.8,margin:"0 0 44px",fontStyle:"italic"}}>Descubra o código único da sua mente — onde seu temperamento encontra sua inteligência dominante.</p>
         <div style={{display:"flex",gap:36,marginBottom:44,flexWrap:"wrap",justifyContent:"center"}}>
-          {[["8","perguntas"],["16","perfis únicos"],["5","minutos"]].map(([n,l])=>(
+          {[["10","perguntas"],["16","perfis únicos"],["5","minutos"]].map(([n,l])=>(
             <div key={l} style={{textAlign:"center"}}><div style={{fontSize:26,fontWeight:300,color:"#7C3AED"}}>{n}</div><div style={{fontSize:11,color:"#4B5563",letterSpacing:"0.1em"}}>{l}</div></div>
           ))}
         </div>
@@ -588,12 +635,33 @@ export default function MindCode() {
           </div>
           <div style={{textAlign:"center",marginTop:16,paddingTop:12,borderTop:"1px solid rgba(255,255,255,0.04)",fontSize:11,color:"#2D3748"}}>Conteúdo completo disponível após desbloqueio</div>
         </div>
-        <div style={{background:`linear-gradient(135deg,${perfil.cor}10,rgba(124,58,237,0.07))`,border:`1px solid ${perfil.cor}25`,borderRadius:4,padding:"26px 22px",marginBottom:26}}>
-          <div style={{fontSize:30,fontWeight:300,color:perfil.cor,marginBottom:4}}>R$ 19,90</div>
-          <div style={{fontSize:12,color:"#4B5563",marginBottom:22}}>acesso completo + PDF personalizado</div>
-          <button onClick={()=>ir("pagamento")} style={{background:`linear-gradient(135deg,${perfil.cor},#7C3AED)`,border:"none",color:"white",padding:"15px 44px",fontSize:14,letterSpacing:"0.1em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",width:"100%",boxShadow:`0 0 28px ${perfil.cor}35`}}>Desbloquear Perfil Completo</button>
+        {/* ─── CHAMADA PERSUASIVA (PNL) ─── */}
+        <div style={{marginBottom:30,textAlign:"left",maxWidth:540,marginLeft:"auto",marginRight:"auto"}}>
+          <h3 style={{fontSize:"clamp(20px,3.4vw,27px)",fontWeight:400,fontStyle:"italic",color:"#f0ede8",lineHeight:1.45,marginBottom:18,textAlign:"center"}}>
+            {nome?`${nome}, você acabou de ver apenas a ponta do iceberg.`:"Você acabou de ver apenas a ponta do iceberg."}
+          </h3>
+          <p style={{fontSize:15,color:"#C4C0BB",lineHeight:1.85,marginBottom:14}}>
+            Tudo o que você sempre sentiu sobre si mesmo — mas nunca conseguiu colocar em palavras — está descrito, com precisão, no seu relatório completo. Não é horóscopo. É o mapa de como a sua mente realmente funciona.
+          </p>
+          <p style={{fontSize:15,color:"#C4C0BB",lineHeight:1.85,marginBottom:14}}>
+            <span style={{color:"#f0ede8"}}>Imagine</span> abrir esse documento e finalmente entender por que você reage do jeito que reage, onde está a sua maior força e qual é o ponto cego que vem te custando caro há anos. Quando você se enxerga com clareza, decisões que pareciam difíceis simplesmente se resolvem.
+          </p>
+          <p style={{fontSize:15,color:"#9CA3AF",lineHeight:1.85}}>
+            A maioria das pessoas atravessa a vida inteira sem nunca se conhecer de verdade. <span style={{color:"#f0ede8"}}>Você está a um clique de não ser uma delas.</span>
+          </p>
         </div>
-        <p style={{fontSize:11,color:"#1F2937"}}>Pagamento único · Sem recorrência · Resultado imediato</p>
+
+        <div style={{background:`linear-gradient(135deg,${perfil.cor}10,rgba(124,58,237,0.07))`,border:`1px solid ${perfil.cor}25`,borderRadius:4,padding:"30px 22px",marginBottom:16}}>
+          <div style={{fontSize:11,letterSpacing:"0.18em",color:"#9CA3AF",textTransform:"uppercase",marginBottom:10}}>Seu relatório completo · {perfil.nome}</div>
+          <div style={{display:"flex",alignItems:"baseline",justifyContent:"center",gap:10,marginBottom:4}}>
+            <span style={{fontSize:15,color:"#6B7280",textDecoration:"line-through"}}>R$ 47</span>
+            <span style={{fontSize:36,fontWeight:300,color:perfil.cor}}>R$ 19,90</span>
+          </div>
+          <div style={{fontSize:12,color:"#4B5563",marginBottom:22}}>pagamento único · acesso imediato + PDF personalizado para {nome||"você"}</div>
+          <button onClick={()=>ir("pagamento")} style={{background:`linear-gradient(135deg,${perfil.cor},#7C3AED)`,border:"none",color:"white",padding:"17px 44px",fontSize:15,letterSpacing:"0.08em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",width:"100%",fontWeight:600,boxShadow:`0 0 32px ${perfil.cor}45`}}>Quero Conhecer Minha Mente Agora</button>
+          <div style={{fontSize:11,color:"#6B7280",marginTop:14}}>🔒 Compra 100% segura · Você recebe o acesso na hora</div>
+        </div>
+        <p style={{fontSize:11,color:"#374151"}}>Menos que um café por semana — por algo que você leva para o resto da vida.</p>
       </div>
     </div>
   );
@@ -603,10 +671,11 @@ export default function MindCode() {
       <Orb color="#7C3AED" size={380} x="48%" y="-2%" blur={180}/>
       <div style={{position:"relative",zIndex:1,maxWidth:460,margin:"0 auto",padding:"60px 24px",textAlign:"center"}}>
         <button onClick={()=>ir("preview")} style={{background:"none",border:"none",color:"#4B5563",cursor:"pointer",fontSize:12,marginBottom:28,fontFamily:"inherit"}}>← Voltar</button>
-        <div style={{fontSize:10,letterSpacing:"0.3em",color:"#4B5563",textTransform:"uppercase",marginBottom:20}}>Desbloqueio do Perfil</div>
-        <h2 style={{fontSize:26,fontWeight:400,fontStyle:"italic",marginBottom:6}}>Pague com PIX</h2>
-        {nome&&<p style={{color:"#4B5563",fontSize:13,marginBottom:4}}>Perfil de <span style={{color:"#9CA3AF"}}>{nome}</span></p>}
-        <p style={{color:"#374151",fontSize:13,marginBottom:36}}>Aprovação imediata · Seguro · Sem cadastro</p>
+        <div style={{fontSize:10,letterSpacing:"0.3em",color:"#4B5563",textTransform:"uppercase",marginBottom:20}}>Último passo</div>
+        <h2 style={{fontSize:"clamp(23px,4.5vw,30px)",fontWeight:400,fontStyle:"italic",marginBottom:14,lineHeight:1.4}}>{nome?`${nome}, seu relatório já está pronto.`:"Seu relatório já está pronto."}</h2>
+        <p style={{color:"#9CA3AF",fontSize:14,lineHeight:1.8,marginBottom:30,maxWidth:400,marginLeft:"auto",marginRight:"auto"}}>Falta só um PIX para você desbloquear tudo o que descobrimos sobre a sua mente. Em segundos, ele estará na sua tela — e você não vai mais olhar para si mesmo da mesma forma.</p>
+        <div style={{fontSize:10,letterSpacing:"0.25em",color:"#4B5563",textTransform:"uppercase",marginBottom:8}}>Pague com PIX</div>
+        <p style={{color:"#374151",fontSize:13,marginBottom:30}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
         <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:4,padding:28,marginBottom:20}}>
           <div style={{background:"white",padding:14,borderRadius:3,display:"inline-block",marginBottom:18}}>
             <div style={{width:150,height:150,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -619,11 +688,15 @@ export default function MindCode() {
             {pixOk?"✓ Código copiado!":"Copiar código PIX"}
           </button>
         </div>
-        <div style={{background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:3,padding:"18px 22px",marginBottom:28,textAlign:"left",fontSize:12,color:"#4B5563",lineHeight:2.1}}>
+        <div style={{background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:3,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:12,color:"#4B5563",lineHeight:2.1}}>
           <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 19,90</div>
         </div>
-        <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#059669,#047857)",border:"none",color:"white",padding:"15px 44px",fontSize:14,letterSpacing:"0.1em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",width:"100%",boxShadow:"0 0 28px rgba(5,150,105,0.25)"}}>Já realizei o pagamento</button>
-        <p style={{fontSize:10,color:"#1F2937",marginTop:14}}>Em produção: confirmação automática via webhook PIX</p>
+        <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:26,fontSize:11,color:"#6B7280"}}>
+          <span>✓ Acesso imediato</span><span style={{color:"#2D3748"}}>·</span><span>✓ PDF para sempre</span><span style={{color:"#2D3748"}}>·</span><span>✓ Pagamento único</span>
+        </div>
+        <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#059669,#047857)",border:"none",color:"white",padding:"17px 44px",fontSize:15,letterSpacing:"0.08em",cursor:"pointer",borderRadius:2,fontFamily:"inherit",textTransform:"uppercase",width:"100%",fontWeight:600,boxShadow:"0 0 28px rgba(5,150,105,0.3)"}}>Já paguei · Liberar meu resultado</button>
+        <p style={{fontSize:12,color:"#4B5563",marginTop:16,fontStyle:"italic"}}>O autoconhecimento é a única decisão que você nunca se arrepende de tomar.</p>
+        <p style={{fontSize:10,color:"#1F2937",marginTop:10}}>Em produção: confirmação automática via webhook PIX</p>
       </div>
     </div>
   );
@@ -710,8 +783,14 @@ export default function MindCode() {
             {gerando?"Gerando PDF...":"⬇  Baixar PDF Personalizado"}
           </button>
           <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
-            {["WhatsApp","Instagram","Copiar link"].map(b=>(<button key={b} style={{background:"rgba(255,255,255,0.025)",border:"1px solid rgba(255,255,255,0.07)",color:"#4B5563",padding:"10px 18px",fontSize:11,cursor:"pointer",borderRadius:2,fontFamily:"inherit",letterSpacing:"0.08em"}}>{b}</button>))}
+            {["WhatsApp","Instagram","TikTok","Copiar link"].map(b=>(
+              <button key={b} onClick={()=>compartilhar(b)} style={{background:copiado===b?"rgba(124,58,237,0.12)":"rgba(255,255,255,0.025)",border:copiado===b?"1px solid rgba(124,58,237,0.35)":"1px solid rgba(255,255,255,0.07)",color:copiado===b?"#A78BFA":"#9CA3AF",padding:"10px 18px",fontSize:11,cursor:"pointer",borderRadius:2,fontFamily:"inherit",letterSpacing:"0.08em",transition:"all 0.2s",display:"flex",alignItems:"center",gap:7}}
+                onMouseEnter={e=>{ if(copiado!==b){e.currentTarget.style.borderColor="rgba(124,58,237,0.3)";e.currentTarget.style.color="#D1D5DB";} }}
+                onMouseLeave={e=>{ if(copiado!==b){e.currentTarget.style.borderColor="rgba(255,255,255,0.07)";e.currentTarget.style.color="#9CA3AF";} }}
+              ><BrandIcon name={b}/>{copiado===b?(b==="Copiar link"?"Link copiado!":"Legenda copiada!"):b}</button>
+            ))}
           </div>
+          <p style={{marginTop:12,fontSize:10,color:"#374151",lineHeight:1.6}}>No Instagram e TikTok, a legenda é copiada automaticamente — é só colar na sua publicação.</p>
           {nome&&<p style={{marginTop:26,fontSize:12,color:"#1F2937",fontStyle:"italic"}}>Análise gerada para <span style={{color:"#2D3748"}}>{nome}</span> · MindCode</p>}
         </div>
       </div>
