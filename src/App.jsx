@@ -1,4 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+
+/* Liga o fluxo de pagamento real (Mercado Pago). Enquanto false, usa o
+   fluxo simulado — assim o app funciona antes do deploy das Cloud Functions. */
+const PAGAMENTOS_ON = import.meta.env.VITE_PAYMENTS_ENABLED === "true";
 
 /* ─── PERFIS ─────────────────────────────────────────────────────────────── */
 const profiles = {
@@ -922,6 +926,12 @@ export default function MindCode() {
   const [gerando,setGerando]=useState(false);
   const [copiado,setCopiado]=useState(null);
   const [tema,setTema]=useState(()=> (typeof document!=="undefined" && document.documentElement.getAttribute("data-theme")) || "light");
+  // Pagamento real (Mercado Pago PIX)
+  const [email,setEmail]=useState("");
+  const [pix,setPix]=useState(null);          // { paymentId, qrCode, qrCodeBase64, ... }
+  const [pixLoading,setPixLoading]=useState(false);
+  const [pixErro,setPixErro]=useState(null);
+  const [pagStatus,setPagStatus]=useState(null); // status vindo do Firestore
   const top=useRef(null);
   const perfil=perfilKey?profiles[perfilKey]:null;
   const temperamento=perfilKey?perfilKey.split("-")[0]:null;
@@ -987,6 +997,33 @@ export default function MindCode() {
       window.open(dest, "_blank", "noopener");
     }
   }
+
+  async function gerarPix(){
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setPixErro("Digite um e-mail válido para enviar o acesso."); return; }
+    setPixErro(null); setPixLoading(true);
+    try{
+      const { criarPagamentoPix } = await import("./payment.js");
+      const data = await criarPagamentoPix({ profileKey: perfilKey, nome, email });
+      setPix(data); setPagStatus(data.status||"pending");
+    }catch(e){
+      setPixErro("Não foi possível gerar o PIX agora. Tente novamente em instantes.");
+    }
+    setPixLoading(false);
+  }
+  // Escuta o status do pagamento; libera o resultado quando aprovado.
+  useEffect(()=>{
+    if(!PAGAMENTOS_ON || !pix?.paymentId) return;
+    let unsub;
+    (async()=>{
+      const { observarPagamento } = await import("./payment.js");
+      unsub = observarPagamento(pix.paymentId,(d)=>{
+        if(!d) return;
+        setPagStatus(d.status);
+        if(d.status==="approved") ir("resultado");
+      });
+    })();
+    return ()=>{ if(unsub) unsub(); };
+  },[pix]);
 
   if(tela==="intro") return(
     <div style={bg} ref={top}>
@@ -1123,27 +1160,68 @@ export default function MindCode() {
         <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.75,marginBottom:30,maxWidth:400,marginLeft:"auto",marginRight:"auto"}}>Falta só um PIX para você desbloquear tudo o que descobrimos sobre a sua mente. Em segundos, ele estará na sua tela — e você não vai mais olhar para si mesmo da mesma forma.</p>
         <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--faint)",textTransform:"uppercase",marginBottom:8,fontWeight:600}}>Pague com PIX</div>
         <p style={{color:"var(--faint)",fontSize:13,marginBottom:26}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
-        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>
-          <div style={{background:"#fff",padding:14,borderRadius:12,display:"inline-block",marginBottom:18,boxShadow:"0 2px 10px rgba(15,23,42,0.10)"}}>
-            <div style={{width:150,height:150,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6}}>
-              <svg width="120" height="120" viewBox="0 0 120 120">{[...Array(6)].map((_,r)=>[...Array(6)].map((_,c)=>(<rect key={`${r}-${c}`} x={c*20} y={r*20} width={18} height={18} fill={(r+c)%3===0?"#111":"transparent"} rx={1}/>)))}</svg>
+
+        {PAGAMENTOS_ON ? (
+          /* ─── FLUXO REAL · Mercado Pago ─── */
+          !pix ? (
+            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:20,boxShadow:"var(--shadow)"}}>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Seu melhor e-mail para o acesso" inputMode="email" autoComplete="email"
+                style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",color:"var(--text)",fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
+              {pixErro&&<div style={{fontSize:13,color:"#EF4444",marginBottom:12}}>{pixErro}</div>}
+              <button onClick={gerarPix} disabled={pixLoading} style={{background:pixLoading?"var(--surface-2)":"linear-gradient(135deg,var(--cta),var(--cta-2))",border:pixLoading?"1px solid var(--border)":"none",color:pixLoading?"var(--faint)":"#fff",padding:"15px 22px",fontSize:15,cursor:pixLoading?"default":"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
+                {pixLoading?"Gerando PIX...":"Gerar PIX e pagar"}
+              </button>
+              <p style={{fontSize:11,color:"var(--faint)",marginTop:12,lineHeight:1.6}}>Enviaremos a confirmação e o acesso para o seu e-mail. Pagamento processado pelo Mercado Pago.</p>
             </div>
-          </div>
-          <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
-          <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
-          <button onClick={()=>{ navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136mindcode@email.com.br520400005303986580 2BR5925MindCode6009SAOPAULO62070503***6304ABCD").catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000); }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
-            {pixOk?"✓ Código copiado!":"Copiar código PIX"}
-          </button>
-        </div>
-        <div style={{background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:13,color:"var(--muted)",lineHeight:2}}>
-          <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 19,90</div>
-        </div>
-        <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginBottom:24,fontSize:12,color:"var(--faint)"}}>
+          ) : (
+            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>
+              {pix.qrCodeBase64&&(
+                <div style={{background:"#fff",padding:14,borderRadius:12,display:"inline-block",marginBottom:18,boxShadow:"0 2px 10px rgba(15,23,42,0.10)"}}>
+                  <img src={`data:image/png;base64,${pix.qrCodeBase64}`} alt="QR Code PIX" width={170} height={170} style={{display:"block",borderRadius:6}}/>
+                </div>
+              )}
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:12,color:"var(--faint)",marginBottom:16}}>Escaneie o QR ou use o copia-e-cola</div>
+              <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600,marginBottom:14}}>
+                {pixOk?"✓ Código copiado!":"Copiar código PIX (copia-e-cola)"}
+              </button>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:13,color:pagStatus==="approved"?"#10B981":"var(--muted)"}}>
+                {pagStatus==="approved"
+                  ? <span>✓ Pagamento aprovado! Liberando seu resultado...</span>
+                  : (pagStatus==="rejected"||pagStatus==="cancelled")
+                    ? <span style={{color:"#EF4444"}}>Pagamento não aprovado. <button onClick={()=>{setPix(null);setPagStatus(null);}} style={{background:"none",border:"none",color:"var(--cta)",cursor:"pointer",fontSize:13,textDecoration:"underline"}}>Tentar de novo</button></span>
+                    : <><span style={{width:9,height:9,borderRadius:"50%",background:"#F59E0B",display:"inline-block"}}/> Aguardando confirmação do pagamento...</>}
+              </div>
+            </div>
+          )
+        ) : (
+          /* ─── FLUXO SIMULADO (até deploy das Functions) ─── */
+          <>
+            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>
+              <div style={{background:"#fff",padding:14,borderRadius:12,display:"inline-block",marginBottom:18,boxShadow:"0 2px 10px rgba(15,23,42,0.10)"}}>
+                <div style={{width:150,height:150,background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:6}}>
+                  <svg width="120" height="120" viewBox="0 0 120 120">{[...Array(6)].map((_,r)=>[...Array(6)].map((_,c)=>(<rect key={`${r}-${c}`} x={c*20} y={r*20} width={18} height={18} fill={(r+c)%3===0?"#111":"transparent"} rx={1}/>)))}</svg>
+                </div>
+              </div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
+              <button onClick={()=>{ navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136mindcode@email.com.br520400005303986580 2BR5925MindCode6009SAOPAULO62070503***6304ABCD").catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000); }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
+                {pixOk?"✓ Código copiado!":"Copiar código PIX"}
+              </button>
+            </div>
+            <div style={{background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:13,color:"var(--muted)",lineHeight:2}}>
+              <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 19,90</div>
+            </div>
+            <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#10B981,#059669)",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(16,185,129,0.32)"}}>Já paguei · Liberar meu resultado</button>
+          </>
+        )}
+
+        <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginTop:24,marginBottom:24,fontSize:12,color:"var(--faint)"}}>
           <span>✓ Acesso imediato</span><span style={{color:"var(--ghost)"}}>·</span><span>✓ PDF para sempre</span><span style={{color:"var(--ghost)"}}>·</span><span>✓ Pagamento único</span>
         </div>
-        <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#10B981,#059669)",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(16,185,129,0.32)"}}>Já paguei · Liberar meu resultado</button>
-        <p style={{fontSize:13,color:"var(--faint)",marginTop:16}}>O autoconhecimento é a única decisão que você nunca se arrepende de tomar.</p>
-        <p style={{fontSize:11,color:"var(--ghost)",marginTop:10}}>Em produção: confirmação automática via webhook PIX</p>
+        <p style={{fontSize:13,color:"var(--faint)"}}>O autoconhecimento é a única decisão que você nunca se arrepende de tomar.</p>
       </div>
     </div>
   );

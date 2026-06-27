@@ -6,6 +6,8 @@
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -18,6 +20,10 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
+
+// Firestore (status do pagamento) e Functions (mesma região das CFs).
+export const db = getFirestore(app);
+export const functions = getFunctions(app, "southamerica-east1");
 
 // Analytics só inicializa no browser e se o ambiente suportar
 // (evita exceções em SSR / navegadores sem suporte / modo privado).

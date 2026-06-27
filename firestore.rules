@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cobranças PIX. O cliente só LÊ o status do seu pagamento pelo id
+    // (id do Mercado Pago, não-adivinhável). NINGUÉM grava pelo cliente —
+    // apenas as Cloud Functions (admin SDK) escrevem o status. Isso impede
+    // que alguém falsifique "approved" e libere o relatório sem pagar.
+    match /payments/{paymentId} {
+      allow get: if true;
+      allow list, create, update, delete: if false;
+    }
+
+    // Bloqueia o resto por padrão.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
