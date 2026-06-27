@@ -18,12 +18,13 @@ A segurança vem das **Firestore Rules** (cliente só lê, nunca escreve o statu
    cd functions && npm install && cd ..
    ```
 
-3. **Token do Mercado Pago** (Suas integrações → Checkout Transparente):
+3. **Credenciais do Mercado Pago** (Suas integrações → Checkout Transparente):
    ```bash
-   firebase functions:secrets:set MP_ACCESS_TOKEN
-   # (opcional) validação de assinatura do webhook:
-   firebase functions:secrets:set MP_WEBHOOK_SECRET
+   firebase functions:secrets:set MP_ACCESS_TOKEN      # token PRIVADO (servidor)
+   firebase functions:secrets:set MP_WEBHOOK_SECRET    # opcional (assinatura webhook)
    ```
+   E a **chave pública** no frontend (cartão usa MP.js): defina
+   `VITE_MP_PUBLIC_KEY` no `.env.local` e nas envs do deploy do front.
    > Em dev local com emulador, use `functions/.env` (veja `.env.example`).
 
 4. **Deploy** (rules + functions):
@@ -41,8 +42,18 @@ A segurança vem das **Firestore Rules** (cliente só lê, nunca escreve o statu
 7. **Ligar o fluxo real** no frontend: definir `VITE_PAYMENTS_ENABLED=true`
    (no `.env.local` e nas envs do deploy do front) e fazer o build.
 
-## Pendência de segurança (paywall)
-Hoje o **conteúdo do relatório está no bundle** do cliente. Gatear o *unlock*
-pelo pagamento já impede o caminho "normal", mas alguém técnico ainda lê o JSON
-no source. Para fechar 100%, sirva o relatório completo por uma Function que só
-o entrega após confirmar `approved` (mover `descricao/forcas/...` para o servidor).
+## Paywall (fechado ✓)
+O conteúdo completo dos relatórios **não está mais no bundle**: vive em
+`functions/profiles.js` (servidor) e é entregue pela Function **`getReport`**, que
+só responde se `payments/{id}.status === "approved"`. O cliente recebe apenas
+teasers (`src/profilesPreview.js`). Em desenvolvimento, há um fallback local que o
+Rollup **remove do build de produção** (verificado: 0 ocorrências do conteúdo pago
+no bundle final).
+
+## Métodos de pagamento
+- **PIX**: `createPixPayment` → QR (copia-e-cola + base64) → webhook confirma.
+- **Cartão**: Brick do Mercado Pago (MP.js) tokeniza o cartão no cliente (o número
+  nunca passa pelo seu servidor) → `createCardPayment` cria o pagamento.
+
+Ative o fluxo real com `VITE_PAYMENTS_ENABLED=true` (o cartão também exige
+`VITE_MP_PUBLIC_KEY`).
