@@ -161,9 +161,8 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
 });
 
 /* ─── Webhook ───────────────────────────────────────────────────────── */
-// Para validar a assinatura (opcional): crie o secret MP_WEBHOOK_SECRET e
-// adicione-o ao array `secrets` abaixo, depois redeploy.
-export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN"] }, async (req, res) => {
+// Valida a assinatura HMAC (x-signature) do MP usando MP_WEBHOOK_SECRET.
+export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] }, async (req, res) => {
   try {
     const secret = process.env.MP_WEBHOOK_SECRET;
     if (secret && !assinaturaValida(req, secret)) {
