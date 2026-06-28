@@ -299,7 +299,8 @@ export default function MindCode() {
         const controller = await mp.bricks().create("cardPayment","mc-card-brick",{
           initialization:{ amount: 19.90 },
           callbacks:{
-            onError:()=>{ if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão."); },
+            onReady:()=>{ if(!cancel) setCardErro(null); },
+            onError:(e)=>{ console.error("[MP cardPayment onError]", e); if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Tente novamente."); },
             onSubmit:(fd)=> (async()=>{
               setCardErro(null); setCardMsg("Processando pagamento...");
               try{
@@ -319,7 +320,7 @@ export default function MindCode() {
           },
         });
         brickRef.current = controller;
-      }catch(e){ if(!cancel) setCardErro("Erro ao iniciar o pagamento por cartão."); }
+      }catch(e){ console.error("[MP cardPayment create]", e); if(!cancel) setCardErro("Não foi possível iniciar o pagamento por cartão. Recarregue a página."); }
     })();
     return ()=>{ cancel=true; try{ if(brickRef.current&&brickRef.current.unmount) brickRef.current.unmount(); }catch(e){} brickRef.current=null; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
