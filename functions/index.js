@@ -1,13 +1,14 @@
 /**
- * MindCode — Cloud Functions (PIX + Cartão · Mercado Pago Checkout Transparente)
+ * MindCode — Cloud Functions (PIX + Cartão · Mercado Pago)
  *
  *  createPixPayment  — cria cobrança PIX, grava payments/{id}, devolve QR.
  *  createCardPayment — cria pagamento com cartão (token gerado no cliente via MP.js).
- *  mpWebhook         — recebe notificação do MP, revalida na API e atualiza status.
+ *  mpWebhook         — recebe notificação do MP, revalida e atualiza status.
  *  getReport         — entrega o relatório COMPLETO só se o pagamento está aprovado.
  *
- * Segurança: token do MP só no servidor; cliente nunca escreve status (Rules);
- * o conteúdo pago não vai no bundle — é servido aqui após `approved`.
+ * Usa o SDK oficial do Mercado Pago (recurso server-side). Cada pagamento leva:
+ *  - external_reference: ID interno único (correlaciona com o payment_id do MP).
+ *  - additional_info.items (com description): melhora a aprovação/antifraude.
  */
 
 import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
@@ -15,6 +16,7 @@ import { setGlobalOptions } from "firebase-functions/v2";
 import * as logger from "firebase-functions/logger";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { MercadoPagoConfig, Payment } from "mercadopago";
 import crypto from "node:crypto";
 import { profiles } from "./profiles.js";
 
@@ -22,9 +24,30 @@ initializeApp();
 const db = getFirestore();
 setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
-const MP_API = "https://api.mercadopago.com";
 const price = () => Number(process.env.MINDCODE_PRICE || "19.90");
 const token = () => process.env.MP_ACCESS_TOKEN || "";
+
+/* Cliente de pagamentos do SDK (token só existe no servidor, em runtime). */
+function paymentApi() {
+  return new Payment(new MercadoPagoConfig({ accessToken: token(), options: { timeout: 8000 } }));
+}
+
+/* Bloco additional_info.items (recomendado pelo MP para aprovação). */
+function itemsInfo(profileKey, nome) {
+  return {
+    items: [
+      {
+        id: profileKey,
+        title: "MindCode - Relatorio de Perfil",
+        description: `Relatorio completo de autoconhecimento do perfil ${profileKey} (MindCode)`,
+        category_id: "services",
+        quantity: 1,
+        unit_price: price(),
+      },
+    ],
+    payer: nome ? { first_name: String(nome).slice(0, 60) } : undefined,
+  };
+}
 
 /* Grava/atualiza o doc do pagamento a partir da resposta do MP. */
 async function salvarPagamento(mp, extra = {}) {
@@ -36,12 +59,22 @@ async function salvarPagamento(mp, extra = {}) {
       statusDetail: mp.status_detail || null,
       method: mp.payment_type_id || null,
       amount: mp.transaction_amount || price(),
+      externalReference: mp.external_reference || null,
       updatedAt: FieldValue.serverTimestamp(),
       ...extra,
     },
     { merge: true }
   );
   return id;
+}
+
+/* Extrai uma mensagem útil de um erro do SDK do MP (para log). */
+function mpErr(e) {
+  return {
+    message: e && e.message,
+    status: e && (e.status || e.statusCode),
+    cause: (e && (e.cause || (e.error && e.error.causes))) || null,
+  };
 }
 
 /* ─── PIX ───────────────────────────────────────────────────────────── */
@@ -53,33 +86,29 @@ export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (
   if (!profiles[profileKey]) throw new HttpsError("invalid-argument", "Perfil inválido.");
   if (!token()) throw new HttpsError("failed-precondition", "Pagamento não configurado.");
 
+  const externalRef = `mindcode_${crypto.randomUUID()}`;
   let mp;
   try {
-    const resp = await fetch(`${MP_API}/v1/payments`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token()}`,
-        "Content-Type": "application/json",
-        "X-Idempotency-Key": crypto.randomUUID(),
-      },
-      body: JSON.stringify({
+    mp = await paymentApi().create({
+      body: {
         transaction_amount: price(),
         description: `MindCode - Relatorio ${profileKey}`,
         payment_method_id: "pix",
+        external_reference: externalRef,
         payer: { email: String(email).slice(0, 120), first_name: String(nome || "Cliente").slice(0, 40) },
-      }),
+        additional_info: itemsInfo(profileKey, nome),
+      },
+      requestOptions: { idempotencyKey: crypto.randomUUID() },
     });
-    mp = await resp.json();
-    if (!resp.ok) { logger.error("MP PIX erro", mp); throw new HttpsError("internal", "Falha ao criar a cobrança PIX."); }
   } catch (e) {
-    if (e instanceof HttpsError) throw e;
-    logger.error("MP PIX exceção", e);
-    throw new HttpsError("internal", "Falha ao contatar o Mercado Pago.");
+    logger.error("MP PIX erro", mpErr(e));
+    throw new HttpsError("internal", "Falha ao criar a cobrança PIX.");
   }
 
   const tx = (mp.point_of_interaction && mp.point_of_interaction.transaction_data) || {};
   const id = await salvarPagamento(mp, {
-    profileKey, nome: nome || null, email, createdAt: FieldValue.serverTimestamp(),
+    profileKey, nome: nome || null, email, externalReference: externalRef,
+    createdAt: FieldValue.serverTimestamp(),
   });
   return {
     paymentId: id,
@@ -103,41 +132,37 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
     payer.identification = { type: identification.type, number: String(identification.number) };
   }
 
+  const externalRef = `mindcode_${crypto.randomUUID()}`;
   let mp;
   try {
-    const resp = await fetch(`${MP_API}/v1/payments`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token()}`,
-        "Content-Type": "application/json",
-        "X-Idempotency-Key": crypto.randomUUID(),
-      },
-      body: JSON.stringify({
+    mp = await paymentApi().create({
+      body: {
         transaction_amount: price(),
         description: `MindCode - Relatorio ${profileKey}`,
         token: cardToken,
         installments: Number(installments) || 1,
         payment_method_id: paymentMethodId,
+        external_reference: externalRef,
         payer,
-      }),
+        additional_info: itemsInfo(profileKey, nome),
+      },
+      requestOptions: { idempotencyKey: crypto.randomUUID() },
     });
-    mp = await resp.json();
-    if (!resp.ok) { logger.error("MP cartão erro", mp); throw new HttpsError("internal", "Pagamento com cartão recusado."); }
   } catch (e) {
-    if (e instanceof HttpsError) throw e;
-    logger.error("MP cartão exceção", e);
-    throw new HttpsError("internal", "Falha ao contatar o Mercado Pago.");
+    logger.error("MP cartão erro", mpErr(e));
+    throw new HttpsError("internal", "Pagamento com cartão recusado.");
   }
 
   const id = await salvarPagamento(mp, {
-    profileKey, nome: nome || null, email, createdAt: FieldValue.serverTimestamp(),
+    profileKey, nome: nome || null, email, externalReference: externalRef,
+    createdAt: FieldValue.serverTimestamp(),
   });
   return { paymentId: id, status: mp.status, statusDetail: mp.status_detail || null };
 });
 
 /* ─── Webhook ───────────────────────────────────────────────────────── */
-// Para ligar a validação de assinatura (opcional): crie o secret
-// MP_WEBHOOK_SECRET e adicione-o ao array `secrets` abaixo, depois redeploy.
+// Para validar a assinatura (opcional): crie o secret MP_WEBHOOK_SECRET e
+// adicione-o ao array `secrets` abaixo, depois redeploy.
 export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN"] }, async (req, res) => {
   try {
     const secret = process.env.MP_WEBHOOK_SECRET;
@@ -151,14 +176,19 @@ export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN"] }, async (req,
     if (type !== "payment" || !mpId) { res.status(200).send("ignored"); return; }
     if (!token()) { res.status(200).send("not-configured"); return; }
 
-    const r = await fetch(`${MP_API}/v1/payments/${mpId}`, { headers: { Authorization: `Bearer ${token()}` } });
-    const pay = await r.json();
-    if (!r.ok) { logger.error("MP get erro", pay); res.status(200).send("error"); return; }
+    let pay;
+    try {
+      pay = await paymentApi().get({ id: mpId });
+    } catch (e) {
+      logger.error("MP get erro", mpErr(e));
+      res.status(200).send("error"); // 200 evita reenvio infinito do MP
+      return;
+    }
 
     await salvarPagamento(pay);
     res.status(200).send("ok");
   } catch (e) {
-    logger.error("Webhook exceção", e);
+    logger.error("Webhook exceção", e && e.message);
     res.status(200).send("error");
   }
 });
@@ -177,7 +207,7 @@ export const getReport = onCall(async (request) => {
   if (pay.profileKey && pay.profileKey !== profileKey) {
     throw new HttpsError("permission-denied", "Pagamento não corresponde a este perfil.");
   }
-  return profile; // conteúdo completo
+  return profile;
 });
 
 /* Valida HMAC do header x-signature do Mercado Pago. */
