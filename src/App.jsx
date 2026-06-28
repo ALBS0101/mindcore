@@ -80,77 +80,82 @@ async function gerarPDF(perfil, perfilKey, nome) {
   doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(240,237,232);
   doc.text(nome||"Você", M+10, y+16);
   y=270; doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(60,55,70);
-  doc.text("mindcode.app  ·  Perfil completo e exclusivo", M, y);
+  doc.text("mindcode.web.app  ·  Perfil completo e exclusivo", M, y);
 
-  const drawSection=(title,content,isArr=false)=>{
-    checkY(32);
-    doc.setFillColor(pr,pg,pb); doc.rect(M,y,3,14,"F");
-    doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(pr,pg,pb);
-    doc.text(title.toUpperCase(), M+8, y+5);
-    doc.setDrawColor(40,35,55); doc.setLineWidth(0.15); doc.line(M+8,y+8,W-M,y+8);
-    y+=18;
-    if(isArr){ content.forEach(item=>{ checkY(14); doc.setFillColor(pr,pg,pb); doc.circle(M+3,y-1.5,1.1,"F"); doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(195,190,183); wrap(item,CW-10).forEach((l,i)=>{ if(i>0) checkY(7); doc.text(l,M+8,y); y+=6; }); y+=2; });
-    } else { doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(195,190,183); wrap(content,CW).forEach(l=>{ checkY(7); doc.text(l,M,y); y+=6; }); }
-    y+=8;
+  const drawSection=(title,content,opts={})=>{
+    const list=opts.list, col=opts.color||[pr,pg,pb];
+    checkY(36);
+    doc.setFillColor(col[0],col[1],col[2]); doc.roundedRect(M,y,3.5,15,1,1,"F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(col[0],col[1],col[2]);
+    doc.text(title.toUpperCase(), M+9, y+6);
+    doc.setDrawColor(45,40,60); doc.setLineWidth(0.2); doc.line(M+9,y+10.5,W-M,y+10.5);
+    y+=20;
+    if(list){
+      content.forEach(item=>{ checkY(16); doc.setFillColor(col[0],col[1],col[2]); doc.circle(M+3.2,y-1.4,1.5,"F"); doc.setFont("helvetica","normal"); doc.setFontSize(10.5); doc.setTextColor(208,205,199); wrap(item,CW-12).forEach((l,i)=>{ if(i>0) checkY(7.5); doc.text(l,M+9,y); y+=6.6; }); y+=4.5; });
+    } else {
+      doc.setFont("helvetica","normal"); doc.setFontSize(10.5); doc.setTextColor(208,205,199); wrap(content,CW).forEach(l=>{ checkY(7.5); doc.text(l,M,y); y+=6.8; });
+    }
+    y+=12;
   };
 
   const pageHeader=()=>{ doc.setFillColor(8,5,15); doc.rect(0,0,W,297,"F"); doc.setFillColor(pr,pg,pb); doc.rect(0,0,5,297,"F"); doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(pr,pg,pb); doc.text("MINDCODE",M,y); doc.setFont("helvetica","normal"); doc.setTextColor(70,65,85); doc.text(`  ·  ${perfil.nome}`,M+22,y); doc.setDrawColor(25,20,35); doc.setLineWidth(0.15); doc.line(M,y+3,W-M,y+3); y+=14; };
 
   addPage(); pageHeader();
-  doc.setFont("helvetica","italic"); doc.setFontSize(12); doc.setTextColor(pr,pg,pb);
-  wrap(perfil.resumo,CW).forEach(l=>{ doc.text(l,M,y); y+=7; }); y+=10;
+  doc.setFont("helvetica","italic"); doc.setFontSize(12.5); doc.setTextColor(pr,pg,pb);
+  wrap(perfil.resumo,CW).forEach(l=>{ doc.text(l,M,y); y+=7.5; }); y+=13;
 
   // BASE TEÓRICA
-  checkY(20);
-  doc.setFillColor(pr,pg,pb); doc.rect(M,y,3,14,"F");
-  doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(pr,pg,pb);
-  doc.text("A ORIGEM DO SEU PERFIL", M+8, y+5);
-  doc.setDrawColor(40,35,55); doc.setLineWidth(0.15); doc.line(M+8,y+8,W-M,y+8);
-  y+=18;
+  checkY(24);
+  doc.setFillColor(pr,pg,pb); doc.roundedRect(M,y,3.5,15,1,1,"F");
+  doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(pr,pg,pb);
+  doc.text("A ORIGEM DO SEU PERFIL", M+9, y+6);
+  doc.setDrawColor(45,40,60); doc.setLineWidth(0.2); doc.line(M+9,y+10.5,W-M,y+10.5);
+  y+=20;
   [["Seu temperamento — "+perfilKey.split("-")[0], perfil.base.arquetipo],
    ["Sua inteligência dominante — "+perfilKey.split("-")[1], perfil.base.inteligencia],
    ["Como eles se combinam em você", perfil.base.combinacao]
   ].forEach(([label,text])=>{
-    checkY(14);
-    doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(pr,pg,pb);
+    checkY(18);
+    doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(pr,pg,pb);
     doc.text(label.toUpperCase(), M, y); y+=7;
-    doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(155,150,143);
-    wrap(text,CW).forEach(l=>{ checkY(7); doc.text(l,M,y); y+=6; });
-    y+=8;
+    doc.setFont("helvetica","normal"); doc.setFontSize(10.5); doc.setTextColor(172,168,161);
+    wrap(text,CW).forEach(l=>{ checkY(7.5); doc.text(l,M,y); y+=6.6; });
+    y+=9;
   });
-  y+=4;
+  y+=5;
 
   drawSection("Quem você é",perfil.descricao);
   drawSection("Indo mais fundo",perfil.descricao2);
 
   addPage(); pageHeader();
-  drawSection("Seus pontos fortes",perfil.forcas,true);
-  drawSection("Sua sombra — o que você evita ver",perfil.sombra,true);
+  drawSection("Seus pontos fortes",perfil.forcas,{list:true,color:[37,99,235]});
+  drawSection("Sua sombra — o que você evita ver",perfil.sombra,{list:true,color:[239,68,68]});
 
   addPage(); pageHeader();
   drawSection("Você sob pressão",perfil.sobrePressao);
   drawSection("Seus pontos cegos",perfil.pontosCegos);
   drawSection("Você nos relacionamentos",perfil.relacoes);
-  drawSection("Onde você prospera",perfil.carreiras,true);
+  drawSection("Onde você prospera",perfil.carreiras,{list:true});
 
   addPage(); pageHeader();
   drawSection("Fato sobre seu perfil",perfil.fatoCurioso);
-  checkY(42);
-  doc.setFillColor(pr,pg,pb); doc.setLineWidth(0.4); doc.setDrawColor(pr,pg,pb);
-  doc.roundedRect(M,y,CW,38,3,3,"S");
-  doc.setFont("helvetica","bold"); doc.setFontSize(7.5); doc.setTextColor(pr,pg,pb); doc.text("PARA LEVAR",M+8,y+8);
-  doc.setFont("helvetica","italic"); doc.setFontSize(10.5); doc.setTextColor(215,210,203);
-  wrap(perfil.afirmacao,CW-16).forEach((l,i)=>{ doc.text(l,M+8,y+16+(i*7)); });
-  y=268; doc.setDrawColor(25,20,35); doc.setLineWidth(0.15); doc.line(M,y,W-M,y); y+=5;
-  doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(55,50,65);
-  doc.text("mindcode.app  ·  Este relatório é pessoal e intransferível",M,y);
+  const afLines=wrap(perfil.afirmacao,CW-18); const boxH=Math.max(40, 22+afLines.length*7);
+  checkY(boxH+6);
+  doc.setFillColor(pr,pg,pb); doc.setLineWidth(0.5); doc.setDrawColor(pr,pg,pb);
+  doc.roundedRect(M,y,CW,boxH,3,3,"S");
+  doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(pr,pg,pb); doc.text("PARA LEVAR",M+9,y+10);
+  doc.setFont("helvetica","italic"); doc.setFontSize(11.5); doc.setTextColor(220,216,209);
+  afLines.forEach((l,i)=>{ doc.text(l,M+9,y+19+(i*7)); });
+  y=270; doc.setDrawColor(25,20,35); doc.setLineWidth(0.15); doc.line(M,y,W-M,y); y+=5;
+  doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(60,55,70);
+  doc.text("mindcode.web.app  ·  Este relatório é pessoal e intransferível",M,y);
   if(nome) doc.text(nome,W-M,y,{align:"right"});
 
   doc.save(`MindCode_${perfil.nome.replace(/\s/g,"_")}_${(nome||"perfil").replace(/\s/g,"_")}.pdf`);
 }
 
 const Orb=({color,size,x,y,blur=120})=>(<div style={{position:"absolute",borderRadius:"50%",background:color,width:size,height:size,left:x,top:y,filter:`blur(${blur}px)`,opacity:"var(--orb-op)",pointerEvents:"none"}}/>);
-const Sec=({title,cor,children})=>(<div style={{marginBottom:34}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}><div style={{width:3,height:16,background:cor,borderRadius:2,flexShrink:0}}/><h3 style={{fontSize:11,letterSpacing:"0.22em",textTransform:"uppercase",color:"var(--muted)",margin:0,fontWeight:700}}>{title}</h3></div>{children}</div>);
+const Sec=({title,cor,children})=>(<div style={{marginBottom:36}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:15}}><div style={{width:4,height:18,background:cor,borderRadius:2,flexShrink:0}}/><h3 style={{fontSize:12.5,letterSpacing:"0.2em",textTransform:"uppercase",color:"var(--muted)",margin:0,fontWeight:700}}>{title}</h3></div>{children}</div>);
 const bg={minHeight:"100vh",background:"var(--bg)",color:"var(--text)",position:"relative",overflow:"hidden",transition:"background 0.3s ease,color 0.3s ease"};
 
 /* Paleta por temperamento (acentos do resultado) */
@@ -261,27 +266,82 @@ export default function MindCode() {
   }
 
   // ─── Compartilhamento ───
-  const linkSite = "https://mindcode.app";
-  function compartilhar(rede) {
+  const linkSite = "https://mindcode.web.app";
+
+  // Gera um card (imagem 1080x1350) com o NOME do perfil em DESTAQUE + frase de impacto.
+  async function gerarImagemPerfil() {
+    if (!perfil) return null;
+    try { await document.fonts.ready; } catch (e) {}
+    const W = 1080, H = 1350, cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext("2d");
+    const split = (text, max) => {
+      const ws = String(text).split(" "); let l = "", o = [];
+      for (const w of ws) { const t = l ? l + " " + w : w; if (ctx.measureText(t).width > max && l) { o.push(l); l = w; } else l = t; }
+      if (l) o.push(l); return o;
+    };
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#0B1220"); g.addColorStop(1, "#0F1A2E");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const rg = ctx.createRadialGradient(W / 2, H * 0.34, 30, W / 2, H * 0.34, 740);
+    rg.addColorStop(0, cor + "66"); rg.addColorStop(1, "rgba(11,18,32,0)");
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,255,255,0.5)"; ctx.font = "600 30px 'Inter',sans-serif";
+    ctx.fillText("MINDCODE  ·  AUTOCONHECIMENTO", W / 2, 152);
+    ctx.fillStyle = cor; ctx.font = "700 38px 'Inter',sans-serif";
+    ctx.fillText(`${temperamento}     ·     ${inteligencia}`, W / 2, H * 0.30);
+    // NOME (destaque)
+    ctx.fillStyle = "#FFFFFF"; ctx.font = "800 100px 'Plus Jakarta Sans','Inter',sans-serif";
+    const nameLines = split(perfil.nome, W - 120);
+    let ny = H * 0.43 - (nameLines.length - 1) * 56;
+    nameLines.forEach((ln) => { ctx.fillText(ln, W / 2, ny); ny += 112; });
+    // frase de impacto
+    ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "italic 500 46px 'Inter',sans-serif";
+    const fraseLines = split(`“${perfil.frase}”`, W - 190);
+    let fy = H * 0.605; fraseLines.forEach((ln) => { ctx.fillText(ln, W / 2, fy); fy += 62; });
+    // rodapé
+    ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "600 32px 'Inter',sans-serif";
+    ctx.fillText("Descubra o seu perfil em", W / 2, H - 132);
+    ctx.fillStyle = cor; ctx.font = "700 42px 'Plus Jakarta Sans','Inter',sans-serif";
+    ctx.fillText("mindcode.web.app", W / 2, H - 80);
+    const blob = await new Promise((res) => cv.toBlob(res, "image/png", 0.92));
+    return blob ? new File([blob], "mindcode-perfil.png", { type: "image/png" }) : null;
+  }
+
+  function baixarImagem(file) {
+    try {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement("a"); a.href = url; a.download = file.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch (e) {}
+  }
+
+  async function compartilhar(rede) {
     const texto = perfil
-      ? `Acabei de descobrir meu perfil no MindCode: ${perfil.nome} (${perfilKey}). "${perfil.frase}" Descubra o seu 👇`
+      ? `Meu perfil no MindCode é ${perfil.nome} (${perfilKey}). “${perfil.frase}” Descubra o seu 👇`
       : "Descobri meu perfil no MindCode. Descubra o seu 👇";
     const full = `${texto} ${linkSite}`;
-    const feedback = r => { setCopiado(r); setTimeout(() => setCopiado(null), 2500); };
+    const feedback = (r) => { setCopiado(r); setTimeout(() => setCopiado(null), 2500); };
 
-    if (rede === "WhatsApp") {
-      window.open(`https://wa.me/?text=${encodeURIComponent(full)}`, "_blank", "noopener");
-    } else if (rede === "Copiar link") {
-      navigator.clipboard?.writeText(linkSite).catch(() => {});
-      feedback(rede);
-    } else {
-      // Instagram e TikTok não aceitam texto pré-preenchido via web:
-      // copiamos a legenda e abrimos o app/site para o usuário colar.
-      navigator.clipboard?.writeText(full).catch(() => {});
-      feedback(rede);
-      const dest = rede === "Instagram" ? "https://www.instagram.com" : "https://www.tiktok.com";
-      window.open(dest, "_blank", "noopener");
-    }
+    if (rede === "Copiar link") { navigator.clipboard?.writeText(linkSite).catch(() => {}); feedback(rede); return; }
+
+    // Compartilhamento NATIVO com a imagem → enviar por mensagem OU postar no feed/story
+    try {
+      const file = await gerarImagemPerfil();
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: full, title: `MindCode — ${perfil ? perfil.nome : ""}` });
+        return;
+      }
+      if (file) baixarImagem(file); // desktop: salva o card para postar manualmente
+    } catch (e) { if (e && e.name === "AbortError") return; }
+
+    // Fallback de texto (desktop / sem suporte a share de arquivos)
+    navigator.clipboard?.writeText(full).catch(() => {});
+    feedback(rede);
+    if (rede === "WhatsApp") window.open(`https://wa.me/?text=${encodeURIComponent(full)}`, "_blank", "noopener");
+    else if (rede === "Instagram") window.open("https://www.instagram.com", "_blank", "noopener");
+    else if (rede === "TikTok") window.open("https://www.tiktok.com", "_blank", "noopener");
   }
 
   // Monta o formulário de cartão (Brick do Mercado Pago) quando a aba Cartão abre.
@@ -297,7 +357,7 @@ export default function MindCode() {
         if(cancel||!window.MercadoPago) return;
         const mp = new window.MercadoPago(pk,{ locale:"pt-BR" });
         const controller = await mp.bricks().create("cardPayment","mc-card-brick",{
-          initialization:{ amount: 19.90 },
+          initialization:{ amount: 1.99 },
           callbacks:{
             onReady:()=>{ if(!cancel) setCardErro(null); },
             onError:(e)=>{ console.error("[MP cardPayment onError]", e); if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Tente novamente."); },
@@ -481,7 +541,7 @@ export default function MindCode() {
           <div style={{fontSize:12,letterSpacing:"0.14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:12,fontWeight:600}}>Seu relatório completo · {perfil.nome}</div>
           <div style={{display:"flex",alignItems:"baseline",justifyContent:"center",gap:10,marginBottom:6}}>
             <span style={{fontSize:16,color:"var(--faint)",textDecoration:"line-through"}}>R$ 47</span>
-            <span style={{fontSize:40,fontWeight:800,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</span>
+            <span style={{fontSize:40,fontWeight:800,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</span>
           </div>
           <div style={{fontSize:13,color:"var(--faint)",marginBottom:22}}>pagamento único · acesso imediato + PDF personalizado para {nome||"você"}</div>
           <button onClick={()=>ir("pagamento")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Quero Conhecer Minha Mente Agora</button>
@@ -515,7 +575,7 @@ export default function MindCode() {
           {metodo==="pix" ? (
           !pix ? (
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:20,boxShadow:"var(--shadow)"}}>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Seu melhor e-mail para o acesso" inputMode="email" autoComplete="email"
                 style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",color:"var(--text)",fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
@@ -532,7 +592,7 @@ export default function MindCode() {
                   <img src={`data:image/png;base64,${pix.qrCodeBase64}`} alt="QR Code PIX" width={170} height={170} style={{display:"block",borderRadius:6}}/>
                 </div>
               )}
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:16}}>Escaneie o QR ou use o copia-e-cola</div>
               <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600,marginBottom:14}}>
                 {pixOk?"✓ Código copiado!":"Copiar código PIX (copia-e-cola)"}
@@ -549,7 +609,7 @@ export default function MindCode() {
           ) : (
             /* ─── CARTÃO (Brick do Mercado Pago) ─── */
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 20px",marginBottom:20,boxShadow:"var(--shadow)"}}>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:14,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:14,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
               <div id="mc-card-brick"/>
               {cardMsg&&<div style={{fontSize:13,color:"var(--muted)",marginTop:12}}>{cardMsg}</div>}
               {cardErro&&<div style={{fontSize:13,color:"#EF4444",marginTop:12}}>{cardErro}</div>}
@@ -565,14 +625,14 @@ export default function MindCode() {
                   <svg width="120" height="120" viewBox="0 0 120 120">{[...Array(6)].map((_,r)=>[...Array(6)].map((_,c)=>(<rect key={`${r}-${c}`} x={c*20} y={r*20} width={18} height={18} fill={(r+c)%3===0?"#111":"transparent"} rx={1}/>)))}</svg>
                 </div>
               </div>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
               <button onClick={()=>{ navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136mindcode@email.com.br520400005303986580 2BR5925MindCode6009SAOPAULO62070503***6304ABCD").catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000); }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
                 {pixOk?"✓ Código copiado!":"Copiar código PIX"}
               </button>
             </div>
             <div style={{background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:13,color:"var(--muted)",lineHeight:2}}>
-              <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 19,90</div>
+              <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 1,99</div>
             </div>
             <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#10B981,#059669)",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(16,185,129,0.32)"}}>Já paguei · Liberar meu resultado</button>
           </>
@@ -625,35 +685,35 @@ export default function MindCode() {
                   </div>
                   <span style={{fontSize:12,letterSpacing:"0.1em",textTransform:"uppercase",color:c,fontWeight:700}}>{label}</span>
                 </div>
-                <p style={{fontSize:15,lineHeight:1.8,color:"var(--muted)",margin:0,paddingLeft:41}}>{texto}</p>
+                <p style={{fontSize:16,lineHeight:1.8,color:"var(--muted)",margin:0,paddingLeft:41}}>{texto}</p>
               </div>
             ))}
           </div>
         </div>
 
         <Sec title="Quem você é" cor={cor}>
-          <p style={{fontSize:16,lineHeight:1.85,color:"var(--text)",marginBottom:14}}>{report.descricao}</p>
-          <p style={{fontSize:16,lineHeight:1.85,color:"var(--muted)"}}>{report.descricao2}</p>
+          <p style={{fontSize:17,lineHeight:1.8,color:"var(--text)",marginBottom:14}}>{report.descricao}</p>
+          <p style={{fontSize:17,lineHeight:1.8,color:"var(--muted)"}}>{report.descricao2}</p>
         </Sec>
-        <Sec title="Seus pontos fortes" cor={cor}>
-          {report.forcas.map((f,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:13,alignItems:"flex-start"}}><div style={{width:18,height:18,borderRadius:"50%",background:`${cor}1A`,border:`1px solid ${cor}40`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:5,height:5,borderRadius:"50%",background:cor}}/></div><p style={{fontSize:15,lineHeight:1.7,color:"var(--text)",margin:0}}>{f}</p></div>))}
+        <Sec title="Seus pontos fortes" cor="#2563EB">
+          {report.forcas.map((f,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:14,alignItems:"flex-start"}}><div style={{width:19,height:19,borderRadius:"50%",background:"#2563EB1A",border:"1px solid #2563EB55",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:6,height:6,borderRadius:"50%",background:"#2563EB"}}/></div><p style={{fontSize:16.5,lineHeight:1.72,color:"var(--text)",margin:0}}>{f}</p></div>))}
         </Sec>
-        <Sec title="Sua sombra — o que você evita ver" cor={cor}>
-          {report.sombra.map((s,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:13,alignItems:"flex-start"}}><div style={{width:18,height:18,borderRadius:"50%",background:"rgba(239,68,68,0.10)",border:"1px solid rgba(239,68,68,0.30)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:5,height:5,borderRadius:"50%",background:"#EF4444"}}/></div><p style={{fontSize:15,lineHeight:1.7,color:"var(--text)",margin:0}}>{s}</p></div>))}
+        <Sec title="Sua sombra — o que você evita ver" cor="#EF4444">
+          {report.sombra.map((s,i)=>(<div key={i} style={{display:"flex",gap:13,marginBottom:14,alignItems:"flex-start"}}><div style={{width:19,height:19,borderRadius:"50%",background:"rgba(239,68,68,0.12)",border:"1px solid rgba(239,68,68,0.40)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:3}}><div style={{width:6,height:6,borderRadius:"50%",background:"#EF4444"}}/></div><p style={{fontSize:16.5,lineHeight:1.72,color:"var(--text)",margin:0}}>{s}</p></div>))}
         </Sec>
-        <Sec title="Você sob pressão" cor={cor}><p style={{fontSize:16,lineHeight:1.85,color:"var(--text)"}}>{report.sobrePressao}</p></Sec>
-        <Sec title="Seus pontos cegos" cor={cor}><p style={{fontSize:16,lineHeight:1.85,color:"var(--text)"}}>{report.pontosCegos}</p></Sec>
-        <Sec title="Você nos relacionamentos" cor={cor}><p style={{fontSize:16,lineHeight:1.85,color:"var(--text)"}}>{report.relacoes}</p></Sec>
+        <Sec title="Você sob pressão" cor={cor}><p style={{fontSize:17,lineHeight:1.8,color:"var(--text)"}}>{report.sobrePressao}</p></Sec>
+        <Sec title="Seus pontos cegos" cor={cor}><p style={{fontSize:17,lineHeight:1.8,color:"var(--text)"}}>{report.pontosCegos}</p></Sec>
+        <Sec title="Você nos relacionamentos" cor={cor}><p style={{fontSize:17,lineHeight:1.8,color:"var(--text)"}}>{report.relacoes}</p></Sec>
         <Sec title="Onde você prospera" cor={cor}>
-          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>{report.carreiras.map((c,i)=>(<span key={i} style={{padding:"8px 14px",background:`${cor}14`,border:`1px solid ${cor}33`,borderRadius:999,fontSize:13,color:"var(--text)"}}>{c}</span>))}</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>{report.carreiras.map((c,i)=>(<span key={i} style={{padding:"9px 15px",background:`${cor}14`,border:`1px solid ${cor}33`,borderRadius:999,fontSize:14,color:"var(--text)"}}>{c}</span>))}</div>
         </Sec>
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 24px",marginBottom:24,boxShadow:"var(--shadow)"}}>
           <div style={{fontSize:11,letterSpacing:"0.2em",color:intelCor,textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Fato sobre seu perfil</div>
-          <p style={{fontSize:16,lineHeight:1.8,color:"var(--text)",margin:0}}>{report.fatoCurioso}</p>
+          <p style={{fontSize:17,lineHeight:1.8,color:"var(--text)",margin:0}}>{report.fatoCurioso}</p>
         </div>
         <div style={{background:"var(--surface)",border:`1px solid ${cor}33`,borderRadius:16,padding:"24px 24px",marginBottom:46,boxShadow:"var(--shadow)"}}>
           <div style={{fontSize:11,letterSpacing:"0.2em",color:cor,textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Para levar</div>
-          <p style={{fontSize:17,lineHeight:1.75,color:"var(--text)",margin:0,fontWeight:500}}>{report.afirmacao}</p>
+          <p style={{fontSize:18,lineHeight:1.7,color:"var(--text)",margin:0,fontWeight:500}}>{report.afirmacao}</p>
         </div>
         </>)}
 
@@ -672,7 +732,7 @@ export default function MindCode() {
               ><BrandIcon name={b}/>{copiado===b?(b==="Copiar link"?"Link copiado!":"Legenda copiada!"):b}</button>
             ))}
           </div>
-          <p style={{marginTop:12,fontSize:11,color:"var(--faint)",lineHeight:1.6}}>No Instagram e TikTok, a legenda é copiada automaticamente — é só colar na sua publicação.</p>
+          <p style={{marginTop:12,fontSize:12,color:"var(--faint)",lineHeight:1.6}}>Gera um card com o seu perfil em destaque — escolha o app e <strong>envie por mensagem</strong> ou <strong>poste no feed/story</strong>. No computador, o card é baixado para você publicar.</p>
           {nome&&<p style={{marginTop:26,fontSize:12,color:"var(--faint)"}}>Análise gerada para <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span> · MindCode</p>}
         </div>
       </div>

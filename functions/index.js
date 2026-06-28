@@ -24,7 +24,7 @@ initializeApp();
 const db = getFirestore();
 setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 
-const price = () => Number(process.env.MINDCODE_PRICE || "19.90");
+const price = () => Number(process.env.MINDCODE_PRICE || "1.99");
 const token = () => process.env.MP_ACCESS_TOKEN || "";
 
 /* Cliente de pagamentos do SDK (token só existe no servidor, em runtime). */
