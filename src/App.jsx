@@ -178,13 +178,14 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
 
   addPage(); pageHeader();
   drawSection("Fato sobre seu perfil",perfil.fatoCurioso);
-  const afLines=wrap(perfil.afirmacao,CW-18); const boxH=Math.max(44, 28+afLines.length*8.2);
+  fItal(); doc.setFontSize(13.5);
+  const afLines=wrap(perfil.afirmacao,CW-22); const boxH=Math.max(44, 28+afLines.length*8.2);
   checkY(boxH+6);
   setF(P.box); doc.roundedRect(M,y,CW,boxH,3,3,"F");
   doc.setLineWidth(0.5); setD(ACC); doc.roundedRect(M,y,CW,boxH,3,3,"S");
-  fHead(); doc.setFontSize(10); setC(ACC); track(0.6); doc.text("PARA LEVAR",M+9,y+11); track(0);
+  fHead(); doc.setFontSize(10); setC(ACC); track(0.6); doc.text("PARA LEVAR",M+11,y+11); track(0);
   fItal(); doc.setFontSize(13.5); setC(P.text);
-  afLines.forEach((l,i)=>{ doc.text(l,M+9,y+21+(i*8.2)); });
+  afLines.forEach((l,i)=>{ doc.text(l,M+11,y+21+(i*8.2)); });
   y=272; setD(P.divider); doc.setLineWidth(0.25); doc.line(M,y,W-M,y); y+=5;
   fBody(); doc.setFontSize(7.5); setC(P.faint);
   doc.text("mindcode.web.app  ·  Este relatório é pessoal e intransferível",M,y);
