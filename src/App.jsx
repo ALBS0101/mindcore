@@ -56,79 +56,108 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
   const hex2rgb = h=>{ const r=parseInt(h.slice(1),16); return [(r>>16)&255,(r>>8)&255,r&255]; };
   const [pr,pg,pb] = hex2rgb(perfil.cor);
   const ACC=[pr,pg,pb];
-  // Paleta seguindo o tema do webapp (claro/escuro)
+  // Paleta seguindo o tema do webapp. Claro = layout premium "papel sobre a mesa".
   const dark = theme === "dark";
+  const card = !dark;
   const P = dark
-    ? { bg:[15,23,42], surface:[30,41,59], text:[226,232,240], muted:[162,172,188], faint:[112,124,142], divider:[45,55,75] }
-    : { bg:[255,255,255], surface:[244,247,251], text:[30,41,59], muted:[82,95,115], faint:[150,160,176], divider:[224,229,237] };
+    ? { bg:[15,23,42], box:[30,41,59], text:[226,232,240], title:[241,245,249], muted:[162,172,188], faint:[112,124,142], divider:[45,55,75] }
+    : { bg:[248,250,252], box:[241,245,249], text:[51,65,85], title:[15,23,42], muted:[71,85,105], faint:[148,163,184], divider:[226,232,240] };
   const setC=a=>doc.setTextColor(a[0],a[1],a[2]);
   const setF=a=>doc.setFillColor(a[0],a[1],a[2]);
   const setD=a=>doc.setDrawColor(a[0],a[1],a[2]);
   const wrap=(t,w)=>doc.splitTextToSize(t,w);
-  // Pinta o fundo + barra de acento em TODA página (corrige o fundo mudando entre páginas)
-  const paintBg=()=>{ setF(P.bg); doc.rect(0,0,W,297,"F"); setF(ACC); doc.rect(0,0,5,297,"F"); };
+  const track=v=>{ try{ doc.setCharSpace(v); }catch(e){} };
+
+  // Fontes premium: Montserrat (títulos) + Inter (corpo). Fallback: helvetica.
+  let HEAD="helvetica", BODY="helvetica";
+  try {
+    const base="https://cdn.jsdelivr.net/fontsource/fonts/";
+    const b64=async(u)=>{ const r=await fetch(u); if(!r.ok) throw 0; const a=new Uint8Array(await r.arrayBuffer()); let s=""; for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); };
+    const [b,bi,h]=await Promise.all([ b64(base+"inter@latest/latin-400-normal.ttf"), b64(base+"inter@latest/latin-400-italic.ttf"), b64(base+"montserrat@latest/latin-800-normal.ttf") ]);
+    doc.addFileToVFS("I.ttf",b); doc.addFont("I.ttf","Inter","normal");
+    doc.addFileToVFS("Ii.ttf",bi); doc.addFont("Ii.ttf","Inter","italic");
+    doc.addFileToVFS("M.ttf",h); doc.addFont("M.ttf","Montserrat","bold");
+    HEAD="Montserrat"; BODY="Inter";
+  } catch(e) {}
+  const fHead=()=>doc.setFont(HEAD,"bold");
+  const fBody=()=>doc.setFont(BODY,"normal");
+  const fItal=()=>doc.setFont(BODY,"italic");
+
+  // Pinta o fundo em TODA página. No tema claro: off-white + "papel" branco com sombra.
+  const paintBg=()=>{
+    if(card){
+      setF(P.bg); doc.rect(0,0,W,297,"F");
+      try{ doc.setGState(new doc.GState({opacity:0.06})); }catch(e){}
+      setF([15,23,42]); doc.roundedRect(9.5,12,193,276,4,4,"F");
+      try{ doc.setGState(new doc.GState({opacity:1})); }catch(e){}
+      setF([255,255,255]); doc.roundedRect(8,10,194,277,4,4,"F");
+      setF(ACC); doc.rect(8.7,16,2.2,265,"F");
+    } else {
+      setF(P.bg); doc.rect(0,0,W,297,"F"); setF(ACC); doc.rect(0,0,5,297,"F");
+    }
+  };
   const addPage=()=>{ doc.addPage(); paintBg(); y=20; };
-  const checkY=(need=20)=>{ if(y+need>275) addPage(); };
+  const checkY=(need=20)=>{ if(y+need>274) addPage(); };
 
   // CAPA
   paintBg();
-  y=50;
-  doc.setFont("helvetica","bold"); doc.setFontSize(8); setC(ACC);
-  doc.text("MINDCODE  ·  SISTEMA DE AUTOCONHECIMENTO", M, y);
-  setD(ACC); doc.setLineWidth(0.3); doc.line(M,y+4,W-M,y+4);
-  y+=30;
-  doc.setFont("helvetica","italic"); doc.setFontSize(36); setC(P.text);
-  doc.text(perfil.nome, M, y); y+=14;
-  doc.setFont("helvetica","normal"); doc.setFontSize(11); setC(ACC);
-  doc.text(perfilKey.toUpperCase(), M, y); y+=20;
-  doc.setFont("helvetica","italic"); doc.setFontSize(13); setC(P.muted);
-  wrap(`"${perfil.frase}"`,CW).forEach(l=>{ doc.text(l,M,y); y+=8; });
+  y=54;
+  fHead(); doc.setFontSize(8); setC(ACC); track(0.8);
+  doc.text("MINDCODE  ·  SISTEMA DE AUTOCONHECIMENTO", M, y); track(0);
+  setD(ACC); doc.setLineWidth(0.4); doc.line(M,y+4,W-M,y+4);
+  y+=32;
+  fHead(); doc.setFontSize(34); setC(P.title);
+  wrap(perfil.nome,CW).forEach(l=>{ doc.text(l,M,y); y+=13; }); y+=2;
+  fHead(); doc.setFontSize(10); setC(ACC); track(1);
+  doc.text(perfilKey.toUpperCase(), M, y); track(0); y+=18;
+  fItal(); doc.setFontSize(13); setC(P.muted);
+  wrap(`"${perfil.frase}"`,CW).forEach(l=>{ doc.text(l,M,y); y+=7.5; });
   y+=14;
-  setF(P.surface); doc.roundedRect(M,y,CW,22,3,3,"F");
-  doc.setFont("helvetica","normal"); doc.setFontSize(9); setC(P.faint);
-  doc.text("Relatório gerado para", M+10, y+7);
-  doc.setFont("helvetica","bold"); doc.setFontSize(13); setC(P.text);
-  doc.text(nome||"Você", M+10, y+16);
-  y=270; doc.setFont("helvetica","normal"); doc.setFontSize(7.5); setC(P.faint);
+  setF(P.box); doc.roundedRect(M,y,CW,23,3,3,"F");
+  fBody(); doc.setFontSize(9); setC(P.faint);
+  doc.text("Relatório gerado para", M+10, y+8.5);
+  fHead(); doc.setFontSize(13); setC(P.title);
+  doc.text(nome||"Você", M+10, y+17);
+  y=272; fBody(); doc.setFontSize(7.5); setC(P.faint);
   doc.text("mindcode.web.app  ·  Perfil completo e exclusivo", M, y);
 
   const drawSection=(title,content,opts={})=>{
     const list=opts.list, col=opts.color||ACC;
     checkY(36);
     setF(col); doc.roundedRect(M,y,3.5,15,1,1,"F");
-    doc.setFont("helvetica","bold"); doc.setFontSize(10); setC(col);
-    doc.text(title.toUpperCase(), M+9, y+6);
-    setD(P.divider); doc.setLineWidth(0.2); doc.line(M+9,y+10.5,W-M,y+10.5);
+    fHead(); doc.setFontSize(9.5); setC(col); track(0.7);
+    doc.text(title.toUpperCase(), M+9, y+6); track(0);
+    setD(P.divider); doc.setLineWidth(0.3); doc.line(M+9,y+10.5,W-M,y+10.5);
     y+=20;
     if(list){
-      content.forEach(item=>{ checkY(16); setF(col); doc.circle(M+3.2,y-1.4,1.5,"F"); doc.setFont("helvetica","normal"); doc.setFontSize(10.5); setC(P.text); wrap(item,CW-12).forEach((l,i)=>{ if(i>0) checkY(7.5); doc.text(l,M+9,y); y+=6.6; }); y+=4.5; });
+      content.forEach(item=>{ checkY(16); setF(col); doc.circle(M+3.2,y-1.4,1.5,"F"); fBody(); doc.setFontSize(10.5); setC(P.text); wrap(item,CW-12).forEach((l,i)=>{ if(i>0) checkY(7.5); doc.text(l,M+9,y); y+=6.6; }); y+=4.5; });
     } else {
-      doc.setFont("helvetica","normal"); doc.setFontSize(10.5); setC(P.text); wrap(content,CW).forEach(l=>{ checkY(7.5); doc.text(l,M,y); y+=6.8; });
+      fBody(); doc.setFontSize(10.5); setC(P.text); wrap(content,CW).forEach(l=>{ checkY(7.5); doc.text(l,M,y); y+=6.8; });
     }
     y+=12;
   };
 
-  const pageHeader=()=>{ doc.setFont("helvetica","bold"); doc.setFontSize(7.5); setC(ACC); doc.text("MINDCODE",M,y); doc.setFont("helvetica","normal"); setC(P.faint); doc.text(`  ·  ${perfil.nome}`,M+22,y); setD(P.divider); doc.setLineWidth(0.15); doc.line(M,y+3,W-M,y+3); y+=14; };
+  const pageHeader=()=>{ fHead(); doc.setFontSize(7.5); setC(ACC); track(0.6); doc.text("MINDCODE",M,y); track(0); fBody(); setC(P.faint); doc.text(`  ·  ${perfil.nome}`,M+24,y); setD(P.divider); doc.setLineWidth(0.25); doc.line(M,y+3.2,W-M,y+3.2); y+=14; };
 
   addPage(); pageHeader();
-  doc.setFont("helvetica","italic"); doc.setFontSize(12.5); setC(ACC);
+  fItal(); doc.setFontSize(12.5); setC(ACC);
   wrap(perfil.resumo,CW).forEach(l=>{ doc.text(l,M,y); y+=7.5; }); y+=13;
 
   // BASE TEÓRICA
   checkY(24);
   setF(ACC); doc.roundedRect(M,y,3.5,15,1,1,"F");
-  doc.setFont("helvetica","bold"); doc.setFontSize(10); setC(ACC);
-  doc.text("A ORIGEM DO SEU PERFIL", M+9, y+6);
-  setD(P.divider); doc.setLineWidth(0.2); doc.line(M+9,y+10.5,W-M,y+10.5);
+  fHead(); doc.setFontSize(9.5); setC(ACC); track(0.7);
+  doc.text("A ORIGEM DO SEU PERFIL", M+9, y+6); track(0);
+  setD(P.divider); doc.setLineWidth(0.3); doc.line(M+9,y+10.5,W-M,y+10.5);
   y+=20;
   [["Seu temperamento — "+perfilKey.split("-")[0], perfil.base.arquetipo],
    ["Sua inteligência dominante — "+perfilKey.split("-")[1], perfil.base.inteligencia],
    ["Como eles se combinam em você", perfil.base.combinacao]
   ].forEach(([label,text])=>{
     checkY(18);
-    doc.setFont("helvetica","bold"); doc.setFontSize(9); setC(ACC);
-    doc.text(label.toUpperCase(), M, y); y+=7;
-    doc.setFont("helvetica","normal"); doc.setFontSize(10.5); setC(P.muted);
+    fHead(); doc.setFontSize(9); setC(ACC); track(0.4);
+    doc.text(label.toUpperCase(), M, y); track(0); y+=7;
+    fBody(); doc.setFontSize(10.5); setC(P.muted);
     wrap(text,CW).forEach(l=>{ checkY(7.5); doc.text(l,M,y); y+=6.6; });
     y+=9;
   });
@@ -149,15 +178,15 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
 
   addPage(); pageHeader();
   drawSection("Fato sobre seu perfil",perfil.fatoCurioso);
-  const afLines=wrap(perfil.afirmacao,CW-18); const boxH=Math.max(40, 22+afLines.length*7);
+  const afLines=wrap(perfil.afirmacao,CW-18); const boxH=Math.max(40, 24+afLines.length*7);
   checkY(boxH+6);
-  setF(P.surface); doc.roundedRect(M,y,CW,boxH,3,3,"F");
+  setF(P.box); doc.roundedRect(M,y,CW,boxH,3,3,"F");
   doc.setLineWidth(0.5); setD(ACC); doc.roundedRect(M,y,CW,boxH,3,3,"S");
-  doc.setFont("helvetica","bold"); doc.setFontSize(9); setC(ACC); doc.text("PARA LEVAR",M+9,y+10);
-  doc.setFont("helvetica","italic"); doc.setFontSize(11.5); setC(P.text);
+  fHead(); doc.setFontSize(9); setC(ACC); track(0.6); doc.text("PARA LEVAR",M+9,y+10); track(0);
+  fItal(); doc.setFontSize(11.5); setC(P.text);
   afLines.forEach((l,i)=>{ doc.text(l,M+9,y+19+(i*7)); });
-  y=270; setD(P.divider); doc.setLineWidth(0.15); doc.line(M,y,W-M,y); y+=5;
-  doc.setFont("helvetica","normal"); doc.setFontSize(7.5); setC(P.faint);
+  y=272; setD(P.divider); doc.setLineWidth(0.25); doc.line(M,y,W-M,y); y+=5;
+  fBody(); doc.setFontSize(7.5); setC(P.faint);
   doc.text("mindcode.web.app  ·  Este relatório é pessoal e intransferível",M,y);
   if(nome) doc.text(nome,W-M,y,{align:"right"});
 
