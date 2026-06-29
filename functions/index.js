@@ -49,9 +49,13 @@ function itemsInfo(profileKey, nome) {
   };
 }
 
-/* Grava/atualiza o doc do pagamento a partir da resposta do MP. */
+/* Grava/atualiza o doc do pagamento.
+   PII (email/nome) vai para a coleção privada `payment_private` (não-legível
+   pelo cliente). `payments/{id}` fica só com dados não-sensíveis (status, perfil,
+   valor) — é o que o cliente precisa para liberar o relatório. */
 async function salvarPagamento(mp, extra = {}) {
   const id = String(mp.id);
+  const { email, nome, ...pub } = extra;
   await db.collection("payments").doc(id).set(
     {
       mpPaymentId: id,
@@ -61,10 +65,16 @@ async function salvarPagamento(mp, extra = {}) {
       amount: mp.transaction_amount || price(),
       externalReference: mp.external_reference || null,
       updatedAt: FieldValue.serverTimestamp(),
-      ...extra,
+      ...pub,
     },
     { merge: true }
   );
+  if (email || nome) {
+    await db.collection("payment_private").doc(id).set(
+      { email: email || null, nome: nome || null, updatedAt: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+  }
   return id;
 }
 

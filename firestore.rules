@@ -12,6 +12,12 @@ service cloud.firestore {
       allow list, create, update, delete: if false;
     }
 
+    // PII (email/nome) — NUNCA legível pelo cliente. Só as Cloud Functions
+    // (admin SDK) acessam. Mantém os dados pessoais fora do alcance público.
+    match /payment_private/{paymentId} {
+      allow read, write: if false;
+    }
+
     // Bloqueia o resto por padrão.
     match /{document=**} {
       allow read, write: if false;
