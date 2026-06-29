@@ -125,14 +125,14 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
     const list=opts.list, col=opts.color||ACC;
     checkY(36);
     setF(col); doc.roundedRect(M,y,3.5,15,1,1,"F");
-    fHead(); doc.setFontSize(10.5); setC(col); track(0.7);
+    fHead(); doc.setFontSize(11.5); setC(col); track(0.7);
     doc.text(title.toUpperCase(), M+9, y+6); track(0);
     setD(P.divider); doc.setLineWidth(0.3); doc.line(M+9,y+10.5,W-M,y+10.5);
     y+=20;
     if(list){
-      content.forEach(item=>{ checkY(17); setF(col); doc.circle(M+3.2,y-1.4,1.6,"F"); fBody(); doc.setFontSize(11.5); setC(P.text); wrap(item,CW-12).forEach((l,i)=>{ if(i>0) checkY(8); doc.text(l,M+9,y); y+=7.2; }); y+=5; });
+      content.forEach(item=>{ checkY(18); setF(col); doc.circle(M+3.2,y-1.4,1.7,"F"); fBody(); doc.setFontSize(12.5); setC(P.text); wrap(item,CW-12).forEach((l,i)=>{ if(i>0) checkY(8.5); doc.text(l,M+9,y); y+=7.8; }); y+=5.5; });
     } else {
-      fBody(); doc.setFontSize(11.5); setC(P.text); wrap(content,CW).forEach(l=>{ checkY(8); doc.text(l,M,y); y+=7.4; });
+      fBody(); doc.setFontSize(12.5); setC(P.text); wrap(content,CW).forEach(l=>{ checkY(8.5); doc.text(l,M,y); y+=8; });
     }
     y+=12;
   };
@@ -140,13 +140,13 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
   const pageHeader=()=>{ fHead(); doc.setFontSize(7.5); setC(ACC); track(0.6); doc.text("MINDCODE",M,y); track(0); fBody(); setC(P.faint); doc.text(`  ·  ${perfil.nome}`,M+24,y); setD(P.divider); doc.setLineWidth(0.25); doc.line(M,y+3.2,W-M,y+3.2); y+=14; };
 
   addPage(); pageHeader();
-  fItal(); doc.setFontSize(13.5); setC(ACC);
-  wrap(perfil.resumo,CW).forEach(l=>{ doc.text(l,M,y); y+=8; }); y+=13;
+  fItal(); doc.setFontSize(14.5); setC(ACC);
+  wrap(perfil.resumo,CW).forEach(l=>{ doc.text(l,M,y); y+=8.5; }); y+=13;
 
   // BASE TEÓRICA
   checkY(24);
   setF(ACC); doc.roundedRect(M,y,3.5,15,1,1,"F");
-  fHead(); doc.setFontSize(10.5); setC(ACC); track(0.7);
+  fHead(); doc.setFontSize(11.5); setC(ACC); track(0.7);
   doc.text("A ORIGEM DO SEU PERFIL", M+9, y+6); track(0);
   setD(P.divider); doc.setLineWidth(0.3); doc.line(M+9,y+10.5,W-M,y+10.5);
   y+=20;
@@ -155,11 +155,11 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
    ["Como eles se combinam em você", perfil.base.combinacao]
   ].forEach(([label,text])=>{
     checkY(18);
-    fHead(); doc.setFontSize(9.5); setC(ACC); track(0.4);
-    doc.text(label.toUpperCase(), M, y); track(0); y+=7.5;
-    fBody(); doc.setFontSize(11.5); setC(P.muted);
-    wrap(text,CW).forEach(l=>{ checkY(8); doc.text(l,M,y); y+=7.2; });
-    y+=9.5;
+    fHead(); doc.setFontSize(10); setC(ACC); track(0.4);
+    doc.text(label.toUpperCase(), M, y); track(0); y+=7.8;
+    fBody(); doc.setFontSize(12.5); setC(P.muted);
+    wrap(text,CW).forEach(l=>{ checkY(8.5); doc.text(l,M,y); y+=7.8; });
+    y+=10;
   });
   y+=5;
 
@@ -178,13 +178,13 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
 
   addPage(); pageHeader();
   drawSection("Fato sobre seu perfil",perfil.fatoCurioso);
-  const afLines=wrap(perfil.afirmacao,CW-18); const boxH=Math.max(42, 26+afLines.length*7.6);
+  const afLines=wrap(perfil.afirmacao,CW-18); const boxH=Math.max(44, 28+afLines.length*8.2);
   checkY(boxH+6);
   setF(P.box); doc.roundedRect(M,y,CW,boxH,3,3,"F");
   doc.setLineWidth(0.5); setD(ACC); doc.roundedRect(M,y,CW,boxH,3,3,"S");
-  fHead(); doc.setFontSize(9.5); setC(ACC); track(0.6); doc.text("PARA LEVAR",M+9,y+10.5); track(0);
-  fItal(); doc.setFontSize(12.5); setC(P.text);
-  afLines.forEach((l,i)=>{ doc.text(l,M+9,y+20+(i*7.6)); });
+  fHead(); doc.setFontSize(10); setC(ACC); track(0.6); doc.text("PARA LEVAR",M+9,y+11); track(0);
+  fItal(); doc.setFontSize(13.5); setC(P.text);
+  afLines.forEach((l,i)=>{ doc.text(l,M+9,y+21+(i*8.2)); });
   y=272; setD(P.divider); doc.setLineWidth(0.25); doc.line(M,y,W-M,y); y+=5;
   fBody(); doc.setFontSize(7.5); setC(P.faint);
   doc.text("mindcode.web.app  ·  Este relatório é pessoal e intransferível",M,y);
