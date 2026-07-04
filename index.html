@@ -14,16 +14,16 @@
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="language" content="pt-BR" />
     <meta name="theme-color" content="#6366F1" />
-    <link rel="canonical" href="https://mindcode.app/" />
+    <link rel="canonical" href="https://mindcode.web.app/" />
 
     <!-- ─── OPEN GRAPH (Facebook / WhatsApp / LinkedIn) ──────────── -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MindCode" />
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:url" content="https://mindcode.app/" />
+    <meta property="og:url" content="https://mindcode.web.app/" />
     <meta property="og:title" content="MindCode — Descubra o Código Único da Sua Mente" />
     <meta property="og:description" content="14 perguntas. 36 perfis exclusivos. Descubra onde seu temperamento encontra sua inteligência dominante e receba um relatório completo e personalizado." />
-    <meta property="og:image" content="https://mindcode.app/og-image.png" />
+    <meta property="og:image" content="https://mindcode.web.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="MindCode — Sistema de Autoconhecimento" />
@@ -32,25 +32,114 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MindCode — Descubra o Código Único da Sua Mente" />
     <meta name="twitter:description" content="14 perguntas. 36 perfis exclusivos. Descubra onde seu temperamento encontra sua inteligência dominante." />
-    <meta name="twitter:image" content="https://mindcode.app/og-image.png" />
+    <meta name="twitter:image" content="https://mindcode.web.app/og-image.png" />
 
-    <!-- ─── DADOS ESTRUTURADOS (JSON-LD) ─────────────────────────── -->
+    <!-- ─── DADOS ESTRUTURADOS (JSON-LD) — AEO ───────────────────────
+         @graph com WebApplication + Organization + FAQPage + Breadcrumb.
+         O FAQPage é o que alimenta respostas diretas em buscadores e
+         mecanismos de resposta (ChatGPT, Perplexity, Google AI Overviews). -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "MindCode",
-      "url": "https://mindcode.app/",
-      "applicationCategory": "LifestyleApplication",
-      "operatingSystem": "Web",
-      "inLanguage": "pt-BR",
-      "description": "Teste de autoconhecimento que revela seu perfil único combinando temperamento e inteligência dominante em 36 perfis exclusivos, com relatório PDF personalizado.",
-      "offers": {
-        "@type": "Offer",
-        "price": "19.90",
-        "priceCurrency": "BRL"
-      },
-      "author": { "@type": "Organization", "name": "MindCode" }
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://mindcode.web.app/#app",
+          "name": "MindCode",
+          "alternateName": "MindCode — Teste de Personalidade",
+          "url": "https://mindcode.web.app/",
+          "applicationCategory": "LifestyleApplication",
+          "operatingSystem": "Web",
+          "inLanguage": "pt-BR",
+          "browserRequirements": "Requer JavaScript. Funciona em qualquer navegador moderno.",
+          "description": "Teste de autoconhecimento em português que cruza o temperamento (colérico, sanguíneo, fleumático, melancólico) com a inteligência dominante (Inteligências Múltiplas de Gardner), gerando 36 perfis exclusivos. São 14 perguntas, cerca de 5 minutos, com relatório completo em PDF personalizado.",
+          "featureList": [
+            "Teste de 14 perguntas (~5 minutos)",
+            "Cruzamento de 4 temperamentos x 9 inteligências = 36 perfis",
+            "Prévia gratuita do perfil",
+            "Relatório completo em PDF personalizado",
+            "Compartilhamento em redes sociais"
+          ],
+          "offers": {
+            "@type": "Offer",
+            "price": "19.90",
+            "priceCurrency": "BRL",
+            "availability": "https://schema.org/InStock",
+            "category": "Relatório de autoconhecimento (pagamento único)"
+          },
+          "publisher": { "@id": "https://mindcode.web.app/#org" }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://mindcode.web.app/#org",
+          "name": "MindCode",
+          "url": "https://mindcode.web.app/",
+          "logo": "https://mindcode.web.app/favicon.png",
+          "image": "https://mindcode.web.app/og-image.png",
+          "description": "MindCode é um sistema brasileiro de autoconhecimento que revela o perfil único de cada pessoa combinando temperamento e inteligência dominante."
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://mindcode.web.app/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "O que é o MindCode?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "O MindCode é um teste de autoconhecimento que cruza o seu temperamento (colérico, sanguíneo, fleumático ou melancólico) com a sua inteligência dominante (baseada nas Inteligências Múltiplas de Howard Gardner), gerando 1 de 36 perfis exclusivos com um relatório completo."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Como funciona o teste do MindCode?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Você responde a 14 perguntas rápidas (cerca de 5 minutos). O sistema identifica o seu temperamento predominante e a sua inteligência dominante, mostra uma prévia gratuita do seu perfil e libera o relatório completo em PDF após o pagamento."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Quanto custa o MindCode?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "O relatório completo com PDF personalizado custa R$ 19,90 em pagamento único (sem assinatura). O teste e a prévia do perfil são gratuitos. O pagamento é feito por PIX ou cartão de crédito."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Quantos perfis o MindCode tem?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "São 36 perfis, resultado do cruzamento de 4 temperamentos com 9 inteligências múltiplas. Cada perfil tem nome próprio, forças, pontos de sombra, propósito e recomendações."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Em que base científica o MindCode se apoia?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "O MindCode combina a teoria clássica dos quatro temperamentos com a Teoria das Inteligências Múltiplas de Howard Gardner (1983)."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Preciso criar conta para fazer o MindCode?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Não é necessário criar conta. Você faz o teste e informa um e-mail para receber o relatório completo em PDF."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://mindcode.web.app/#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://mindcode.web.app/" }
+          ]
+        }
+      ]
     }
     </script>
 
@@ -82,6 +171,45 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Conteúdo textual para crawlers e mecanismos de resposta (AEO).
+         Visível apenas quando o JavaScript está desativado; descreve o
+         MindCode para robôs de IA que não executam JS. -->
+    <noscript>
+      <main lang="pt-BR">
+        <h1>MindCode — Teste de Personalidade e Autoconhecimento</h1>
+        <p>
+          O <strong>MindCode</strong> é um teste de autoconhecimento em português que cruza o seu
+          <strong>temperamento</strong> (colérico, sanguíneo, fleumático ou melancólico) com a sua
+          <strong>inteligência dominante</strong> (baseada nas Inteligências Múltiplas de Howard Gardner),
+          revelando 1 de <strong>36 perfis exclusivos</strong>. São 14 perguntas, cerca de 5 minutos,
+          e um relatório completo em PDF personalizado.
+        </p>
+
+        <h2>Como funciona</h2>
+        <ol>
+          <li>Responda a 14 perguntas rápidas (~5 minutos).</li>
+          <li>O sistema identifica seu temperamento predominante e sua inteligência dominante.</li>
+          <li>Veja uma prévia gratuita do seu perfil.</li>
+          <li>Libere o relatório completo + PDF personalizado por R$ 19,90 (pagamento único, PIX ou cartão).</li>
+        </ol>
+
+        <h2>Perguntas frequentes</h2>
+        <h3>O que é o MindCode?</h3>
+        <p>Um teste que combina temperamento e inteligência dominante para revelar 1 de 36 perfis, com relatório completo.</p>
+        <h3>Quanto custa?</h3>
+        <p>R$ 19,90 em pagamento único. O teste e a prévia do perfil são gratuitos.</p>
+        <h3>Quantos perfis existem?</h3>
+        <p>36 perfis — o cruzamento de 4 temperamentos com 9 inteligências múltiplas.</p>
+        <h3>Em que base se apoia?</h3>
+        <p>Na teoria clássica dos quatro temperamentos e na Teoria das Inteligências Múltiplas de Howard Gardner.</p>
+        <h3>Preciso criar conta?</h3>
+        <p>Não. Basta fazer o teste e informar um e-mail para receber o relatório.</p>
+
+        <p>Acesse <a href="https://mindcode.web.app/">mindcode.web.app</a> e ative o JavaScript para fazer o teste.</p>
+      </main>
+    </noscript>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

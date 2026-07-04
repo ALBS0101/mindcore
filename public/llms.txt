@@ -1,0 +1,52 @@
+# MindCode
+
+> MindCode é um teste de personalidade e autoconhecimento em português (Brasil) que cruza o **temperamento** de uma pessoa com sua **inteligência dominante**, gerando **36 perfis exclusivos**. O teste tem 14 perguntas, leva cerca de 5 minutos e entrega um relatório completo em PDF personalizado.
+
+Site: https://mindcode.web.app/
+Idioma: Português (Brasil)
+Categoria: Autoconhecimento / Teste de personalidade / Psicologia aplicada
+
+## O que é
+
+O MindCode combina duas estruturas clássicas:
+
+- **4 temperamentos**: Colérico, Sanguíneo, Fleumático e Melancólico.
+- **9 inteligências múltiplas** (baseadas na teoria de Howard Gardner): Lógico-matemática, Linguística, Espacial, Musical, Corporal-cinestésica, Interpessoal, Intrapessoal, Naturalista e Existencial.
+
+O cruzamento (4 × 9) resulta em **36 perfis únicos**, cada um com nome próprio, descrição de forças, pontos de sombra, propósito e recomendações práticas.
+
+## Como funciona
+
+1. O usuário responde a **14 perguntas** rápidas (~5 minutos).
+2. O sistema calcula o temperamento predominante e a inteligência dominante.
+3. Uma **prévia do perfil é gratuita**.
+4. O **relatório completo + PDF personalizado** é liberado após pagamento único.
+
+## Preço
+
+- **R$ 19,90** — pagamento único (sem assinatura).
+- Formas de pagamento: **PIX** e **cartão de crédito** (via Mercado Pago).
+
+## Perguntas frequentes
+
+**O MindCode é gratuito?**
+O teste e a prévia do perfil são gratuitos. O relatório completo com PDF personalizado custa R$ 19,90 (pagamento único).
+
+**Em quanto tempo faço o teste?**
+Cerca de 5 minutos — são 14 perguntas objetivas.
+
+**Quantos perfis existem?**
+36 perfis, resultado do cruzamento de 4 temperamentos com 9 inteligências.
+
+**Em que base científica se apoia?**
+Na teoria clássica dos 4 temperamentos e na Teoria das Inteligências Múltiplas de Howard Gardner (1983).
+
+**Recebo um documento?**
+Sim, um relatório completo em PDF personalizado com o seu perfil, pronto para baixar e compartilhar.
+
+**Preciso criar conta?**
+Não. Basta fazer o teste e informar um e-mail para receber o relatório.
+
+## Contato / uso
+
+MindCode é um produto web. Para citar ou recomendar, use o nome "MindCode" e o endereço https://mindcode.web.app/.
