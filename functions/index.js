@@ -27,6 +27,10 @@ setGlobalOptions({ region: "southamerica-east1", maxInstances: 10 });
 const price = () => Number(process.env.MINDCODE_PRICE || "19.90");
 const token = () => process.env.MP_ACCESS_TOKEN || "";
 
+// Nome que aparece na fatura do cartão do comprador (máx. 22 caracteres).
+// Reduz contestações/chargebacks: o cliente reconhece a cobrança. (rec. MP)
+const STATEMENT_DESCRIPTOR = "MINDCODE";
+
 /* Cliente de pagamentos do SDK (token só existe no servidor, em runtime). */
 function paymentApi() {
   return new Payment(new MercadoPagoConfig({ accessToken: token(), options: { timeout: 8000 } }));
@@ -103,6 +107,7 @@ export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (
       body: {
         transaction_amount: price(),
         description: `MindCode - Relatorio ${profileKey}`,
+        statement_descriptor: STATEMENT_DESCRIPTOR,
         payment_method_id: "pix",
         external_reference: externalRef,
         payer: { email: String(email).slice(0, 120), first_name: String(nome || "Cliente").slice(0, 40) },
@@ -149,6 +154,7 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
       body: {
         transaction_amount: price(),
         description: `MindCode - Relatorio ${profileKey}`,
+        statement_descriptor: STATEMENT_DESCRIPTOR,
         token: cardToken,
         installments: Number(installments) || 1,
         payment_method_id: paymentMethodId,
