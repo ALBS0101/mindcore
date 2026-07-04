@@ -397,7 +397,7 @@ export default function MindCode() {
         if(cancel||!window.MercadoPago) return;
         const mp = new window.MercadoPago(pk,{ locale:"pt-BR" });
         const controller = await mp.bricks().create("cardPayment","mc-card-brick",{
-          initialization:{ amount: 1.99 },
+          initialization:{ amount: 19.90 },
           callbacks:{
             onReady:()=>{ if(!cancel) setCardErro(null); },
             onError:(e)=>{ console.error("[MP cardPayment onError]", e); if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Tente novamente."); },
@@ -581,7 +581,7 @@ export default function MindCode() {
           <div style={{fontSize:12,letterSpacing:"0.14em",color:"var(--muted)",textTransform:"uppercase",marginBottom:12,fontWeight:600}}>Seu relatório completo · {perfil.nome}</div>
           <div style={{display:"flex",alignItems:"baseline",justifyContent:"center",gap:10,marginBottom:6}}>
             <span style={{fontSize:16,color:"var(--faint)",textDecoration:"line-through"}}>R$ 47</span>
-            <span style={{fontSize:40,fontWeight:800,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</span>
+            <span style={{fontSize:40,fontWeight:800,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</span>
           </div>
           <div style={{fontSize:13,color:"var(--faint)",marginBottom:22}}>pagamento único · acesso imediato + PDF personalizado para {nome||"você"}</div>
           <button onClick={()=>ir("pagamento")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Quero Conhecer Minha Mente Agora</button>
@@ -615,7 +615,7 @@ export default function MindCode() {
           {metodo==="pix" ? (
           !pix ? (
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:20,boxShadow:"var(--shadow)"}}>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
               <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Seu melhor e-mail para o acesso" inputMode="email" autoComplete="email"
                 style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",color:"var(--text)",fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
@@ -632,7 +632,7 @@ export default function MindCode() {
                   <img src={`data:image/png;base64,${pix.qrCodeBase64}`} alt="QR Code PIX" width={170} height={170} style={{display:"block",borderRadius:6}}/>
                 </div>
               )}
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:16}}>Escaneie o QR ou use o copia-e-cola</div>
               <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600,marginBottom:14}}>
                 {pixOk?"✓ Código copiado!":"Copiar código PIX (copia-e-cola)"}
@@ -649,7 +649,7 @@ export default function MindCode() {
           ) : (
             /* ─── CARTÃO (Brick do Mercado Pago) ─── */
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 20px",marginBottom:20,boxShadow:"var(--shadow)"}}>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:14,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:14,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
               <div id="mc-card-brick"/>
               {cardMsg&&<div style={{fontSize:13,color:"var(--muted)",marginTop:12}}>{cardMsg}</div>}
               {cardErro&&<div style={{fontSize:13,color:"#EF4444",marginTop:12}}>{cardErro}</div>}
@@ -665,14 +665,14 @@ export default function MindCode() {
                   <svg width="120" height="120" viewBox="0 0 120 120">{[...Array(6)].map((_,r)=>[...Array(6)].map((_,c)=>(<rect key={`${r}-${c}`} x={c*20} y={r*20} width={18} height={18} fill={(r+c)%3===0?"#111":"transparent"} rx={1}/>)))}</svg>
                 </div>
               </div>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 1,99</div>
+              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
               <button onClick={()=>{ navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX0136mindcode@email.com.br520400005303986580 2BR5925MindCode6009SAOPAULO62070503***6304ABCD").catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000); }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
                 {pixOk?"✓ Código copiado!":"Copiar código PIX"}
               </button>
             </div>
             <div style={{background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"18px 22px",marginBottom:22,textAlign:"left",fontSize:13,color:"var(--muted)",lineHeight:2}}>
-              <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 1,99</div>
+              <div>1. Abra o app do seu banco</div><div>2. Escolha pagar com PIX</div><div>3. Escaneie o QR ou cole o código</div><div>4. Confirme o pagamento de R$ 19,90</div>
             </div>
             <button onClick={()=>{ ir("resultado"); }} style={{background:"linear-gradient(135deg,#10B981,#059669)",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(16,185,129,0.32)"}}>Já paguei · Liberar meu resultado</button>
           </>
