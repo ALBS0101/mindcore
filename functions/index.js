@@ -31,6 +31,12 @@ const token = () => process.env.MP_ACCESS_TOKEN || "";
 // Reduz contestações/chargebacks: o cliente reconhece a cobrança. (rec. MP)
 const STATEMENT_DESCRIPTOR = "MINDCODE";
 
+// Remetente do e-mail de acesso. Enquanto o domínio próprio não está verificado
+// no Resend, usa o domínio de teste (onboarding@resend.dev). Depois de verificar
+// um domínio (ex.: mindcode.app), troque para algo como "MindCode <acesso@mindcode.app>".
+const EMAIL_FROM = process.env.RESEND_FROM || "MindCode <onboarding@resend.dev>";
+const SITE_URL = "https://mindcode.web.app";
+
 /* Cliente de pagamentos do SDK (token só existe no servidor, em runtime). */
 function paymentApi() {
   return new Payment(new MercadoPagoConfig({ accessToken: token(), options: { timeout: 8000 } }));
@@ -80,6 +86,61 @@ async function salvarPagamento(mp, extra = {}) {
     );
   }
   return id;
+}
+
+/* Envia o e-mail com o LINK DE ACESSO ao relatório (via Resend), uma única vez.
+   No-op silencioso se RESEND_API_KEY não estiver configurado — não quebra o fluxo
+   de pagamento. Idempotente: grava emailSent no doc para não reenviar. */
+async function enviarEmailAcesso(pay) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return; // e-mail ainda não configurado → segue sem enviar
+  const email = pay && pay.payer && pay.payer.email;
+  const mpId = pay && String(pay.id);
+  if (!email || !mpId) return;
+
+  const ref = db.collection("payments").doc(mpId);
+  const snap = await ref.get();
+  const data = snap.exists ? snap.data() : {};
+  if (data.emailSent) return; // já enviado
+
+  const profileKey =
+    data.profileKey ||
+    (pay.additional_info && pay.additional_info.items && pay.additional_info.items[0] && pay.additional_info.items[0].id) ||
+    "";
+  const link = `${SITE_URL}/?acesso=${encodeURIComponent(mpId)}${profileKey ? `&perfil=${encodeURIComponent(profileKey)}` : ""}`;
+
+  const html = `<!doctype html><html><body style="margin:0;background:#f8fafc;font-family:Arial,Helvetica,sans-serif;color:#334155">
+  <div style="max-width:520px;margin:0 auto;padding:32px 20px">
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:36px 32px">
+      <div style="font-size:12px;letter-spacing:2px;color:#6366f1;font-weight:700">MINDCODE</div>
+      <h1 style="font-size:22px;color:#0f172a;margin:14px 0 10px">Seu relatório está pronto ✅</h1>
+      <p style="font-size:15px;line-height:1.7;margin:0 0 22px">Recebemos seu pagamento e liberamos o seu relatório completo de autoconhecimento. Toque no botão abaixo para acessá-lo quando quiser, em qualquer aparelho.</p>
+      <a href="${link}" style="display:inline-block;background:#6366f1;color:#fff;text-decoration:none;padding:14px 28px;border-radius:10px;font-weight:700;font-size:15px">Acessar meu relatório</a>
+      <p style="font-size:12px;color:#94a3b8;line-height:1.7;margin:24px 0 0">Ou copie este link:<br><span style="color:#6366f1;word-break:break-all">${link}</span></p>
+      <p style="font-size:12px;color:#94a3b8;line-height:1.7;margin:20px 0 0;border-top:1px solid #e2e8f0;padding-top:16px">Guarde este e-mail — ele é o seu acesso permanente ao relatório. MindCode · autoconhecimento.</p>
+    </div>
+  </div></body></html>`;
+
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: EMAIL_FROM,
+        to: [email],
+        subject: "Seu relatório MindCode está pronto ✅",
+        html,
+      }),
+    });
+    if (r.ok) {
+      await ref.set({ emailSent: true, emailAt: FieldValue.serverTimestamp() }, { merge: true });
+    } else {
+      const body = await r.text();
+      logger.error("Resend erro", { status: r.status, body: String(body).slice(0, 300) });
+    }
+  } catch (e) {
+    logger.error("Resend exceção", e && e.message);
+  }
 }
 
 /* Extrai uma mensagem útil de um erro do SDK do MP (para log). */
@@ -178,7 +239,7 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
 
 /* ─── Webhook ───────────────────────────────────────────────────────── */
 // Valida a assinatura HMAC (x-signature) do MP usando MP_WEBHOOK_SECRET.
-export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] }, async (req, res) => {
+export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET", "RESEND_API_KEY"] }, async (req, res) => {
   try {
     const secret = process.env.MP_WEBHOOK_SECRET;
     if (secret && !assinaturaValida(req, secret)) {
@@ -201,6 +262,7 @@ export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SE
     }
 
     await salvarPagamento(pay);
+    if (pay.status === "approved") await enviarEmailAcesso(pay);
     res.status(200).send("ok");
   } catch (e) {
     logger.error("Webhook exceção", e && e.message);
