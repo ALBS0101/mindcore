@@ -237,15 +237,27 @@ const BrandIcon=({name,size=16})=>{
 };
 
 export default function MindCode() {
-  // Deep link (teste/marketing): ?perfil=<chave> abre direto a PRÉVIA do perfil
-  // (conteúdo gratuito — o relatório completo continua atrás do pagamento).
-  // Opcional: &nome=<nome> personaliza a saudação. Ex.: /?perfil=Sanguíneo-Musical&nome=Ana
-  const deepLink=(()=>{ try{ const q=new URLSearchParams(window.location.search); const k=q.get("perfil"); return k&&profiles[k]?{ perfil:k, nome:(q.get("nome")||"").slice(0,40) }:null; }catch(e){ return null; } })();
-  const [tela,setTela]=useState(deepLink?"preview":"intro");
+  // Restauração de acesso pago. Cobre o caso crítico: o cliente paga o PIX, sai
+  // para o app do banco e volta com a aba recarregada — sem isto, o paymentId
+  // (que só vivia na memória) sumiria e ele perderia o relatório que pagou.
+  //  • link  ?acesso=<paymentId>&perfil=<chave>  → funciona em qualquer dispositivo
+  //    (é o link durável que mostramos na tela e enviamos por e-mail);
+  //  • localStorage "mc-access"                  → mesmo dispositivo, até 30 dias.
+  const restore=PAGAMENTOS_ON?(()=>{ try{
+    const q=new URLSearchParams(window.location.search);
+    const pid=q.get("acesso"), pk=q.get("perfil");
+    if(pid&&pk&&profiles[pk]) return { paymentId:pid, profileKey:pk, nome:(q.get("nome")||"").slice(0,40) };
+    const raw=localStorage.getItem("mc-access");
+    if(raw){ const a=JSON.parse(raw); if(a&&a.paymentId&&a.profileKey&&profiles[a.profileKey]&&(Date.now()-(a.ts||0)<2592000000)) return a; }
+  }catch(e){} return null; })():null;
+  // Deep link de marketing: ?perfil=<chave> abre direto a PRÉVIA do perfil (gratuita;
+  // relatório completo segue atrás do pagamento). Só quando NÃO é restauração de acesso.
+  const deepLink=restore?null:(()=>{ try{ const q=new URLSearchParams(window.location.search); const k=q.get("perfil"); return k&&profiles[k]?{ perfil:k, nome:(q.get("nome")||"").slice(0,40) }:null; }catch(e){ return null; } })();
+  const [tela,setTela]=useState(restore?"recuperar":(deepLink?"preview":"intro"));
   const [pergunta,setPergunta]=useState(0);
   const [respostas,setRespostas]=useState(Array(questions.length).fill(null));
-  const [perfilKey,setPerfilKey]=useState(deepLink?deepLink.perfil:null);
-  const [nome,setNome]=useState(deepLink?deepLink.nome:"");
+  const [perfilKey,setPerfilKey]=useState(restore?restore.profileKey:(deepLink?deepLink.perfil:null));
+  const [nome,setNome]=useState(restore?(restore.nome||""):(deepLink?deepLink.nome:""));
   const [nomeInput,setNomeInput]=useState("");
   const [sel,setSel]=useState(null);
   const [anim,setAnim]=useState(false);
@@ -255,7 +267,7 @@ export default function MindCode() {
   const [tema,setTema]=useState(()=> (typeof document!=="undefined" && document.documentElement.getAttribute("data-theme")) || "light");
   // Pagamento real (Mercado Pago PIX)
   const [email,setEmail]=useState("");
-  const [pix,setPix]=useState(null);          // { paymentId, qrCode, qrCodeBase64, ... }
+  const [pix,setPix]=useState(restore?{ paymentId:restore.paymentId }:null); // { paymentId, qrCode, qrCodeBase64, ... }
   const [pixLoading,setPixLoading]=useState(false);
   const [pixErro,setPixErro]=useState(null);
   const [pagStatus,setPagStatus]=useState(null); // status vindo do Firestore
@@ -309,8 +321,14 @@ export default function MindCode() {
     setGerando(false);
   }
 
+  // ─── Acesso durável ao relatório pago ───
+  const saveAccess=(paymentId,pk,nm)=>{ try{ localStorage.setItem("mc-access",JSON.stringify({paymentId,profileKey:pk,nome:nm||"",ts:Date.now()})); }catch(e){} };
+  const clearAccess=()=>{ try{ localStorage.removeItem("mc-access"); }catch(e){} };
+
   // ─── Compartilhamento ───
   const linkSite = "https://mindcode.web.app";
+  // Link durável para o cliente reabrir o relatório em qualquer dispositivo/depois.
+  const acessoLink=(perfilKey&&pix?.paymentId)?`${linkSite}/?acesso=${pix.paymentId}&perfil=${encodeURIComponent(perfilKey)}`:null;
 
   // Gera um card (imagem 1080x1350) com o NOME do perfil em DESTAQUE + frase de impacto.
   async function gerarImagemPerfil() {
@@ -416,8 +434,9 @@ export default function MindCode() {
                   installments: fd.installments,
                   identification: fd.payer && fd.payer.identification,
                 });
+                if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome);
                 if(d.status==="approved"){ setPix({paymentId:d.paymentId}); setPagStatus("approved"); ir("resultado"); }
-                else if(d.status==="in_process"||d.status==="pending"){ setCardMsg("Pagamento em análise. Você receberá a confirmação por e-mail."); }
+                else if(d.status==="in_process"||d.status==="pending"){ setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado — e enviamos o acesso para o seu e-mail."); }
                 else { setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
               }catch(e){ setCardMsg(null); setCardErro("Falha ao processar o cartão. Tente novamente."); }
             })(),
@@ -437,6 +456,7 @@ export default function MindCode() {
       const { criarPagamentoPix } = await import("./payment.js");
       const data = await criarPagamentoPix({ profileKey: perfilKey, nome, email });
       setPix(data); setPagStatus(data.status||"pending");
+      if(data.paymentId) saveAccess(data.paymentId, perfilKey, nome);
     }catch(e){
       setPixErro("Não foi possível gerar o PIX agora. Tente novamente em instantes.");
     }
@@ -466,11 +486,34 @@ export default function MindCode() {
       unsub = observarPagamento(pix.paymentId,(d)=>{
         if(!d) return;
         setPagStatus(d.status);
-        if(d.status==="approved") ir("resultado");
+        if(d.status==="approved"){ saveAccess(pix.paymentId, perfilKey, nome); ir("resultado"); }
+        else if(d.status==="cancelled"||d.status==="rejected"||d.status==="refunded"){ clearAccess(); }
       });
     })();
     return ()=>{ if(unsub) unsub(); };
   },[pix]);
+
+  if(tela==="recuperar"){
+    const negado = pagStatus==="cancelled"||pagStatus==="rejected"||pagStatus==="refunded";
+    return(
+    <div style={bg} ref={top}>
+      {themeToggle}
+      <Orb color="#6366F1" size={400} x="50%" y="0%" blur={160}/>
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:460,margin:"0 auto",padding:"110px 24px",textAlign:"center"}}>
+        {!negado ? (<>
+          <div style={{width:46,height:46,margin:"0 auto 26px",border:"3px solid var(--border)",borderTopColor:"var(--cta)",borderRadius:"50%",animation:"mcspin 0.8s linear infinite"}}/>
+          <h2 style={{fontSize:"clamp(22px,4vw,28px)",fontWeight:700,marginBottom:12,letterSpacing:"-0.02em"}}>Recuperando seu relatório…</h2>
+          <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.7}}>{nome?`${nome}, estamos`:"Estamos"} confirmando seu pagamento. Isso leva alguns segundos — não feche esta página.</p>
+          <style>{"@keyframes mcspin{to{transform:rotate(360deg)}}"}</style>
+        </>) : (<>
+          <h2 style={{fontSize:"clamp(22px,4vw,28px)",fontWeight:700,marginBottom:12,letterSpacing:"-0.02em"}}>Não encontramos um pagamento aprovado</h2>
+          <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.7,marginBottom:30}}>O pagamento pode ter sido cancelado ou ainda não foi concluído. Se você acabou de pagar por PIX, aguarde alguns instantes e recarregue. Caso contrário, faça o teste e desbloqueie seu relatório.</p>
+          <button onClick={()=>{ clearAccess(); setPix(null); setPerfilKey(null); setPagStatus(null); setReport(null); ir("intro"); }} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"15px 40px",fontSize:15,cursor:"pointer",borderRadius:12,fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.30)"}}>Fazer o teste</button>
+        </>)}
+      </div>
+    </div>
+    );
+  }
 
   if(tela==="intro") return(
     <div style={bg} ref={top}>
@@ -777,6 +820,16 @@ export default function MindCode() {
             ))}
           </div>
           <p style={{marginTop:12,fontSize:12,color:"var(--faint)",lineHeight:1.6}}>Gera um card com o seu perfil em destaque — escolha o app e <strong>envie por mensagem</strong> ou <strong>poste no feed/story</strong>. No computador, o card é baixado para você publicar.</p>
+          {acessoLink&&(
+            <div style={{marginTop:30,background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"16px 18px",textAlign:"left",maxWidth:520,marginLeft:"auto",marginRight:"auto"}}>
+              <div style={{fontSize:11,letterSpacing:"0.14em",color:"var(--muted)",textTransform:"uppercase",fontWeight:700,marginBottom:8}}>🔖 Seu link de acesso</div>
+              <p style={{fontSize:12.5,color:"var(--faint)",lineHeight:1.6,margin:"0 0 12px"}}>Salve este link para reabrir seu relatório completo quando quiser, em qualquer aparelho.</p>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <input readOnly value={acessoLink} onFocus={e=>e.target.select()} style={{flex:1,minWidth:0,background:"var(--surface)",border:"1px solid var(--border)",borderRadius:9,padding:"10px 12px",color:"var(--muted)",fontSize:12,outline:"none",boxSizing:"border-box"}}/>
+                <button onClick={()=>{ navigator.clipboard?.writeText(acessoLink).catch(()=>{}); setCopiado("acesso"); setTimeout(()=>setCopiado(null),2500); }} style={{background:copiado==="acesso"?"rgba(99,102,241,0.10)":"var(--cta)",border:copiado==="acesso"?"1px solid var(--cta)":"none",color:copiado==="acesso"?"var(--cta)":"#fff",padding:"10px 16px",fontSize:12,cursor:"pointer",borderRadius:9,fontWeight:600,whiteSpace:"nowrap"}}>{copiado==="acesso"?"Copiado!":"Copiar"}</button>
+              </div>
+            </div>
+          )}
           {nome&&<p style={{marginTop:26,fontSize:12,color:"var(--faint)"}}>Análise gerada para <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span> · MindCode</p>}
         </div>
       </div>
