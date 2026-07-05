@@ -283,6 +283,14 @@ export default function MindCode() {
   const [cardMsg,setCardMsg]=useState(null);
   const brickRef=useRef(null);
   const top=useRef(null);
+  const purchaseFiredRef=useRef(new Set());
+  // Dispara a conversão de COMPRA no dataLayer (GTM usa isso para acionar a tag
+  // de conversão do Bing/Google). Deduplica por paymentId para não contar 2x.
+  const firePurchase=(paymentId)=>{
+    if(!paymentId || purchaseFiredRef.current.has(paymentId)) return;
+    purchaseFiredRef.current.add(paymentId);
+    try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", value:19.90, currency:"BRL", transaction_id:String(paymentId) }); }catch(e){}
+  };
   const perfil=perfilKey?profiles[perfilKey]:null;
   const temperamento=perfilKey?perfilKey.split("-")[0]:null;
   const inteligencia=perfilKey?perfilKey.split("-")[1]:null;
@@ -449,7 +457,7 @@ export default function MindCode() {
                   identification: fd.payer && fd.payer.identification,
                 });
                 if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome);
-                if(d.status==="approved"){ setPix({paymentId:d.paymentId}); setPagStatus("approved"); ir("resultado"); }
+                if(d.status==="approved"){ firePurchase(d.paymentId); setPix({paymentId:d.paymentId}); setPagStatus("approved"); ir("resultado"); }
                 else if(d.status==="in_process"||d.status==="pending"){ setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado automaticamente aqui — não feche esta página."); }
                 else { setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
               }catch(e){ setCardMsg(null); setCardErro("Falha ao processar o cartão. Tente novamente."); }
@@ -500,7 +508,7 @@ export default function MindCode() {
       unsub = observarPagamento(pix.paymentId,(d)=>{
         if(!d) return;
         setPagStatus(d.status);
-        if(d.status==="approved"){ saveAccess(pix.paymentId, perfilKey, nome); ir("resultado"); }
+        if(d.status==="approved"){ if(pix?.qrCode) firePurchase(pix.paymentId); saveAccess(pix.paymentId, perfilKey, nome); ir("resultado"); }
         else if(d.status==="cancelled"||d.status==="rejected"||d.status==="refunded"){ clearAccess(); }
       });
     })();
