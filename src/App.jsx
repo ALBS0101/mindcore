@@ -241,7 +241,7 @@ export default function MindCode() {
   // para o app do banco e volta com a aba recarregada — sem isto, o paymentId
   // (que só vivia na memória) sumiria e ele perderia o relatório que pagou.
   //  • link  ?acesso=<paymentId>&perfil=<chave>  → funciona em qualquer dispositivo
-  //    (é o link durável que mostramos na tela e enviamos por e-mail);
+  //    (é o link durável que mostramos na tela — e, futuramente, por e-mail);
   //  • localStorage "mc-access"                  → mesmo dispositivo, até 30 dias.
   const restore=PAGAMENTOS_ON?(()=>{ try{
     const q=new URLSearchParams(window.location.search);
@@ -436,7 +436,7 @@ export default function MindCode() {
                 });
                 if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome);
                 if(d.status==="approved"){ setPix({paymentId:d.paymentId}); setPagStatus("approved"); ir("resultado"); }
-                else if(d.status==="in_process"||d.status==="pending"){ setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado — e enviamos o acesso para o seu e-mail."); }
+                else if(d.status==="in_process"||d.status==="pending"){ setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado automaticamente aqui — não feche esta página."); }
                 else { setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
               }catch(e){ setCardMsg(null); setCardErro("Falha ao processar o cartão. Tente novamente."); }
             })(),
@@ -450,7 +450,7 @@ export default function MindCode() {
   },[tela,metodo]);
 
   async function gerarPix(){
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setPixErro("Digite um e-mail válido para enviar o acesso."); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setPixErro("Digite um e-mail válido para o comprovante do pagamento."); return; }
     setPixErro(null); setPixLoading(true);
     try{
       const { criarPagamentoPix } = await import("./payment.js");
@@ -664,13 +664,13 @@ export default function MindCode() {
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:20,boxShadow:"var(--shadow)"}}>
               <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Seu melhor e-mail para o acesso" inputMode="email" autoComplete="email"
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Seu e-mail (para o comprovante)" inputMode="email" autoComplete="email"
                 style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",color:"var(--text)",fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
               {pixErro&&<div style={{fontSize:13,color:"#EF4444",marginBottom:12}}>{pixErro}</div>}
               <button onClick={gerarPix} disabled={pixLoading} style={{background:pixLoading?"var(--surface-2)":"linear-gradient(135deg,var(--cta),var(--cta-2))",border:pixLoading?"1px solid var(--border)":"none",color:pixLoading?"var(--faint)":"#fff",padding:"15px 22px",fontSize:15,cursor:pixLoading?"default":"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
                 {pixLoading?"Gerando PIX...":"Gerar PIX e pagar"}
               </button>
-              <p style={{fontSize:11,color:"var(--faint)",marginTop:12,lineHeight:1.6}}>Enviaremos a confirmação e o acesso para o seu e-mail. Pagamento processado pelo Mercado Pago.</p>
+              <p style={{fontSize:11,color:"var(--faint)",marginTop:12,lineHeight:1.6}}>Assim que o pagamento for confirmado, seu relatório é liberado automaticamente aqui. Pagamento processado pelo Mercado Pago.</p>
             </div>
           ) : (
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>

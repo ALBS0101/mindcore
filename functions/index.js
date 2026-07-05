@@ -239,7 +239,9 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
 
 /* ─── Webhook ───────────────────────────────────────────────────────── */
 // Valida a assinatura HMAC (x-signature) do MP usando MP_WEBHOOK_SECRET.
-export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET", "RESEND_API_KEY"] }, async (req, res) => {
+// Para ATIVAR o e-mail: crie o secret RESEND_API_KEY e adicione-o à lista abaixo
+// (ex.: [..., "RESEND_API_KEY"]) e faça o deploy. Sem isso, enviarEmailAcesso é no-op.
+export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] }, async (req, res) => {
   try {
     const secret = process.env.MP_WEBHOOK_SECRET;
     if (secret && !assinaturaValida(req, secret)) {
