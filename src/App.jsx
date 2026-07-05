@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 // Teasers dos 36 perfis (cliente). O relatório COMPLETO vem do servidor (getReport).
 import { profiles } from "./profilesPreview.js";
+import { LEGAL, EMPRESA } from "./legal.js";
 
 /* Liga o fluxo de pagamento real (Mercado Pago). Enquanto false, usa o
    fluxo simulado — assim o app funciona antes do deploy das Cloud Functions. */
@@ -264,6 +265,8 @@ export default function MindCode() {
   const [pixOk,setPixOk]=useState(false);
   const [gerando,setGerando]=useState(false);
   const [copiado,setCopiado]=useState(null);
+  // Página legal aberta (termos | privacidade | cookies | reembolso) ou null.
+  const [legalDoc,setLegalDoc]=useState(()=>{ try{ const l=new URLSearchParams(window.location.search).get("legal"); return l&&LEGAL[l]?l:null; }catch(e){ return null; } });
   const [tema,setTema]=useState(()=> (typeof document!=="undefined" && document.documentElement.getAttribute("data-theme")) || "light");
   // Pagamento real (Mercado Pago PIX)
   const [email,setEmail]=useState("");
@@ -297,6 +300,17 @@ export default function MindCode() {
       style={{position:"fixed",top:16,right:16,zIndex:50,width:42,height:42,borderRadius:"50%",background:"var(--surface)",border:"1px solid var(--border)",color:"var(--muted)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"var(--shadow)"}}>
       <LineIcon name={tema==="dark"?"sun":"moon"} size={18}/>
     </button>
+  );
+  const abrirLegal=(slug)=>{ setLegalDoc(slug); setTimeout(()=>top.current?.scrollIntoView({behavior:"smooth"}),50); };
+  // Rodapé discreto com os links legais — não intrusivo, fica no fim das telas.
+  const legalFooter=(
+    <div style={{marginTop:40,paddingTop:20,textAlign:"center",display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
+      {[["termos","Termos"],["privacidade","Privacidade"],["cookies","Cookies"]].map(([s,l])=>(
+        <button key={s} onClick={()=>abrirLegal(s)} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:11.5,letterSpacing:"0.02em",padding:0,textDecoration:"none"}}
+          onMouseEnter={e=>e.currentTarget.style.color="var(--muted)"} onMouseLeave={e=>e.currentTarget.style.color="var(--faint)"}>{l}</button>
+      ))}
+      <span style={{color:"var(--faint)",fontSize:11.5}}>© {new Date().getFullYear()} MindCode</span>
+    </div>
   );
   const prog=Math.round((respostas.filter(r=>r!==null).length/questions.length)*100);
   const ir=t=>{ setTela(t); setTimeout(()=>top.current?.scrollIntoView({behavior:"smooth"}),50); };
@@ -493,6 +507,34 @@ export default function MindCode() {
     return ()=>{ if(unsub) unsub(); };
   },[pix]);
 
+  if(legalDoc && LEGAL[legalDoc]){
+    const doc=LEGAL[legalDoc];
+    return(
+    <div style={bg} ref={top}>
+      {themeToggle}
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:720,margin:"0 auto",padding:"56px 24px 60px"}}>
+        <button onClick={()=>setLegalDoc(null)} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13,marginBottom:24}}>← Voltar</button>
+        <h1 style={{fontSize:"clamp(26px,4.5vw,34px)",fontWeight:800,letterSpacing:"-0.02em",margin:"0 0 6px"}}>{doc.titulo}</h1>
+        <p style={{fontSize:12,color:"var(--faint)",marginBottom:24}}>Atualizado em {EMPRESA.atualizado}</p>
+        {doc.intro&&<p style={{fontSize:15,lineHeight:1.8,color:"var(--muted)",marginBottom:28}}>{doc.intro}</p>}
+        {doc.secoes.map((s,i)=>(
+          <div key={i} style={{marginBottom:26}}>
+            <h2 style={{fontSize:16.5,fontWeight:700,color:"var(--text)",margin:"0 0 10px"}}>{s.h}</h2>
+            {(s.p||[]).map((t,j)=>(<p key={j} style={{fontSize:14.5,lineHeight:1.8,color:"var(--muted)",margin:"0 0 10px"}}>{t}</p>))}
+            {s.list&&<ul style={{margin:"0 0 10px",paddingLeft:20}}>{s.list.map((li,j)=>(<li key={j} style={{fontSize:14.5,lineHeight:1.75,color:"var(--muted)",marginBottom:6}}>{li}</li>))}</ul>}
+            {(s.pFim||[]).map((t,j)=>(<p key={j} style={{fontSize:14.5,lineHeight:1.8,color:"var(--muted)",margin:"0 0 10px"}}>{t}</p>))}
+          </div>
+        ))}
+        <div style={{marginTop:36,paddingTop:20,borderTop:"1px solid var(--border)",display:"flex",gap:16,flexWrap:"wrap"}}>
+          {[["termos","Termos"],["privacidade","Privacidade"],["cookies","Cookies"],["reembolso","Reembolso"]].filter(([s])=>s!==legalDoc).map(([s,l])=>(
+            <button key={s} onClick={()=>abrirLegal(s)} style={{background:"none",border:"none",color:"var(--cta)",cursor:"pointer",fontSize:13,padding:0}}>{l}</button>
+          ))}
+        </div>
+      </div>
+    </div>
+    );
+  }
+
   if(tela==="recuperar"){
     const negado = pagStatus==="cancelled"||pagStatus==="rejected"||pagStatus==="refunded";
     return(
@@ -531,6 +573,7 @@ export default function MindCode() {
         </div>
         <button onClick={()=>ir("nome")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 52px",fontSize:16,letterSpacing:"0.02em",cursor:"pointer",borderRadius:12,fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Iniciar o Teste</button>
         <p style={{marginTop:22,fontSize:12,color:"var(--faint)"}}>Gratuito · Resultado disponível ao final</p>
+        {legalFooter}
       </div>
     </div>
   );
@@ -729,6 +772,13 @@ export default function MindCode() {
           <span>✓ Acesso imediato</span><span style={{color:"var(--ghost)"}}>·</span><span>✓ PDF para sempre</span><span style={{color:"var(--ghost)"}}>·</span><span>✓ Pagamento único</span>
         </div>
         <p style={{fontSize:13,color:"var(--faint)"}}>O autoconhecimento é a única decisão que você nunca se arrepende de tomar.</p>
+        {/* Reembolso/CDC + legais: presentes para conformidade, discretos para não atrapalhar a venda. */}
+        <div style={{marginTop:34,display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
+          {[["reembolso","Reembolso em 7 dias"],["termos","Termos"],["privacidade","Privacidade"],["cookies","Cookies"]].map(([s,l])=>(
+            <button key={s} onClick={()=>abrirLegal(s)} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:11,padding:0}}
+              onMouseEnter={e=>e.currentTarget.style.color="var(--muted)"} onMouseLeave={e=>e.currentTarget.style.color="var(--faint)"}>{l}</button>
+          ))}
+        </div>
       </div>
     </div>
   );
