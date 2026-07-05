@@ -237,11 +237,15 @@ const BrandIcon=({name,size=16})=>{
 };
 
 export default function MindCode() {
-  const [tela,setTela]=useState("intro");
+  // Deep link (teste/marketing): ?perfil=<chave> abre direto a PRÉVIA do perfil
+  // (conteúdo gratuito — o relatório completo continua atrás do pagamento).
+  // Opcional: &nome=<nome> personaliza a saudação. Ex.: /?perfil=Sanguíneo-Musical&nome=Ana
+  const deepLink=(()=>{ try{ const q=new URLSearchParams(window.location.search); const k=q.get("perfil"); return k&&profiles[k]?{ perfil:k, nome:(q.get("nome")||"").slice(0,40) }:null; }catch(e){ return null; } })();
+  const [tela,setTela]=useState(deepLink?"preview":"intro");
   const [pergunta,setPergunta]=useState(0);
   const [respostas,setRespostas]=useState(Array(questions.length).fill(null));
-  const [perfilKey,setPerfilKey]=useState(null);
-  const [nome,setNome]=useState("");
+  const [perfilKey,setPerfilKey]=useState(deepLink?deepLink.perfil:null);
+  const [nome,setNome]=useState(deepLink?deepLink.nome:"");
   const [nomeInput,setNomeInput]=useState("");
   const [sel,setSel]=useState(null);
   const [anim,setAnim]=useState(false);
