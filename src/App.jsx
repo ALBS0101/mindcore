@@ -291,6 +291,17 @@ export default function MindCode() {
     purchaseFiredRef.current.add(paymentId);
     try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", value:19.90, currency:"BRL", transaction_id:String(paymentId) }); }catch(e){}
   };
+  // Após pagamento aprovado, navega DE VERDADE para /compra-aprovada — uma URL de
+  // sucesso exclusiva (diferente da home) que serve de página de conversão para o
+  // Google Ads (método de URL). O relatório é restaurado lá via localStorage.
+  const goToSuccess=(paymentId)=>{
+    try{ sessionStorage.setItem("mc-fire-purchase", String(paymentId||"")); }catch(e){}
+    try{ window.location.assign("/compra-aprovada"); }
+    catch(e){ firePurchase(paymentId); ir("resultado"); }
+  };
+  // Ao carregar a página de sucesso, dispara o evento de compra no dataLayer de
+  // forma confiável (depois do GTM subir), independentemente do reload.
+  useEffect(()=>{ try{ const p=sessionStorage.getItem("mc-fire-purchase"); if(p){ sessionStorage.removeItem("mc-fire-purchase"); firePurchase(p); } }catch(e){} },[]);
   const perfil=perfilKey?profiles[perfilKey]:null;
   const temperamento=perfilKey?perfilKey.split("-")[0]:null;
   const inteligencia=perfilKey?perfilKey.split("-")[1]:null;
@@ -457,7 +468,7 @@ export default function MindCode() {
                   identification: fd.payer && fd.payer.identification,
                 });
                 if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome);
-                if(d.status==="approved"){ firePurchase(d.paymentId); setPix({paymentId:d.paymentId}); setPagStatus("approved"); ir("resultado"); }
+                if(d.status==="approved"){ setPix({paymentId:d.paymentId}); setPagStatus("approved"); goToSuccess(d.paymentId); }
                 else if(d.status==="in_process"||d.status==="pending"){ setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado automaticamente aqui — não feche esta página."); }
                 else { setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
               }catch(e){ setCardMsg(null); setCardErro("Falha ao processar o cartão. Tente novamente."); }
@@ -508,7 +519,7 @@ export default function MindCode() {
       unsub = observarPagamento(pix.paymentId,(d)=>{
         if(!d) return;
         setPagStatus(d.status);
-        if(d.status==="approved"){ if(pix?.qrCode) firePurchase(pix.paymentId); saveAccess(pix.paymentId, perfilKey, nome); ir("resultado"); }
+        if(d.status==="approved"){ saveAccess(pix.paymentId, perfilKey, nome); if(pix?.qrCode) goToSuccess(pix.paymentId); else ir("resultado"); }
         else if(d.status==="cancelled"||d.status==="rejected"||d.status==="refunded"){ clearAccess(); }
       });
     })();
