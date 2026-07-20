@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 // Teasers dos 36 perfis (cliente). O relatório COMPLETO vem do servidor (getReport).
 import { profiles } from "./profilesPreview.js";
 import { LEGAL, EMPRESA } from "./legal.js";
+import { logConversion } from "./firebase.js";
 
 /* Liga o fluxo de pagamento real (Mercado Pago). Enquanto false, usa o
    fluxo simulado — assim o app funciona antes do deploy das Cloud Functions. */
@@ -289,7 +290,11 @@ export default function MindCode() {
   const firePurchase=(paymentId)=>{
     if(!paymentId || purchaseFiredRef.current.has(paymentId)) return;
     purchaseFiredRef.current.add(paymentId);
-    try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", value:19.90, currency:"BRL", transaction_id:String(paymentId) }); }catch(e){}
+    const dados={ value:19.90, currency:"BRL", transaction_id:String(paymentId) };
+    // 1) GA4 (Firebase) — evento que o Google Ads importa como conversão de compra.
+    logConversion("conversion_event_purchase_1", dados);
+    // 2) dataLayer (GTM) — para outras tags de conversão (ex.: Bing UET).
+    try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", ...dados }); }catch(e){}
   };
   // Após pagamento aprovado, navega DE VERDADE para /compra-aprovada — uma URL de
   // sucesso exclusiva (diferente da home) que serve de página de conversão para o
