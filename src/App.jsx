@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { profiles } from "./profilesPreview.js";
 import { LEGAL, EMPRESA } from "./legal.js";
 import { logConversion } from "./firebase.js";
+import { FAMOSOS } from "./famosos.js";
 
 /* Liga o fluxo de pagamento real (Mercado Pago). Enquanto false, usa o
    fluxo simulado — assim o app funciona antes do deploy das Cloud Functions. */
@@ -36,6 +37,21 @@ function calcularPerfil(respostas) {
   return `${tN[tTop]}-${iN[iTop]}`;
 }
 
+// "Seu mix": distribuição real das respostas em % (temperamentos + inteligências).
+function calcularMix(respostas) {
+  const s = { logica:0,interpessoal:0,linguistica:0,criativa:0,corporal:0,musical:0,naturalista:0,espacial:0,existencial:0,colerico:0,fleumatico:0,sanguineo:0,melancolico:0 };
+  respostas.forEach(r=>{ if(r&&s[r]!==undefined) s[r]++; });
+  const temps=["colerico","fleumatico","sanguineo","melancolico"];
+  const intels=["logica","interpessoal","linguistica","criativa","corporal","musical","naturalista","espacial","existencial"];
+  const tN={colerico:"Colérico",fleumatico:"Fleumático",sanguineo:"Sanguíneo",melancolico:"Melancólico"};
+  const iN={logica:"Lógica",interpessoal:"Interpessoal",linguistica:"Linguística",criativa:"Criativa",corporal:"Corporal",musical:"Musical",naturalista:"Naturalista",espacial:"Espacial",existencial:"Existencial"};
+  const tTot=temps.reduce((a,k)=>a+s[k],0)||1;
+  const iTot=intels.reduce((a,k)=>a+s[k],0)||1;
+  const temp=temps.map(k=>({nome:tN[k],pct:Math.round(s[k]/tTot*100)})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
+  const intel=intels.map(k=>({nome:iN[k],pct:Math.round(s[k]/iTot*100)})).filter(x=>x.pct>0).sort((a,b)=>b.pct-a.pct);
+  return { temp, intel };
+}
+
 function waitForJsPDF(timeout = 6000) {
   return new Promise((resolve, reject) => {
     if (window.jspdf) return resolve();
@@ -49,7 +65,7 @@ function waitForJsPDF(timeout = 6000) {
   });
 }
 
-async function gerarPDF(perfil, perfilKey, nome, theme) {
+async function gerarPDF(perfil, perfilKey, nome, theme, mix) {
   await waitForJsPDF();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
@@ -165,6 +181,32 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
   });
   y+=5;
 
+  // SEU MIX — barras de % das respostas
+  if (mix && ((mix.temp&&mix.temp.length) || (mix.intel&&mix.intel.length))) {
+    checkY(62);
+    setF(ACC); doc.roundedRect(M,y,3.5,15,1,1,"F");
+    fHead(); doc.setFontSize(11.5); setC(ACC); track(0.7);
+    doc.text("SEU MIX", M+9, y+6); track(0);
+    setD(P.divider); doc.setLineWidth(0.3); doc.line(M+9,y+10.5,W-M,y+10.5);
+    y+=20;
+    const colW=(CW-14)/2;
+    const drawBars=(title,items,x)=>{
+      let yy=y;
+      fHead(); doc.setFontSize(9); setC(ACC); track(0.4); doc.text(title.toUpperCase(),x,yy); track(0); yy+=7;
+      fBody(); doc.setFontSize(9.5);
+      items.forEach(it=>{
+        setC(P.text); doc.text(it.nome,x,yy);
+        setC(P.muted); doc.text(it.pct+"%",x+colW,yy,{align:"right"}); yy+=2.6;
+        setF(P.box); doc.roundedRect(x,yy,colW,2.4,1,1,"F");
+        setF(ACC); doc.roundedRect(x,yy,colW*it.pct/100,2.4,1,1,"F"); yy+=7.6;
+      });
+      return yy;
+    };
+    const yL=drawBars("Temperamento",mix.temp,M);
+    const yR=drawBars("Inteligências",mix.intel.slice(0,5),M+colW+14);
+    y=Math.max(yL,yR)+8;
+  }
+
   drawSection("Quem você é",perfil.descricao);
   drawSection("Indo mais fundo",perfil.descricao2);
 
@@ -177,6 +219,11 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
   drawSection("Seus pontos cegos",perfil.pontosCegos);
   drawSection("Você nos relacionamentos",perfil.relacoes);
   drawSection("Onde você prospera",perfil.carreiras,{list:true});
+  if (FAMOSOS[perfilKey]) {
+    drawSection("Perfis públicos parecidos com o seu",FAMOSOS[perfilKey],{list:true});
+    checkY(10); fBody(); doc.setFontSize(9); setC(P.faint);
+    wrap("Referência ilustrativa — não é um diagnóstico.",CW).forEach(l=>{ doc.text(l,M,y); y+=6; }); y+=8;
+  }
 
   addPage(); pageHeader();
   drawSection("Fato sobre seu perfil",perfil.fatoCurioso);
@@ -198,6 +245,16 @@ async function gerarPDF(perfil, perfilKey, nome, theme) {
 
 const Orb=({color,size,x,y,blur=120})=>(<div style={{position:"absolute",borderRadius:"50%",background:color,width:size,height:size,left:x,top:y,filter:`blur(${blur}px)`,opacity:"var(--orb-op)",pointerEvents:"none"}}/>);
 const Sec=({title,cor,children})=>(<div style={{marginBottom:36}}><div style={{display:"flex",alignItems:"center",gap:12,marginBottom:15}}><div style={{width:4,height:18,background:cor,borderRadius:2,flexShrink:0}}/><h3 style={{fontSize:12.5,letterSpacing:"0.2em",textTransform:"uppercase",color:"var(--muted)",margin:0,fontWeight:700}}>{title}</h3></div>{children}</div>);
+const Bar=({nome,pct,cor})=>(
+  <div style={{marginBottom:11}}>
+    <div style={{display:"flex",justifyContent:"space-between",fontSize:13.5,marginBottom:5}}>
+      <span style={{color:"var(--text)"}}>{nome}</span><span style={{color:"var(--muted)",fontWeight:700}}>{pct}%</span>
+    </div>
+    <div style={{height:8,borderRadius:6,background:"var(--track)",overflow:"hidden"}}>
+      <div style={{height:"100%",width:`${pct}%`,borderRadius:6,background:cor,transition:"width 0.7s ease"}}/>
+    </div>
+  </div>
+);
 const bg={minHeight:"100vh",background:"var(--bg)",color:"var(--text)",position:"relative",overflow:"hidden",transition:"background 0.3s ease,color 0.3s ease"};
 
 /* Paleta por temperamento (acentos do resultado) */
@@ -260,6 +317,7 @@ export default function MindCode() {
   const [respostas,setRespostas]=useState(Array(questions.length).fill(null));
   const [perfilKey,setPerfilKey]=useState(restore?restore.profileKey:(deepLink?deepLink.perfil:null));
   const [nome,setNome]=useState(restore?(restore.nome||""):(deepLink?deepLink.nome:""));
+  const [mix,setMix]=useState(restore&&restore.mix?restore.mix:null); // distribuição das respostas
   const [nomeInput,setNomeInput]=useState("");
   const [sel,setSel]=useState(null);
   const [anim,setAnim]=useState(false);
@@ -350,13 +408,13 @@ export default function MindCode() {
   function responder(tipo){
     if(anim) return; setSel(tipo); setAnim(true);
     const n=[...respostas]; n[pergunta]=tipo; setRespostas(n);
-    setTimeout(()=>{ if(pergunta<questions.length-1){ setPergunta(p=>p+1); setSel(null); setAnim(false); } else { logConversion("test_completed"); setPerfilKey(calcularPerfil(n)); ir("preview"); setAnim(false); } },380);
+    setTimeout(()=>{ if(pergunta<questions.length-1){ setPergunta(p=>p+1); setSel(null); setAnim(false); } else { logConversion("test_completed"); setPerfilKey(calcularPerfil(n)); setMix(calcularMix(n)); ir("preview"); setAnim(false); } },380);
   }
   async function baixarPDF() {
     if (!report) return;
     setGerando(true);
     try {
-      await gerarPDF(report, perfilKey, nome, tema);
+      await gerarPDF(report, perfilKey, nome, tema, mix);
     } catch (e) {
       if (e.message === "jsPDF_timeout") {
         alert("Não foi possível carregar o gerador de PDF. Verifique sua conexão e recarregue a página.");
@@ -368,7 +426,7 @@ export default function MindCode() {
   }
 
   // ─── Acesso durável ao relatório pago ───
-  const saveAccess=(paymentId,pk,nm)=>{ try{ localStorage.setItem("mc-access",JSON.stringify({paymentId,profileKey:pk,nome:nm||"",ts:Date.now()})); }catch(e){} };
+  const saveAccess=(paymentId,pk,nm)=>{ try{ localStorage.setItem("mc-access",JSON.stringify({paymentId,profileKey:pk,nome:nm||"",mix:mix||null,ts:Date.now()})); }catch(e){} };
   const clearAccess=()=>{ try{ localStorage.removeItem("mc-access"); }catch(e){} };
 
   // ─── Compartilhamento ───
@@ -849,6 +907,23 @@ export default function MindCode() {
               : <p style={{color:"var(--muted)",fontSize:15}}>Preparando seu relatório completo…</p>}
           </div>
         ) : (<>
+        {/* SEU MIX — distribuição real das respostas */}
+        {mix && (mix.temp.length>0 || mix.intel.length>0) && (
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:18,padding:"28px 26px",marginBottom:36,boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--muted)",textTransform:"uppercase",marginBottom:6,fontWeight:700}}>Seu mix</div>
+          <p style={{fontSize:13.5,color:"var(--faint)",marginBottom:24,lineHeight:1.6}}>Como suas respostas se distribuíram — a base do seu perfil, medida a partir do que você respondeu.</p>
+          <div style={{display:"flex",flexWrap:"wrap",gap:"28px 40px"}}>
+            <div style={{flex:"1 1 240px",minWidth:0}}>
+              <div style={{fontSize:11,letterSpacing:"0.14em",color:cor,textTransform:"uppercase",fontWeight:700,marginBottom:14}}>Temperamento</div>
+              {mix.temp.map((t,i)=>(<Bar key={i} nome={t.nome} pct={t.pct} cor={cor}/>))}
+            </div>
+            <div style={{flex:"1 1 240px",minWidth:0}}>
+              <div style={{fontSize:11,letterSpacing:"0.14em",color:intelCor,textTransform:"uppercase",fontWeight:700,marginBottom:14}}>Inteligências</div>
+              {mix.intel.slice(0,5).map((t,i)=>(<Bar key={i} nome={t.nome} pct={t.pct} cor={intelCor}/>))}
+            </div>
+          </div>
+        </div>
+        )}
         {/* BASE TEÓRICA */}
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:18,padding:"28px 26px",marginBottom:36,boxShadow:"var(--shadow)"}}>
           <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--muted)",textTransform:"uppercase",marginBottom:22,fontWeight:700}}>A origem do seu perfil</div>
@@ -886,6 +961,14 @@ export default function MindCode() {
         <Sec title="Onde você prospera" cor={cor}>
           <div style={{display:"flex",flexWrap:"wrap",gap:8}}>{report.carreiras.map((c,i)=>(<span key={i} style={{padding:"9px 15px",background:`${cor}14`,border:`1px solid ${cor}33`,borderRadius:999,fontSize:14,color:"var(--text)"}}>{c}</span>))}</div>
         </Sec>
+        {FAMOSOS[perfilKey] && (
+        <Sec title="Perfis públicos parecidos com o seu" cor={intelCor}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:10}}>
+            {FAMOSOS[perfilKey].map((f,i)=>(<span key={i} style={{padding:"10px 16px",background:`${intelCor}12`,border:`1px solid ${intelCor}33`,borderRadius:12,fontSize:14.5,color:"var(--text)",fontWeight:600}}>{f}</span>))}
+          </div>
+          <p style={{fontSize:12.5,color:"var(--faint)",lineHeight:1.6,margin:0}}>Figuras conhecidas cujo perfil lembra o seu. É uma referência ilustrativa — não um diagnóstico.</p>
+        </Sec>
+        )}
         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 24px",marginBottom:24,boxShadow:"var(--shadow)"}}>
           <div style={{fontSize:11,letterSpacing:"0.2em",color:intelCor,textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Fato sobre seu perfil</div>
           <p style={{fontSize:17,lineHeight:1.8,color:"var(--text)",margin:0}}>{report.fatoCurioso}</p>
