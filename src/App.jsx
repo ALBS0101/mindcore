@@ -408,7 +408,7 @@ export default function MindCode() {
   function responder(tipo){
     if(anim) return; setSel(tipo); setAnim(true);
     const n=[...respostas]; n[pergunta]=tipo; setRespostas(n);
-    setTimeout(()=>{ if(pergunta<questions.length-1){ setPergunta(p=>p+1); setSel(null); setAnim(false); } else { logConversion("test_completed"); setPerfilKey(calcularPerfil(n)); setMix(calcularMix(n)); ir("preview"); setAnim(false); } },380);
+    setTimeout(()=>{ if(pergunta<questions.length-1){ setPergunta(p=>p+1); setSel(null); setAnim(false); } else { logConversion("test_completed"); setPerfilKey(calcularPerfil(n)); setMix(calcularMix(n)); ir("nome"); setAnim(false); } },380);
   }
   async function baixarPDF() {
     if (!report) return;
@@ -686,7 +686,7 @@ export default function MindCode() {
             <div key={l} style={{textAlign:"center"}}><div style={{fontSize:30,fontWeight:700,color:"var(--cta)",fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{n}</div><div style={{fontSize:12,color:"var(--faint)",letterSpacing:"0.08em",marginTop:2}}>{l}</div></div>
           ))}
         </div>
-        <button onClick={()=>ir("nome")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 52px",fontSize:16,letterSpacing:"0.02em",cursor:"pointer",borderRadius:12,fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Iniciar o Teste</button>
+        <button onClick={()=>ir("teste")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 52px",fontSize:16,letterSpacing:"0.02em",cursor:"pointer",borderRadius:12,fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Iniciar o Teste</button>
         <p style={{marginTop:22,fontSize:12,color:"var(--faint)"}}>Gratuito · Resultado disponível ao final</p>
         {legalFooter}
       </div>
@@ -698,16 +698,16 @@ export default function MindCode() {
       {themeToggle}
       <Orb color="#6366F1" size={400} x="50%" y="0%" blur={160}/>
       <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:520,margin:"0 auto",padding:"80px 24px",textAlign:"center"}}>
-        <div style={{fontSize:12,letterSpacing:"0.28em",color:"var(--faint)",textTransform:"uppercase",marginBottom:20,fontWeight:600}}>Antes de começar</div>
-        <h2 style={{fontSize:"clamp(26px,5vw,38px)",fontWeight:700,margin:"0 0 14px",letterSpacing:"-0.02em"}}>Como posso te chamar?</h2>
-        <p style={{color:"var(--muted)",fontSize:15,marginBottom:40,lineHeight:1.7}}>Seu nome tornará a análise mais pessoal — e o relatório PDF gerado ao final será personalizado para você.</p>
-        <input type="text" value={nomeInput} onChange={e=>setNomeInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&nomeInput.trim()&&(setNome(nomeInput.trim()),ir("teste"))} placeholder="Digite seu primeiro nome..." autoFocus
+        <div style={{fontSize:12,letterSpacing:"0.28em",color:"var(--cta)",textTransform:"uppercase",marginBottom:20,fontWeight:700}}>✦ Seu perfil está pronto</div>
+        <h2 style={{fontSize:"clamp(26px,5vw,38px)",fontWeight:700,margin:"0 0 14px",letterSpacing:"-0.02em"}}>Antes de revelar, como podemos te chamar?</h2>
+        <p style={{color:"var(--muted)",fontSize:15,marginBottom:40,lineHeight:1.7}}>Seu nome deixa o resultado mais pessoal — e o relatório em PDF sai personalizado para você.</p>
+        <input type="text" value={nomeInput} onChange={e=>setNomeInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&nomeInput.trim()&&(setNome(nomeInput.trim()),ir("preview"))} placeholder="Digite seu primeiro nome..." autoFocus
           style={{width:"100%",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:12,padding:"16px 20px",color:"var(--text)",fontSize:18,textAlign:"center",outline:"none",boxSizing:"border-box",marginBottom:28,boxShadow:"var(--shadow)"}}/>
-        <button onClick={()=>{ if(nomeInput.trim()){ setNome(nomeInput.trim()); ir("teste"); }}} disabled={!nomeInput.trim()}
+        <button onClick={()=>{ if(nomeInput.trim()){ setNome(nomeInput.trim()); ir("preview"); }}} disabled={!nomeInput.trim()}
           style={{background:nomeInput.trim()?"linear-gradient(135deg,var(--cta),var(--cta-2))":"var(--surface-2)",border:nomeInput.trim()?"none":"1px solid var(--border)",color:nomeInput.trim()?"#fff":"var(--faint)",padding:"16px 52px",fontSize:15,letterSpacing:"0.02em",cursor:nomeInput.trim()?"pointer":"default",borderRadius:12,fontWeight:600,transition:"all 0.3s",marginBottom:16,display:"block",width:"100%",boxShadow:nomeInput.trim()?"0 10px 30px rgba(99,102,241,0.30)":"none"}}>
-          Continuar
+          Ver meu resultado
         </button>
-        <button onClick={()=>{ setNome(""); ir("teste"); }} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13}}>Continuar sem informar nome</button>
+        <button onClick={()=>{ setNome(""); ir("preview"); }} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13}}>Ver sem informar nome</button>
       </div>
     </div>
   );
