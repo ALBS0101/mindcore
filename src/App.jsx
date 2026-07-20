@@ -465,7 +465,32 @@ export default function MindCode() {
     // frase de impacto
     ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.font = "italic 500 46px 'Inter',sans-serif";
     const fraseLines = split(`“${perfil.frase}”`, W - 190);
-    let fy = H * 0.605; fraseLines.forEach((ln) => { ctx.fillText(ln, W / 2, fy); fy += 62; });
+    let fy = H * 0.55; fraseLines.forEach((ln) => { ctx.fillText(ln, W / 2, fy); fy += 62; });
+    // SEU MIX (barras) — só quando o usuário fez o teste
+    if (mix && ((mix.temp && mix.temp.length) || (mix.intel && mix.intel.length))) {
+      const yMix = fy + 50;
+      const colW = 384;
+      [ { x: 96,  head: "TEMPERAMENTO",  c: cor,      items: (mix.temp || []).slice(0, 3) },
+        { x: 600, head: "INTELIGÊNCIAS", c: intelCor, items: (mix.intel || []).slice(0, 3) },
+      ].forEach((col) => {
+        ctx.textAlign = "left";
+        ctx.font = "700 24px 'Inter',sans-serif"; ctx.fillStyle = col.c;
+        ctx.fillText(col.head, col.x, yMix);
+        let by = yMix + 46;
+        col.items.forEach((it) => {
+          ctx.font = "600 27px 'Inter',sans-serif";
+          ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,255,255,0.88)";
+          ctx.fillText(it.nome, col.x, by);
+          ctx.textAlign = "right"; ctx.fillStyle = "rgba(255,255,255,0.55)";
+          ctx.fillText(it.pct + "%", col.x + colW, by);
+          ctx.textAlign = "left";
+          ctx.fillStyle = "rgba(255,255,255,0.14)"; ctx.fillRect(col.x, by + 12, colW, 10);
+          ctx.fillStyle = col.c; ctx.fillRect(col.x, by + 12, colW * it.pct / 100, 10);
+          by += 46;
+        });
+      });
+      ctx.textAlign = "center";
+    }
     // rodapé
     ctx.fillStyle = "rgba(255,255,255,0.6)"; ctx.font = "600 32px 'Inter',sans-serif";
     ctx.fillText("Descubra o seu perfil em", W / 2, H - 132);
