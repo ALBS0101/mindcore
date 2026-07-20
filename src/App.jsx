@@ -307,6 +307,14 @@ export default function MindCode() {
   // Ao carregar a página de sucesso, dispara o evento de compra no dataLayer de
   // forma confiável (depois do GTM subir), independentemente do reload.
   useEffect(()=>{ try{ const p=sessionStorage.getItem("mc-fire-purchase"); if(p){ sessionStorage.removeItem("mc-fire-purchase"); firePurchase(p); } }catch(e){} },[]);
+  // Medição do funil (GA4) — mostra em qual etapa os visitantes desistem, para
+  // sabermos se o vazamento é no teste, no paywall ou no checkout.
+  useEffect(()=>{
+    if(tela==="teste") logConversion("test_started");
+    else if(tela==="preview") logConversion("paywall_view");
+    else if(tela==="pagamento") logConversion("checkout_started");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[tela]);
   const perfil=perfilKey?profiles[perfilKey]:null;
   const temperamento=perfilKey?perfilKey.split("-")[0]:null;
   const inteligencia=perfilKey?perfilKey.split("-")[1]:null;
@@ -342,7 +350,7 @@ export default function MindCode() {
   function responder(tipo){
     if(anim) return; setSel(tipo); setAnim(true);
     const n=[...respostas]; n[pergunta]=tipo; setRespostas(n);
-    setTimeout(()=>{ if(pergunta<questions.length-1){ setPergunta(p=>p+1); setSel(null); setAnim(false); } else { setPerfilKey(calcularPerfil(n)); ir("preview"); setAnim(false); } },380);
+    setTimeout(()=>{ if(pergunta<questions.length-1){ setPergunta(p=>p+1); setSel(null); setAnim(false); } else { logConversion("test_completed"); setPerfilKey(calcularPerfil(n)); ir("preview"); setAnim(false); } },380);
   }
   async function baixarPDF() {
     if (!report) return;
@@ -699,7 +707,14 @@ export default function MindCode() {
           </div>
           <div style={{fontSize:13,color:"var(--faint)",marginBottom:22}}>pagamento único · acesso imediato + PDF personalizado para {nome||"você"}</div>
           <button onClick={()=>ir("pagamento")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 44px",fontSize:16,letterSpacing:"0.01em",cursor:"pointer",borderRadius:12,width:"100%",fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.35)"}}>Quero Conhecer Minha Mente Agora</button>
-          <div style={{fontSize:12,color:"var(--faint)",marginTop:14,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}><LineIcon name="lock" size={13}/> Compra 100% segura · Você recebe o acesso na hora</div>
+          <div style={{marginTop:16,display:"flex",alignItems:"center",justifyContent:"center",gap:9,background:"rgba(16,185,129,0.10)",border:"1px solid rgba(16,185,129,0.32)",borderRadius:10,padding:"11px 14px",fontSize:12.5,color:"var(--text)",fontWeight:600,lineHeight:1.4}}>
+            <span style={{fontSize:16}}>🛡️</span> Garantia de 7 dias — não gostou? Devolvemos 100%, sem perguntas.
+          </div>
+          <div style={{marginTop:12,display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap",fontSize:11.5,color:"var(--faint)"}}>
+            <span style={{display:"flex",alignItems:"center",gap:5}}><LineIcon name="lock" size={12}/> Pagamento seguro · Mercado Pago</span>
+            <span>✓ Acesso imediato</span>
+            <span>✓ PDF para sempre</span>
+          </div>
         </div>
         <p style={{fontSize:12,color:"var(--faint)"}}>Menos que um café por semana — por algo que você leva para o resto da vida.</p>
       </div>
@@ -716,7 +731,10 @@ export default function MindCode() {
         <h2 style={{fontSize:"clamp(24px,4.5vw,32px)",fontWeight:700,marginBottom:14,lineHeight:1.3,letterSpacing:"-0.02em"}}>{nome?`${nome}, seu relatório já está pronto.`:"Seu relatório já está pronto."}</h2>
         <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.75,marginBottom:30,maxWidth:400,marginLeft:"auto",marginRight:"auto"}}>Falta só um PIX para você desbloquear tudo o que descobrimos sobre a sua mente. Em segundos, ele estará na sua tela — e você não vai mais olhar para si mesmo da mesma forma.</p>
         <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--faint)",textTransform:"uppercase",marginBottom:8,fontWeight:600}}>Pague com PIX</div>
-        <p style={{color:"var(--faint)",fontSize:13,marginBottom:26}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
+        <p style={{color:"var(--faint)",fontSize:13,marginBottom:16}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
+        <div style={{maxWidth:380,margin:"0 auto 24px",display:"flex",alignItems:"center",justifyContent:"center",gap:9,background:"rgba(16,185,129,0.10)",border:"1px solid rgba(16,185,129,0.32)",borderRadius:10,padding:"11px 14px",fontSize:12.5,color:"var(--text)",fontWeight:600,lineHeight:1.4}}>
+          <span style={{fontSize:16}}>🛡️</span> Garantia de 7 dias — reembolso 100% se não gostar
+        </div>
 
         {PAGAMENTOS_ON ? (
           /* ─── FLUXO REAL · Mercado Pago ─── */
