@@ -143,6 +143,52 @@ async function enviarEmailAcesso(pay) {
   }
 }
 
+/* Envia a conversão de COMPRA ao GA4 pelo Measurement Protocol (server-side),
+   uma única vez. Garante que TODA venda seja contada — inclusive PIX pago com a
+   aba fechada, quando o evento do navegador não dispara. Usa o client_id do GA4
+   capturado no cliente para atribuir a conversão à sessão/anúncio do usuário.
+   No-op silencioso se GA_MP_API_SECRET não estiver configurado. */
+async function enviarConversaoGA4(pay) {
+  const secret = process.env.GA_MP_API_SECRET;
+  if (!secret) return;
+  const mid = process.env.GA_MEASUREMENT_ID || "G-W13HKCQ510";
+  const id = pay && String(pay.id);
+  if (!id) return;
+
+  const ref = db.collection("payments").doc(id);
+  const snap = await ref.get();
+  const data = snap.exists ? snap.data() : {};
+  if (data.gaConversionSent) return; // já enviado
+
+  const clientId = data.gaClientId || `${Math.floor(Math.random() * 1e10)}.${Math.floor(Date.now() / 1000)}`;
+  const body = {
+    client_id: String(clientId),
+    events: [
+      {
+        name: "conversion_event_purchase_1",
+        params: {
+          value: pay.transaction_amount || 19.9,
+          currency: "BRL",
+          transaction_id: id,
+        },
+      },
+    ],
+  };
+  try {
+    const r = await fetch(
+      `https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(mid)}&api_secret=${encodeURIComponent(secret)}`,
+      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
+    );
+    if (r.status === 204 || r.ok) {
+      await ref.set({ gaConversionSent: true, gaConversionAt: FieldValue.serverTimestamp() }, { merge: true });
+    } else {
+      logger.error("GA4 MP status", r.status);
+    }
+  } catch (e) {
+    logger.error("GA4 MP exceção", e && e.message);
+  }
+}
+
 /* Extrai uma mensagem útil de um erro do SDK do MP (para log). */
 function mpErr(e) {
   return {
@@ -154,7 +200,7 @@ function mpErr(e) {
 
 /* ─── PIX ───────────────────────────────────────────────────────────── */
 export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (request) => {
-  const { profileKey, nome, email } = request.data || {};
+  const { profileKey, nome, email, gaClientId, gclid } = request.data || {};
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     throw new HttpsError("invalid-argument", "E-mail inválido.");
   }
@@ -184,6 +230,7 @@ export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (
   const tx = (mp.point_of_interaction && mp.point_of_interaction.transaction_data) || {};
   const id = await salvarPagamento(mp, {
     profileKey, nome: nome || null, email, externalReference: externalRef,
+    gaClientId: gaClientId || null, gclid: gclid || null,
     createdAt: FieldValue.serverTimestamp(),
   });
   return {
@@ -197,7 +244,7 @@ export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (
 
 /* ─── CARTÃO ────────────────────────────────────────────────────────── */
 export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (request) => {
-  const { profileKey, nome, email, token: cardToken, paymentMethodId, installments, identification } = request.data || {};
+  const { profileKey, nome, email, token: cardToken, paymentMethodId, installments, identification, gaClientId, gclid } = request.data || {};
   if (!cardToken || !paymentMethodId) throw new HttpsError("invalid-argument", "Dados do cartão ausentes.");
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new HttpsError("invalid-argument", "E-mail inválido.");
   if (!profiles[profileKey]) throw new HttpsError("invalid-argument", "Perfil inválido.");
@@ -232,6 +279,7 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
 
   const id = await salvarPagamento(mp, {
     profileKey, nome: nome || null, email, externalReference: externalRef,
+    gaClientId: gaClientId || null, gclid: gclid || null,
     createdAt: FieldValue.serverTimestamp(),
   });
   return { paymentId: id, status: mp.status, statusDetail: mp.status_detail || null };
@@ -241,7 +289,7 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
 // Valida a assinatura HMAC (x-signature) do MP usando MP_WEBHOOK_SECRET.
 // Para ATIVAR o e-mail: crie o secret RESEND_API_KEY e adicione-o à lista abaixo
 // (ex.: [..., "RESEND_API_KEY"]) e faça o deploy. Sem isso, enviarEmailAcesso é no-op.
-export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET"] }, async (req, res) => {
+export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SECRET", "GA_MP_API_SECRET"] }, async (req, res) => {
   try {
     const secret = process.env.MP_WEBHOOK_SECRET;
     if (secret && !assinaturaValida(req, secret)) {
@@ -264,7 +312,7 @@ export const mpWebhook = onRequest({ secrets: ["MP_ACCESS_TOKEN", "MP_WEBHOOK_SE
     }
 
     await salvarPagamento(pay);
-    if (pay.status === "approved") await enviarEmailAcesso(pay);
+    if (pay.status === "approved") { await enviarConversaoGA4(pay); await enviarEmailAcesso(pay); }
     res.status(200).send("ok");
   } catch (e) {
     logger.error("Webhook exceção", e && e.message);

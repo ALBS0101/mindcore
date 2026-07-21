@@ -365,6 +365,8 @@ export default function MindCode() {
   // Ao carregar a página de sucesso, dispara o evento de compra no dataLayer de
   // forma confiável (depois do GTM subir), independentemente do reload.
   useEffect(()=>{ try{ const p=sessionStorage.getItem("mc-fire-purchase"); if(p){ sessionStorage.removeItem("mc-fire-purchase"); firePurchase(p); } }catch(e){} },[]);
+  // Captura o gclid do anúncio (persiste na sessão) para atribuição da conversão.
+  useEffect(()=>{ try{ const g=new URLSearchParams(window.location.search).get("gclid"); if(g) sessionStorage.setItem("mc-gclid",g); }catch(e){} },[]);
   // Medição do funil (GA4) — mostra em qual etapa os visitantes desistem, para
   // sabermos se o vazamento é no teste, no paywall ou no checkout.
   useEffect(()=>{
