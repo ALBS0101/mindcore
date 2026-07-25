@@ -757,16 +757,39 @@ export default function MindCode() {
         </div>
         <p style={{fontSize:18,color:"var(--text)",lineHeight:1.6,marginBottom:12,fontWeight:500}}>“{perfil.frase}”</p>
         <p style={{fontSize:15,color:"var(--muted)",lineHeight:1.7,maxWidth:480,margin:"0 auto 38px"}}>{perfil.resumo}</p>
-        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:34,textAlign:"left",boxShadow:"var(--shadow)"}}>
-          <div style={{fontSize:12,color:"var(--muted)",marginBottom:14,letterSpacing:"0.04em",fontWeight:600}}>O relatório completo inclui:</div>
-          <div className="mc-grid-2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px 14px"}}>
-            {["Quem você é — análise profunda","Indo mais fundo","Pontos fortes detalhados","Sua sombra","Você sob pressão","Pontos cegos","Você nos relacionamentos","Carreiras ideais","Fato único sobre seu perfil","Download PDF personalizado"].map(it=>(
-              <div key={it} style={{display:"flex",alignItems:"center",gap:8,fontSize:13,color:"var(--faint)"}}>
-                <div style={{width:5,height:5,borderRadius:"50%",background:cor,flexShrink:0,opacity:0.55}}/><span style={{filter:"blur(2px)"}}>{it}</span>
-              </div>
-            ))}
+        {/* ─── SEU MIX · teaser com dado REAL (curiosity gap) ─── */}
+        {mix&&mix.temp&&mix.temp.length>0&&(
+        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"24px 22px 20px",marginBottom:18,textAlign:"left",boxShadow:"var(--shadow)"}}>
+          <div style={{fontSize:11,letterSpacing:"0.18em",color:cor,textTransform:"uppercase",fontWeight:700,marginBottom:14}}>Seu mix · medido das suas respostas</div>
+          <Bar nome={mix.temp[0].nome} pct={mix.temp[0].pct} cor={cor}/>
+          <div style={{position:"relative",marginTop:2}}>
+            <div style={{filter:"blur(7px)",pointerEvents:"none",userSelect:"none"}} aria-hidden="true">
+              {mix.temp.slice(1,3).concat((mix.intel||[]).slice(0,2)).map((t,i)=>(<Bar key={i} nome={t.nome} pct={t.pct} cor={i<Math.min(mix.temp.length-1,2)?cor:intelCor}/>))}
+            </div>
+            <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <span style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:999,padding:"8px 16px",fontSize:12.5,color:"var(--muted)",fontWeight:700,boxShadow:"var(--shadow)"}}>🔒 +{(mix.temp.length-1)+((mix.intel||[]).length)} dimensões no relatório</span>
+            </div>
           </div>
-          <div style={{textAlign:"center",marginTop:16,paddingTop:14,borderTop:"1px solid var(--border-2)",fontSize:12,color:"var(--faint)"}}>Conteúdo completo disponível após desbloqueio</div>
+          <p style={{fontSize:13.5,color:"var(--muted)",lineHeight:1.65,margin:"14px 0 0"}}>Você é <span style={{color:cor,fontWeight:800}}>{mix.temp[0].pct}% {mix.temp[0].nome}</span> — o relatório completo explica o que isso significa na prática e como usar a seu favor.</p>
+        </div>
+        )}
+        {/* ─── PRÉVIA DO RELATÓRIO (trancada — cria desejo sem entregar) ─── */}
+        <div style={{position:"relative",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"24px 22px 96px",marginBottom:34,textAlign:"left",boxShadow:"var(--shadow)",overflow:"hidden"}}>
+          <div style={{fontSize:12,color:"var(--muted)",marginBottom:18,letterSpacing:"0.04em",fontWeight:600}}>Uma espiada no seu relatório completo:</div>
+          {[["Quem você é — análise profunda",3],["Seus pontos fortes",2],["Sua sombra — o que você evita ver",2],["Você sob pressão",2],["Perfis públicos parecidos com o seu",1],["Carreiras ideais + PDF personalizado",2]].map(([t,l])=>(
+            <div key={t} style={{marginBottom:15}}>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                <div style={{width:3.5,height:14,background:cor,borderRadius:2,opacity:0.85,flexShrink:0}}/>
+                <span style={{fontSize:12,fontWeight:700,color:"var(--text)",letterSpacing:"0.05em",textTransform:"uppercase"}}>{t}</span>
+                <span style={{marginLeft:"auto",fontSize:11,flexShrink:0}}>🔒</span>
+              </div>
+              {[...Array(l)].map((_,i)=>(<div key={i} style={{height:9,borderRadius:5,background:"var(--track)",marginBottom:7,width:i===l-1?"62%":"100%",filter:"blur(1.5px)"}}/>))}
+            </div>
+          ))}
+          <div style={{position:"absolute",left:0,right:0,bottom:0,height:170,background:"linear-gradient(180deg,transparent,var(--surface) 72%)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"flex-end",paddingBottom:20,gap:8}}>
+            <button onClick={()=>ir("pagamento")} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"15px 30px",fontSize:14.5,cursor:"pointer",borderRadius:11,fontWeight:700,boxShadow:"0 10px 26px rgba(99,102,241,0.35)"}}>🔓 Desbloquear meu relatório</button>
+            <span style={{fontSize:11.5,color:"var(--faint)"}}>acesso imediato · garantia de 7 dias</span>
+          </div>
         </div>
         {/* ─── CHAMADA PERSUASIVA (PNL) ─── */}
         <div style={{marginBottom:30,textAlign:"left",maxWidth:540,marginLeft:"auto",marginRight:"auto"}}>
