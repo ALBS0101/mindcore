@@ -624,6 +624,9 @@ export default function MindCode() {
             })(),
           },
         });
+        // O SDK pode "resolver" sem controller quando a inicialização falha
+        // (ex.: public key inválida) — sem lançar erro nem chamar onError.
+        if(!controller){ if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Você pode pagar com PIX — ou tente recarregar a página."); return; }
         brickRef.current = controller;
       }catch(e){ console.error("[MP cardPayment create]", e); if(!cancel) setCardErro("Não foi possível iniciar o pagamento por cartão. Recarregue a página."); }
     })();
