@@ -18,6 +18,21 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Avaliações pós-leitura (pop-up do relatório). O cliente só CRIA, com
+    // validação estrita; ninguém lê/edita pelo cliente (curadoria via console
+    // antes de virar depoimento público).
+    match /reviews/{reviewId} {
+      allow create: if request.resource.data.keys().hasOnly(['rating','comentario','nome','profileKey','paymentId','createdAt'])
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.comentario is string && request.resource.data.comentario.size() <= 600
+        && request.resource.data.nome is string && request.resource.data.nome.size() <= 60
+        && request.resource.data.profileKey is string && request.resource.data.profileKey.size() <= 60
+        && request.resource.data.paymentId is string && request.resource.data.paymentId.size() <= 40
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if false;
+    }
+
     // Bloqueia o resto por padrão.
     match /{document=**} {
       allow read, write: if false;

@@ -136,6 +136,8 @@ async function gerarPDF(perfil, perfilKey, nome, theme, mix) {
   doc.text("Relatório gerado para", M+10, y+8.5);
   fHead(); doc.setFontSize(13); setC(P.title);
   doc.text(nome||"Você", M+10, y+17);
+  fBody(); doc.setFontSize(9); setC(P.faint);
+  doc.text(new Date().toLocaleDateString("pt-BR"), M+CW-10, y+17, {align:"right"});
   y=272; fBody(); doc.setFontSize(7.5); setC(P.faint);
   doc.text("mindcode.web.app  ·  Perfil completo e exclusivo", M, y);
 
@@ -239,6 +241,10 @@ async function gerarPDF(perfil, perfilKey, nome, theme, mix) {
   fBody(); doc.setFontSize(7.5); setC(P.faint);
   doc.text("mindcode.web.app  ·  Este relatório é pessoal e intransferível",M,y);
   if(nome) doc.text(nome,W-M,y,{align:"right"});
+
+  // Numeração de páginas (pula a capa)
+  const total=doc.getNumberOfPages();
+  for(let p=2;p<=total;p++){ doc.setPage(p); fBody(); doc.setFontSize(7.5); setC(P.faint); doc.text(`${p} / ${total}`, W-M, 290, {align:"right"}); }
 
   doc.save(`MindCode_${perfil.nome.replace(/\s/g,"_")}_${(nome||"perfil").replace(/\s/g,"_")}.pdf`);
 }
@@ -367,6 +373,50 @@ export default function MindCode() {
   useEffect(()=>{ try{ const p=sessionStorage.getItem("mc-fire-purchase"); if(p){ sessionStorage.removeItem("mc-fire-purchase"); firePurchase(p); } }catch(e){} },[]);
   // Captura o gclid do anúncio (persiste na sessão) para atribuição da conversão.
   useEffect(()=>{ try{ const g=new URLSearchParams(window.location.search).get("gclid"); if(g) sessionStorage.setItem("mc-gclid",g); }catch(e){} },[]);
+
+  // ─── Avaliação pós-leitura (pop-up) ───
+  const [revOpen,setRevOpen]=useState(false);
+  const [revRating,setRevRating]=useState(0);
+  const [revText,setRevText]=useState("");
+  const [revSent,setRevSent]=useState(false);
+  const [revBusy,setRevBusy]=useState(false);
+  const [revErro,setRevErro]=useState(null);
+  const revJaAvaliou=()=>{ try{ return !!localStorage.getItem("mc-review-done"); }catch(e){ return false; } };
+  const abrirReview=()=>{ if(!revJaAvaliou()&&!revSent) setRevOpen(true); };
+  const fecharReview=()=>{ setRevOpen(false); try{ localStorage.setItem("mc-review-done","1"); }catch(e){} };
+  // Gatilho: leitor pagante rola até ~fim do relatório → convida a avaliar.
+  useEffect(()=>{
+    if(tela!=="resultado"||!report||revJaAvaliou()) return;
+    let disparou=false;
+    const onScroll=()=>{
+      if(disparou) return;
+      const h=document.documentElement;
+      if(window.scrollY+window.innerHeight>=h.scrollHeight*0.86){ disparou=true; setRevOpen(true); window.removeEventListener("scroll",onScroll); }
+    };
+    window.addEventListener("scroll",onScroll,{passive:true});
+    return ()=>window.removeEventListener("scroll",onScroll);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[tela,report]);
+  async function enviarReview(){
+    if(revRating<1||revBusy) return;
+    setRevBusy(true); setRevErro(null);
+    try{
+      const { db } = await import("./firebase.js");
+      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
+      await addDoc(collection(db,"reviews"),{
+        rating: revRating,
+        comentario: revText.trim().slice(0,600),
+        nome: (nome||"").slice(0,60),
+        profileKey: perfilKey||"",
+        paymentId: String(pix?.paymentId||""),
+        createdAt: serverTimestamp(),
+      });
+      setRevSent(true);
+      try{ localStorage.setItem("mc-review-done","1"); }catch(e){}
+      logConversion("review_submitted",{ rating: revRating });
+    }catch(e){ setRevErro("Não foi possível enviar agora. Tente de novo em instantes."); }
+    setRevBusy(false);
+  }
   // Medição do funil (GA4) — mostra em qual etapa os visitantes desistem, para
   // sabermos se o vazamento é no teste, no paywall ou no checkout.
   useEffect(()=>{
@@ -417,6 +467,7 @@ export default function MindCode() {
     setGerando(true);
     try {
       await gerarPDF(report, perfilKey, nome, tema, mix);
+      setTimeout(abrirReview, 1200); // baixou o PDF = leu/engajou → convida a avaliar
     } catch (e) {
       if (e.message === "jsPDF_timeout") {
         alert("Não foi possível carregar o gerador de PDF. Verifique sua conexão e recarregue a página.");
@@ -1055,9 +1106,47 @@ export default function MindCode() {
               </div>
             </div>
           )}
+          {perfilKey&&(()=>{ const shareLink=`${linkSite}/?perfil=${encodeURIComponent(perfilKey)}`; return (
+            <div style={{marginTop:14,background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:"16px 18px",textAlign:"left",maxWidth:520,marginLeft:"auto",marginRight:"auto"}}>
+              <div style={{fontSize:11,letterSpacing:"0.14em",color:"var(--muted)",textTransform:"uppercase",fontWeight:700,marginBottom:8}}>🔗 Link do seu perfil</div>
+              <p style={{fontSize:12.5,color:"var(--faint)",lineHeight:1.6,margin:"0 0 12px"}}>Outra forma de compartilhar: mande este link para amigos verem o seu perfil — e descobrirem o deles.</p>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <input readOnly value={shareLink} onFocus={e=>e.target.select()} style={{flex:1,minWidth:0,background:"var(--surface)",border:"1px solid var(--border)",borderRadius:9,padding:"10px 12px",color:"var(--muted)",fontSize:12,outline:"none",boxSizing:"border-box"}}/>
+                <button onClick={()=>{ navigator.clipboard?.writeText(shareLink).catch(()=>{}); setCopiado("perfil-link"); setTimeout(()=>setCopiado(null),2500); }} style={{background:copiado==="perfil-link"?"rgba(99,102,241,0.10)":"var(--cta)",border:copiado==="perfil-link"?"1px solid var(--cta)":"none",color:copiado==="perfil-link"?"var(--cta)":"#fff",padding:"10px 16px",fontSize:12,cursor:"pointer",borderRadius:9,fontWeight:600,whiteSpace:"nowrap"}}>{copiado==="perfil-link"?"Copiado!":"Copiar"}</button>
+              </div>
+            </div>
+          ); })()}
           {nome&&<p style={{marginTop:26,fontSize:12,color:"var(--faint)"}}>Análise gerada para <span style={{color:"var(--muted)",fontWeight:600}}>{nome}</span> · MindCode</p>}
         </div>
       </div>
+
+      {/* ─── POP-UP de avaliação (sem sair da tela) ─── */}
+      {revOpen&&(
+        <div style={{position:"fixed",inset:0,zIndex:90,display:"flex",alignItems:"flex-end",justifyContent:"center",background:"rgba(15,23,42,0.45)",padding:16}} onClick={e=>{ if(e.target===e.currentTarget) fecharReview(); }}>
+          <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:18,padding:"26px 22px",maxWidth:440,width:"100%",boxShadow:"0 24px 70px rgba(0,0,0,0.35)",textAlign:"center",marginBottom:12}}>
+            {revSent ? (<>
+              <div style={{fontSize:34,marginBottom:10}}>💜</div>
+              <h3 style={{fontSize:19,fontWeight:800,margin:"0 0 8px"}}>Obrigado{nome?`, ${nome}`:""}!</h3>
+              <p style={{fontSize:14,color:"var(--muted)",lineHeight:1.65,margin:"0 0 18px"}}>Sua avaliação foi enviada. Que tal compartilhar seu perfil com alguém que precisa se conhecer melhor?</p>
+              <button onClick={()=>setRevOpen(false)} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"13px 34px",fontSize:14,cursor:"pointer",borderRadius:11,fontWeight:700}}>Fechar</button>
+            </>) : (<>
+              <h3 style={{fontSize:19,fontWeight:800,margin:"0 0 6px"}}>{nome?`${nome}, curtiu`:"Curtiu"} seu relatório?</h3>
+              <p style={{fontSize:13,color:"var(--muted)",lineHeight:1.6,margin:"0 0 16px"}}>Avalie e, se quiser, deixe um comentário.</p>
+              <div style={{display:"flex",gap:6,justifyContent:"center",marginBottom:14}}>
+                {[1,2,3,4,5].map(s=>(
+                  <button key={s} onClick={()=>setRevRating(s)} aria-label={`${s} estrela${s>1?"s":""}`} style={{background:"none",border:"none",cursor:"pointer",fontSize:32,lineHeight:1,padding:"2px 3px",filter:s<=revRating?"none":"grayscale(1) opacity(0.45)",transform:s<=revRating?"scale(1.08)":"none",transition:"all 0.15s"}}>⭐</button>
+                ))}
+              </div>
+              <textarea value={revText} onChange={e=>setRevText(e.target.value)} placeholder="O que você achou? (opcional)" rows={3} maxLength={600}
+                style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,padding:"12px 14px",color:"var(--text)",fontSize:14,outline:"none",boxSizing:"border-box",resize:"none",marginBottom:6,fontFamily:"inherit"}}/>
+              <p style={{fontSize:10.5,color:"var(--faint)",lineHeight:1.5,margin:"0 0 12px"}}>Ao enviar, você autoriza o uso do comentário (com seu primeiro nome) como depoimento.</p>
+              {revErro&&<p style={{fontSize:12.5,color:"#EF4444",margin:"0 0 10px"}}>{revErro}</p>}
+              <button onClick={enviarReview} disabled={revRating<1||revBusy} style={{background:revRating<1||revBusy?"var(--surface-2)":"linear-gradient(135deg,var(--cta),var(--cta-2))",border:revRating<1||revBusy?"1px solid var(--border)":"none",color:revRating<1||revBusy?"var(--faint)":"#fff",padding:"14px 20px",fontSize:14.5,cursor:revRating<1||revBusy?"default":"pointer",borderRadius:11,fontWeight:700,width:"100%",marginBottom:10}}>{revBusy?"Enviando...":"Enviar avaliação"}</button>
+              <button onClick={fecharReview} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:12.5}}>Agora não</button>
+            </>)}
+          </div>
+        </div>
+      )}
     </div>
   );
 
