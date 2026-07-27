@@ -161,15 +161,26 @@ async function enviarConversaoGA4(pay) {
   if (data.gaConversionSent) return; // já enviado
 
   const clientId = data.gaClientId || `${Math.floor(Math.random() * 1e10)}.${Math.floor(Date.now() / 1000)}`;
+  const valor = pay.transaction_amount || 19.9;
+  // `items` + transaction_id fazem o GA4 tratar como evento de e-commerce e
+  // popular a dimensão transactionId (permite deduplicar/auditar por venda).
   const body = {
     client_id: String(clientId),
     events: [
       {
         name: "conversion_event_purchase_1",
         params: {
-          value: pay.transaction_amount || 19.9,
+          value: valor,
           currency: "BRL",
           transaction_id: id,
+          items: [
+            {
+              item_id: data.profileKey || "mindcode-relatorio",
+              item_name: "MindCode - Relatorio de Perfil",
+              price: valor,
+              quantity: 1,
+            },
+          ],
         },
       },
     ],

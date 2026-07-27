@@ -349,16 +349,16 @@ export default function MindCode() {
   const brickRef=useRef(null);
   const top=useRef(null);
   const purchaseFiredRef=useRef(new Set());
-  // Dispara a conversão de COMPRA no dataLayer (GTM usa isso para acionar a tag
-  // de conversão do Bing/Google). Deduplica por paymentId para não contar 2x.
+  // A conversão de COMPRA do GA4 é enviada APENAS pelo servidor (webhook →
+  // Measurement Protocol). O disparo daqui duplicaria a contagem: o GA4 não
+  // deduplica por transaction_id em evento custom (a dimensão transactionId só
+  // é populada por eventos de e-commerce), então cada venda virava 2 eventos.
+  // O server-side cobre 100% dos casos, inclusive PIX pago com a aba fechada.
+  // Aqui só alimentamos o dataLayer, para tags do GTM (ex.: Bing UET).
   const firePurchase=(paymentId)=>{
     if(!paymentId || purchaseFiredRef.current.has(paymentId)) return;
     purchaseFiredRef.current.add(paymentId);
-    const dados={ value:19.90, currency:"BRL", transaction_id:String(paymentId) };
-    // 1) GA4 (Firebase) — evento que o Google Ads importa como conversão de compra.
-    logConversion("conversion_event_purchase_1", dados);
-    // 2) dataLayer (GTM) — para outras tags de conversão (ex.: Bing UET).
-    try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", ...dados }); }catch(e){}
+    try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", value:19.90, currency:"BRL", transaction_id:String(paymentId) }); }catch(e){}
   };
   // Após pagamento aprovado, navega DE VERDADE para /compra-aprovada — uma URL de
   // sucesso exclusiva (diferente da home) que serve de página de conversão para o
