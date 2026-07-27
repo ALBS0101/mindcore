@@ -360,6 +360,32 @@ export default function MindCode() {
     purchaseFiredRef.current.add(paymentId);
     try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({ event:"purchase", value:19.90, currency:"BRL", transaction_id:String(paymentId) }); }catch(e){}
   };
+  // ─── Telemetria do checkout ───
+  // Mede onde o cliente trava dentro do pagamento: qual método escolheu, quais
+  // ações não conclui, quanto tempo leva até cada uma e onde abandona.
+  const cktT0=useRef(0), cktUltimo=useRef(null), cktFim=useRef(false), cktAband=useRef(false);
+  const trackCkt=(passo,extra={})=>{
+    try{
+      if(!cktT0.current) cktT0.current=Date.now();
+      cktUltimo.current=passo;
+      logConversion("ckt_"+passo,{ metodo, segundos: Math.round((Date.now()-cktT0.current)/1000), ...extra });
+    }catch(e){}
+  };
+  // Abandono: saiu/minimizou no checkout sem concluir → registra o último passo.
+  useEffect(()=>{
+    if(tela!=="pagamento") return;
+    const sair=()=>{
+      if(cktFim.current||cktAband.current) return;
+      cktAband.current=true;
+      try{ logConversion("ckt_abandono",{ metodo, ultimo_passo: cktUltimo.current||"entrou", segundos: Math.round((Date.now()-(cktT0.current||Date.now()))/1000) }); }catch(e){}
+    };
+    const onVis=()=>{ if(document.visibilityState==="hidden") sair(); };
+    document.addEventListener("visibilitychange",onVis);
+    window.addEventListener("pagehide",sair);
+    return ()=>{ document.removeEventListener("visibilitychange",onVis); window.removeEventListener("pagehide",sair); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[tela,metodo]);
+
   // Após pagamento aprovado, navega DE VERDADE para /compra-aprovada — uma URL de
   // sucesso exclusiva (diferente da home) que serve de página de conversão para o
   // Google Ads (método de URL). O relatório é restaurado lá via localStorage.
@@ -422,7 +448,7 @@ export default function MindCode() {
   useEffect(()=>{
     if(tela==="teste") logConversion("test_started");
     else if(tela==="preview") logConversion("paywall_view");
-    else if(tela==="pagamento") logConversion("checkout_started");
+    else if(tela==="pagamento"){ cktT0.current=Date.now(); cktUltimo.current="entrou"; cktFim.current=false; cktAband.current=false; logConversion("checkout_started"); }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[tela]);
   const perfil=perfilKey?profiles[perfilKey]:null;
@@ -603,9 +629,10 @@ export default function MindCode() {
         const controller = await mp.bricks().create("cardPayment","mc-card-brick",{
           initialization:{ amount: 19.90 },
           callbacks:{
-            onReady:()=>{ if(!cancel) setCardErro(null); },
-            onError:(e)=>{ console.error("[MP cardPayment onError]", e); if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Tente novamente."); },
+            onReady:()=>{ if(!cancel){ trackCkt("card_form_pronto"); setCardErro(null); } },
+            onError:(e)=>{ console.error("[MP cardPayment onError]", e); trackCkt("card_form_erro",{ detalhe:String((e&&(e.message||e.type))||"").slice(0,90) }); if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Tente novamente."); },
             onSubmit:(fd)=> (async()=>{
+              trackCkt("card_submit",{ parcelas: Number(fd&&fd.installments)||1 });
               setCardErro(null); setCardMsg("Processando pagamento...");
               try{
                 const d = await criarPagamentoCartao({
@@ -617,16 +644,16 @@ export default function MindCode() {
                   identification: fd.payer && fd.payer.identification,
                 });
                 if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome);
-                if(d.status==="approved"){ setPix({paymentId:d.paymentId}); setPagStatus("approved"); goToSuccess(d.paymentId); }
-                else if(d.status==="in_process"||d.status==="pending"){ setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado automaticamente aqui — não feche esta página."); }
-                else { setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
-              }catch(e){ setCardMsg(null); setCardErro("Falha ao processar o cartão. Tente novamente."); }
+                if(d.status==="approved"){ cktFim.current=true; trackCkt("card_aprovado"); setPix({paymentId:d.paymentId}); setPagStatus("approved"); goToSuccess(d.paymentId); }
+                else if(d.status==="in_process"||d.status==="pending"){ trackCkt("card_em_analise"); setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado automaticamente aqui — não feche esta página."); }
+                else { trackCkt("card_recusado",{ detalhe:String(d.statusDetail||d.status||"").slice(0,90) }); setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
+              }catch(e){ trackCkt("card_falha_processar"); setCardMsg(null); setCardErro("Falha ao processar o cartão. Tente novamente."); }
             })(),
           },
         });
         // O SDK pode "resolver" sem controller quando a inicialização falha
         // (ex.: public key inválida) — sem lançar erro nem chamar onError.
-        if(!controller){ if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Você pode pagar com PIX — ou tente recarregar a página."); return; }
+        if(!controller){ trackCkt("card_form_nao_montou"); if(!cancel) setCardErro("Não foi possível carregar o formulário de cartão. Você pode pagar com PIX — ou tente recarregar a página."); return; }
         brickRef.current = controller;
       }catch(e){ console.error("[MP cardPayment create]", e); if(!cancel) setCardErro("Não foi possível iniciar o pagamento por cartão. Recarregue a página."); }
     })();
@@ -635,14 +662,17 @@ export default function MindCode() {
   },[tela,metodo]);
 
   async function gerarPix(){
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setPixErro("Digite um e-mail válido para o comprovante do pagamento."); return; }
+    trackCkt("pix_gerar_click");
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ trackCkt("pix_email_invalido"); setPixErro("Digite um e-mail válido para o comprovante do pagamento."); return; }
     setPixErro(null); setPixLoading(true);
     try{
       const { criarPagamentoPix } = await import("./payment.js");
       const data = await criarPagamentoPix({ profileKey: perfilKey, nome, email });
       setPix(data); setPagStatus(data.status||"pending");
+      trackCkt("pix_qr_gerado");
       if(data.paymentId) saveAccess(data.paymentId, perfilKey, nome);
     }catch(e){
+      trackCkt("pix_erro_gerar");
       setPixErro("Não foi possível gerar o PIX agora. Tente novamente em instantes.");
     }
     setPixLoading(false);
@@ -671,8 +701,8 @@ export default function MindCode() {
       unsub = observarPagamento(pix.paymentId,(d)=>{
         if(!d) return;
         setPagStatus(d.status);
-        if(d.status==="approved"){ saveAccess(pix.paymentId, perfilKey, nome); if(pix?.qrCode) goToSuccess(pix.paymentId); else ir("resultado"); }
-        else if(d.status==="cancelled"||d.status==="rejected"||d.status==="refunded"){ clearAccess(); }
+        if(d.status==="approved"){ if(tela==="pagamento"&&!cktFim.current){ cktFim.current=true; trackCkt("pix_pago"); } saveAccess(pix.paymentId, perfilKey, nome); if(pix?.qrCode) goToSuccess(pix.paymentId); else ir("resultado"); }
+        else if(d.status==="cancelled"||d.status==="rejected"||d.status==="refunded"){ if(tela==="pagamento") trackCkt("pagamento_"+d.status); clearAccess(); }
       });
     })();
     return ()=>{ if(unsub) unsub(); };
@@ -903,7 +933,7 @@ export default function MindCode() {
           <>
           <div style={{display:"flex",gap:8,marginBottom:18,background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:12,padding:4}}>
             {[["pix","PIX"],["cartao","Cartão"]].map(([m,l])=>(
-              <button key={m} onClick={()=>setMetodo(m)} style={{flex:1,padding:"10px 0",borderRadius:9,border:"none",cursor:"pointer",fontSize:14,fontWeight:600,background:metodo===m?"var(--surface)":"transparent",color:metodo===m?"var(--cta)":"var(--muted)",boxShadow:metodo===m?"var(--shadow)":"none"}}>{l}</button>
+              <button key={m} onClick={()=>{ setMetodo(m); trackCkt("escolheu_"+m); }} style={{flex:1,padding:"10px 0",borderRadius:9,border:"none",cursor:"pointer",fontSize:14,fontWeight:600,background:metodo===m?"var(--surface)":"transparent",color:metodo===m?"var(--cta)":"var(--muted)",boxShadow:metodo===m?"var(--shadow)":"none"}}>{l}</button>
             ))}
           </div>
           {metodo==="pix" ? (
@@ -928,7 +958,7 @@ export default function MindCode() {
               )}
               <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
               <div style={{fontSize:12,color:"var(--faint)",marginBottom:16}}>Escaneie o QR ou use o copia-e-cola</div>
-              <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600,marginBottom:14}}>
+              <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); trackCkt("pix_copiou_codigo"); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600,marginBottom:14}}>
                 {pixOk?"✓ Código copiado!":"Copiar código PIX (copia-e-cola)"}
               </button>
               <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:13,color:pagStatus==="approved"?"#10B981":"var(--muted)"}}>
@@ -940,15 +970,18 @@ export default function MindCode() {
               </div>
             </div>
           )
-          ) : (
-            /* ─── CARTÃO (Brick do Mercado Pago) ─── */
-            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 20px",marginBottom:20,boxShadow:"var(--shadow)"}}>
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:14,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
-              <div id="mc-card-brick"/>
-              {cardMsg&&<div style={{fontSize:13,color:"var(--muted)",marginTop:12}}>{cardMsg}</div>}
-              {cardErro&&<div style={{fontSize:13,color:"#EF4444",marginTop:12}}>{cardErro}</div>}
-            </div>
-          )}
+          ) : null}
+          {/* ─── CARTÃO (Brick do Mercado Pago) ───
+              O container fica SEMPRE montado e é apenas ocultado por CSS. O Brick
+              injeta iframes próprios aqui dentro; se o React desmontasse esta div
+              com os nós do MP dentro (ao voltar para o PIX), quebrava a tela
+              inteira com "removeChild ... not a child of this node". */}
+          <div style={{display:metodo==="cartao"?"block":"none",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"22px 20px",marginBottom:20,boxShadow:"var(--shadow)"}}>
+            <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:14,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>R$ 19,90</div>
+            <div id="mc-card-brick"/>
+            {cardMsg&&<div style={{fontSize:13,color:"var(--muted)",marginTop:12}}>{cardMsg}</div>}
+            {cardErro&&<div style={{fontSize:13,color:"#EF4444",marginTop:12}}>{cardErro}</div>}
+          </div>
           </>
         ) : (
           /* ─── FLUXO SIMULADO (até deploy das Functions) ─── */
