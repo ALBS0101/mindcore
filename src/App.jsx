@@ -371,20 +371,32 @@ export default function MindCode() {
       logConversion("ckt_"+passo,{ metodo, segundos: Math.round((Date.now()-cktT0.current)/1000), ...extra });
     }catch(e){}
   };
-  // Abandono: saiu/minimizou no checkout sem concluir → registra o último passo.
+  // Abandono do checkout. Cobre as três saídas possíveis:
+  //  • fechou/trocou de aba (pagehide/visibilitychange)
+  //  • voltou para a tela anterior dentro do app (cleanup do efeito)
+  // `metodo` fica num ref para o efeito não remontar a cada troca de aba
+  // PIX/Cartão — se dependesse de `metodo`, o cleanup dispararia abandono
+  // falso a cada troca de método.
+  const metodoRef=useRef(metodo);
+  useEffect(()=>{ metodoRef.current=metodo; },[metodo]);
   useEffect(()=>{
     if(tela!=="pagamento") return;
-    const sair=()=>{
+    const sair=(motivo)=>{
       if(cktFim.current||cktAband.current) return;
       cktAband.current=true;
-      try{ logConversion("ckt_abandono",{ metodo, ultimo_passo: cktUltimo.current||"entrou", segundos: Math.round((Date.now()-(cktT0.current||Date.now()))/1000) }); }catch(e){}
+      try{ logConversion("ckt_abandono",{ metodo: metodoRef.current, motivo, ultimo_passo: cktUltimo.current||"entrou", segundos: Math.round((Date.now()-(cktT0.current||Date.now()))/1000) }); }catch(e){}
     };
-    const onVis=()=>{ if(document.visibilityState==="hidden") sair(); };
+    const onVis=()=>{ if(document.visibilityState==="hidden") sair("saiu_da_aba"); };
+    const onHide=()=>sair("fechou");
     document.addEventListener("visibilitychange",onVis);
-    window.addEventListener("pagehide",sair);
-    return ()=>{ document.removeEventListener("visibilitychange",onVis); window.removeEventListener("pagehide",sair); };
+    window.addEventListener("pagehide",onHide);
+    return ()=>{
+      document.removeEventListener("visibilitychange",onVis);
+      window.removeEventListener("pagehide",onHide);
+      sair("voltou_no_app"); // saiu do checkout navegando dentro do app
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[tela,metodo]);
+  },[tela]);
 
   // Após pagamento aprovado, navega DE VERDADE para /compra-aprovada — uma URL de
   // sucesso exclusiva (diferente da home) que serve de página de conversão para o
