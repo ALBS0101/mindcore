@@ -8,7 +8,7 @@ export const EMPRESA = {
   documento: "[PREENCHER: CPF ou CNPJ]",
   email: "contato@mindcode.app", // [PREENCHER/confirmar: e-mail oficial de contato]
   site: "https://mindcode.web.app",
-  preco: "R$ 19,90",
+  preco: "R$ 9,90",
   atualizado: "julho de 2026",
 };
 
