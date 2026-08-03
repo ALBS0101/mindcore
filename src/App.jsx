@@ -679,21 +679,48 @@ export default function MindCode() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[tela,metodo]);
 
-  async function gerarPix(){
-    trackCkt("pix_gerar_click");
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ trackCkt("pix_email_invalido"); setPixErro("Digite um e-mail válido para o comprovante do pagamento."); return; }
+  async function gerarPix(opts={}){
+    const auto=!!opts.auto;
+    if(!auto) trackCkt("pix_gerar_click");
+    const emailOk=/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
     setPixErro(null); setPixLoading(true);
     try{
       const { criarPagamentoPix } = await import("./payment.js");
-      const data = await criarPagamentoPix({ profileKey: perfilKey, nome, email });
+      const data = await criarPagamentoPix({ profileKey: perfilKey, nome, email: emailOk?email:null });
       setPix(data); setPagStatus(data.status||"pending");
-      trackCkt("pix_qr_gerado");
+      trackCkt(auto?"pix_qr_auto":"pix_qr_gerado");
       if(data.paymentId) saveAccess(data.paymentId, perfilKey, nome);
     }catch(e){
       trackCkt("pix_erro_gerar");
       setPixErro("Não foi possível gerar o PIX agora. Tente novamente em instantes.");
     }
     setPixLoading(false);
+  }
+  // Gera o PIX assim que o checkout abre: o cliente vê o QR na hora, sem ter de
+  // digitar e-mail antes. Exigir e-mail nesse ponto derrubava ~84% dos que
+  // chegavam à tela de pagamento (dado da telemetria ckt_).
+  const pixAutoRef=useRef(false);
+  useEffect(()=>{
+    if(!PAGAMENTOS_ON || tela!=="pagamento" || metodo!=="pix") return;
+    if(pix || pixLoading || pixAutoRef.current || !perfilKey) return;
+    pixAutoRef.current=true;
+    gerarPix({auto:true});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[tela,metodo,pix,pixLoading,perfilKey]);
+
+  // E-mail informado DEPOIS do QR (opcional, para o comprovante).
+  const [emailSalvo,setEmailSalvo]=useState(false);
+  const [emailBusy,setEmailBusy]=useState(false);
+  async function salvarEmailDepois(){
+    if(!pix?.paymentId || emailBusy) return;
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ trackCkt("pix_email_invalido"); setPixErro("Digite um e-mail válido."); return; }
+    setPixErro(null); setEmailBusy(true);
+    try{
+      const { salvarEmailPagamento } = await import("./payment.js");
+      await salvarEmailPagamento({ paymentId: pix.paymentId, email });
+      setEmailSalvo(true); trackCkt("pix_email_informado");
+    }catch(e){ setPixErro("Não foi possível salvar o e-mail agora."); }
+    setEmailBusy(false);
   }
   // Ao chegar no resultado, busca o relatório completo (servidor ou fallback dev).
   useEffect(()=>{
@@ -956,16 +983,20 @@ export default function MindCode() {
           </div>
           {metodo==="pix" ? (
           !pix ? (
-            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"26px 22px",marginBottom:20,boxShadow:"var(--shadow)"}}>
+            /* Sem QR ainda: ou está gerando (automático) ou falhou. Não há mais
+               formulário aqui — o e-mail deixou de ser pré-requisito. */
+            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"32px 22px",marginBottom:20,boxShadow:"var(--shadow)",textAlign:"center"}}>
               <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{PRECO_BR}</div>
-              <div style={{fontSize:12,color:"var(--faint)",marginBottom:18}}>MindCode · {nome||"Autoconhecimento"}</div>
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Seu e-mail (para o comprovante)" inputMode="email" autoComplete="email"
-                style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,padding:"14px 16px",color:"var(--text)",fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
-              {pixErro&&<div style={{fontSize:13,color:"#EF4444",marginBottom:12}}>{pixErro}</div>}
-              <button onClick={gerarPix} disabled={pixLoading} style={{background:pixLoading?"var(--surface-2)":"linear-gradient(135deg,var(--cta),var(--cta-2))",border:pixLoading?"1px solid var(--border)":"none",color:pixLoading?"var(--faint)":"#fff",padding:"15px 22px",fontSize:15,cursor:pixLoading?"default":"pointer",borderRadius:10,width:"100%",fontWeight:600}}>
-                {pixLoading?"Gerando PIX...":"Gerar PIX e pagar"}
-              </button>
-              <p style={{fontSize:11,color:"var(--faint)",marginTop:12,lineHeight:1.6}}>Assim que o pagamento for confirmado, seu relatório é liberado automaticamente aqui. Pagamento processado pelo Mercado Pago.</p>
+              {pixErro ? (<>
+                <p style={{fontSize:13.5,color:"#EF4444",lineHeight:1.6,margin:"12px 0 16px"}}>{pixErro}</p>
+                <button onClick={()=>gerarPix()} disabled={pixLoading} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"14px 26px",fontSize:14.5,cursor:"pointer",borderRadius:10,fontWeight:700}}>
+                  {pixLoading?"Gerando...":"Tentar novamente"}
+                </button>
+              </>) : (<>
+                <div style={{width:38,height:38,margin:"18px auto 14px",border:"3px solid var(--border)",borderTopColor:"var(--cta)",borderRadius:"50%",animation:"mcspin 0.8s linear infinite"}}/>
+                <p style={{fontSize:14,color:"var(--muted)",lineHeight:1.6,margin:0}}>Gerando seu código PIX…</p>
+                <style>{"@keyframes mcspin{to{transform:rotate(360deg)}}"}</style>
+              </>)}
             </div>
           ) : (
             <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>
@@ -983,9 +1014,25 @@ export default function MindCode() {
                 {pagStatus==="approved"
                   ? <span>✓ Pagamento aprovado! Liberando seu resultado...</span>
                   : (pagStatus==="rejected"||pagStatus==="cancelled")
-                    ? <span style={{color:"#EF4444"}}>Pagamento não aprovado. <button onClick={()=>{setPix(null);setPagStatus(null);}} style={{background:"none",border:"none",color:"var(--cta)",cursor:"pointer",fontSize:13,textDecoration:"underline"}}>Tentar de novo</button></span>
+                    ? <span style={{color:"#EF4444"}}>Pagamento não aprovado. <button onClick={()=>{ setPix(null); setPagStatus(null); pixAutoRef.current=false; }} style={{background:"none",border:"none",color:"var(--cta)",cursor:"pointer",fontSize:13,textDecoration:"underline"}}>Tentar de novo</button></span>
                     : <><span style={{width:9,height:9,borderRadius:"50%",background:"#F59E0B",display:"inline-block"}}/> Aguardando confirmação do pagamento...</>}
               </div>
+              {/* E-mail agora é OPCIONAL e vem depois do QR — não bloqueia o pagamento. */}
+              {pagStatus!=="approved"&&(
+                <div style={{marginTop:18,paddingTop:16,borderTop:"1px solid var(--border-2)",textAlign:"left"}}>
+                  {emailSalvo ? (
+                    <p style={{fontSize:12.5,color:"#10B981",margin:0,fontWeight:600}}>✓ Comprovante será enviado para {email}</p>
+                  ) : (<>
+                    <p style={{fontSize:12,color:"var(--faint)",margin:"0 0 8px",lineHeight:1.5}}>Quer o comprovante por e-mail? <span style={{opacity:0.75}}>(opcional)</span></p>
+                    <div style={{display:"flex",gap:8}}>
+                      <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="seu@email.com" inputMode="email" autoComplete="email"
+                        style={{flex:1,minWidth:0,background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:9,padding:"11px 13px",color:"var(--text)",fontSize:14,outline:"none",boxSizing:"border-box"}}/>
+                      <button onClick={salvarEmailDepois} disabled={emailBusy} style={{background:"var(--surface-2)",border:"1px solid var(--border)",color:"var(--muted)",padding:"11px 16px",fontSize:13,cursor:emailBusy?"default":"pointer",borderRadius:9,fontWeight:600,whiteSpace:"nowrap"}}>{emailBusy?"...":"Salvar"}</button>
+                    </div>
+                    {pixErro&&<p style={{fontSize:12,color:"#EF4444",margin:"8px 0 0"}}>{pixErro}</p>}
+                  </>)}
+                </div>
+              )}
             </div>
           )
           ) : null}

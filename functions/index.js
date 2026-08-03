@@ -212,9 +212,14 @@ function mpErr(e) {
 /* ─── PIX ───────────────────────────────────────────────────────────── */
 export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (request) => {
   const { profileKey, nome, email, gaClientId, gclid } = request.data || {};
-  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    throw new HttpsError("invalid-argument", "E-mail inválido.");
-  }
+  // O e-mail é OPCIONAL: o PIX é gerado assim que o cliente abre o checkout,
+  // para ele ver o QR na hora (exigir e-mail antes derrubava ~84% na tela de
+  // pagamento). Quando não vem, usamos um endereço técnico só para satisfazer a
+  // API do MP; o cliente pode informar o e-mail depois (salvarEmailPagamento).
+  const emailValido = !!email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+  const payerEmail = emailValido
+    ? String(email).slice(0, 120)
+    : `pix-${crypto.randomUUID()}@mindcode.web.app`;
   if (!profiles[profileKey]) throw new HttpsError("invalid-argument", "Perfil inválido.");
   if (!token()) throw new HttpsError("failed-precondition", "Pagamento não configurado.");
 
@@ -228,7 +233,7 @@ export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (
         statement_descriptor: STATEMENT_DESCRIPTOR,
         payment_method_id: "pix",
         external_reference: externalRef,
-        payer: { email: String(email).slice(0, 120), first_name: String(nome || "Cliente").slice(0, 40) },
+        payer: { email: payerEmail, first_name: String(nome || "Cliente").slice(0, 40) },
         additional_info: itemsInfo(profileKey, nome),
       },
       requestOptions: { idempotencyKey: crypto.randomUUID() },
@@ -240,7 +245,7 @@ export const createPixPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async (
 
   const tx = (mp.point_of_interaction && mp.point_of_interaction.transaction_data) || {};
   const id = await salvarPagamento(mp, {
-    profileKey, nome: nome || null, email, externalReference: externalRef,
+    profileKey, nome: nome || null, email: emailValido ? email : null, externalReference: externalRef,
     gaClientId: gaClientId || null, gclid: gclid || null,
     createdAt: FieldValue.serverTimestamp(),
   });
@@ -294,6 +299,23 @@ export const createCardPayment = onCall({ secrets: ["MP_ACCESS_TOKEN"] }, async 
     createdAt: FieldValue.serverTimestamp(),
   });
   return { paymentId: id, status: mp.status, statusDetail: mp.status_detail || null };
+});
+
+/* ─── E-mail informado DEPOIS do PIX (opcional) ─────────────────────── */
+// Como o PIX passou a ser gerado sem exigir e-mail, o cliente pode informá-lo
+// depois para receber o comprovante/acesso. Grava só na coleção privada.
+export const salvarEmailPagamento = onCall(async (request) => {
+  const { paymentId, email } = request.data || {};
+  if (!paymentId || !email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    throw new HttpsError("invalid-argument", "Dados inválidos.");
+  }
+  const snap = await db.collection("payments").doc(String(paymentId)).get();
+  if (!snap.exists) throw new HttpsError("not-found", "Pagamento não encontrado.");
+  await db.collection("payment_private").doc(String(paymentId)).set(
+    { email: String(email).slice(0, 120), updatedAt: FieldValue.serverTimestamp() },
+    { merge: true }
+  );
+  return { ok: true };
 });
 
 /* ─── Webhook ───────────────────────────────────────────────────────── */

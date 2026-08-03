@@ -31,7 +31,14 @@ function lerGclid() { try { return sessionStorage.getItem("mc-gclid") || null; }
 export async function criarPagamentoPix({ profileKey, nome, email }) {
   const gaClientId = await lerGaClientId();
   const fn = httpsCallable(functions, "createPixPayment");
-  const res = await fn({ profileKey, nome, email, gaClientId, gclid: lerGclid() });
+  const res = await fn({ profileKey, nome, email: email || null, gaClientId, gclid: lerGclid() });
+  return res.data;
+}
+
+/** Guarda o e-mail informado DEPOIS do PIX (opcional, para o comprovante). */
+export async function salvarEmailPagamento({ paymentId, email }) {
+  const fn = httpsCallable(functions, "salvarEmailPagamento");
+  const res = await fn({ paymentId, email });
   return res.data;
 }
 
