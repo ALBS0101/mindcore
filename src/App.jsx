@@ -962,16 +962,13 @@ export default function MindCode() {
     <div style={bg} ref={top}>
       {themeToggle}
       <Orb color="#6366F1" size={380} x="48%" y="-2%" blur={180}/>
-      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:460,margin:"0 auto",padding:"60px 24px",textAlign:"center"}}>
-        <button onClick={()=>ir("preview")} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13,marginBottom:28}}>← Voltar</button>
-        <div style={{fontSize:12,letterSpacing:"0.24em",color:"var(--faint)",textTransform:"uppercase",marginBottom:18,fontWeight:600}}>Último passo</div>
-        <h2 style={{fontSize:"clamp(24px,4.5vw,32px)",fontWeight:700,marginBottom:14,lineHeight:1.3,letterSpacing:"-0.02em"}}>{nome?`${nome}, seu relatório já está pronto.`:"Seu relatório já está pronto."}</h2>
-        <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.75,marginBottom:30,maxWidth:400,marginLeft:"auto",marginRight:"auto"}}>Falta só um PIX para você desbloquear tudo o que descobrimos sobre a sua mente. Em segundos, ele estará na sua tela — e você não vai mais olhar para si mesmo da mesma forma.</p>
-        <div style={{fontSize:12,letterSpacing:"0.2em",color:"var(--faint)",textTransform:"uppercase",marginBottom:8,fontWeight:600}}>Pague com PIX</div>
-        <p style={{color:"var(--faint)",fontSize:13,marginBottom:16}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
-        <div style={{maxWidth:380,margin:"0 auto 24px",display:"flex",alignItems:"center",justifyContent:"center",gap:9,background:"rgba(16,185,129,0.10)",border:"1px solid rgba(16,185,129,0.32)",borderRadius:10,padding:"11px 14px",fontSize:12.5,color:"var(--text)",fontWeight:600,lineHeight:1.4}}>
-          <span style={{fontSize:16}}>🛡️</span> Garantia de 7 dias — reembolso 100% se não gostar
-        </div>
+      {/* Topo ENXUTO de propósito: cada pixel aqui empurra o botão de pagar para
+          fora da tela no celular (92% do tráfego). A ação de pagar precisa
+          começar acima da dobra. */}
+      <div className="mc-pad" style={{position:"relative",zIndex:1,maxWidth:460,margin:"0 auto",padding:"22px 24px 60px",textAlign:"center"}}>
+        <button onClick={()=>ir("preview")} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13,marginBottom:12}}>← Voltar</button>
+        <h2 style={{fontSize:"clamp(19px,3.6vw,24px)",fontWeight:700,marginBottom:6,lineHeight:1.3,letterSpacing:"-0.02em"}}>{nome?`${nome}, seu relatório está pronto`:"Seu relatório está pronto"}</h2>
+        <p style={{color:"var(--faint)",fontSize:12.5,marginBottom:14}}>Aprovação imediata · 100% seguro · Sem cadastro</p>
 
         {PAGAMENTOS_ON ? (
           /* ─── FLUXO REAL · Mercado Pago ─── */
@@ -999,17 +996,28 @@ export default function MindCode() {
               </>)}
             </div>
           ) : (
-            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:28,marginBottom:20,boxShadow:"var(--shadow)"}}>
-              {pix.qrCodeBase64&&(
-                <div style={{background:"#fff",padding:14,borderRadius:12,display:"inline-block",marginBottom:18,boxShadow:"0 2px 10px rgba(15,23,42,0.10)"}}>
-                  <img src={`data:image/png;base64,${pix.qrCodeBase64}`} alt="QR Code PIX" width={170} height={170} style={{display:"block",borderRadius:6}}/>
-                </div>
-              )}
-              <div style={{fontSize:32,fontWeight:800,color:"var(--cta)",marginBottom:4,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{PRECO_BR}</div>
-              <div style={{fontSize:12,color:"var(--faint)",marginBottom:16}}>Escaneie o QR ou use o copia-e-cola</div>
-              <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); trackCkt("pix_copiou_codigo"); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:"rgba(99,102,241,0.10)",border:"1px solid rgba(99,102,241,0.30)",color:"var(--cta)",padding:"12px 22px",fontSize:13,cursor:"pointer",borderRadius:10,width:"100%",fontWeight:600,marginBottom:14}}>
-                {pixOk?"✓ Código copiado!":"Copiar código PIX (copia-e-cola)"}
+            /* Hierarquia MOBILE-FIRST: no celular ninguém escaneia a própria
+               tela — a única ação possível é COPIAR. Por isso o botão de copiar
+               vem PRIMEIRO (acima da dobra) e o QR fica menor, embaixo, para
+               quem escaneia de outro aparelho. */
+            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:16,padding:"20px 18px",marginBottom:20,boxShadow:"var(--shadow)"}}>
+              <div style={{fontSize:28,fontWeight:800,color:"var(--cta)",marginBottom:12,fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{PRECO_BR}</div>
+              <button onClick={()=>{ if(pix.qrCode){navigator.clipboard.writeText(pix.qrCode).catch(()=>{}); trackCkt("pix_copiou_codigo"); setPixOk(true); setTimeout(()=>setPixOk(false),3000);} }} style={{background:pixOk?"linear-gradient(135deg,#10B981,#059669)":"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"17px 20px",fontSize:16,cursor:"pointer",borderRadius:12,width:"100%",fontWeight:700,marginBottom:12,boxShadow:"0 10px 26px rgba(99,102,241,0.32)"}}>
+                {pixOk?"✓ Código copiado!":"📋 Copiar código PIX"}
               </button>
+              <div style={{fontSize:12.5,color:"var(--muted)",lineHeight:1.7,textAlign:"left",background:"var(--surface-2)",border:"1px solid var(--border-2)",borderRadius:10,padding:"11px 14px",marginBottom:14}}>
+                <div><strong style={{color:"var(--cta)"}}>1.</strong> Copie o código acima</div>
+                <div><strong style={{color:"var(--cta)"}}>2.</strong> Abra o app do seu banco</div>
+                <div><strong style={{color:"var(--cta)"}}>3.</strong> Cole em <strong>Pix Copia e Cola</strong></div>
+              </div>
+              {pix.qrCodeBase64&&(
+                <details style={{marginBottom:14,textAlign:"center"}}>
+                  <summary style={{fontSize:12,color:"var(--faint)",cursor:"pointer",listStyle:"none",padding:"4px 0"}}>ou escaneie o QR Code de outro aparelho</summary>
+                  <div style={{background:"#fff",padding:12,borderRadius:12,display:"inline-block",marginTop:10,boxShadow:"0 2px 10px rgba(15,23,42,0.10)"}}>
+                    <img src={`data:image/png;base64,${pix.qrCodeBase64}`} alt="QR Code PIX" width={150} height={150} style={{display:"block",borderRadius:6}}/>
+                  </div>
+                </details>
+              )}
               <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:13,color:pagStatus==="approved"?"#10B981":"var(--muted)"}}>
                 {pagStatus==="approved"
                   ? <span>✓ Pagamento aprovado! Liberando seu resultado...</span>
