@@ -317,14 +317,19 @@ export default function MindCode() {
   const restore=PAGAMENTOS_ON?(()=>{ try{
     const q=new URLSearchParams(window.location.search);
     const pid=q.get("acesso"), pk=q.get("perfil");
-    if(pid&&pk&&profiles[pk]) return { paymentId:pid, profileKey:pk, nome:(q.get("nome")||"").slice(0,40) };
+    if(pid&&pk&&profiles[pk]) return { paymentId:pid, profileKey:pk, nome:(q.get("nome")||"").slice(0,40), viaLink:true };
     const raw=localStorage.getItem("mc-access");
     if(raw){ const a=JSON.parse(raw); if(a&&a.paymentId&&a.profileKey&&profiles[a.profileKey]&&(Date.now()-(a.ts||0)<2592000000)) return a; }
   }catch(e){} return null; })():null;
+  // O PIX é salvo assim que é CRIADO (ainda pendente). Se o cliente saiu para o
+  // app do banco e voltou, ele não tem acesso a recuperar ainda — precisa voltar
+  // para o CHECKOUT com o mesmo QR, aguardando a confirmação. Só vai para a tela
+  // "recuperar" quem já tem pagamento aprovado (ou chegou pelo link de acesso).
+  const restaurarCheckout = !!(restore && restore.status!=="approved" && !restore.viaLink && restore.pix && restore.pix.qrCode);
   // Deep link de marketing: ?perfil=<chave> abre direto a PRÉVIA do perfil (gratuita;
   // relatório completo segue atrás do pagamento). Só quando NÃO é restauração de acesso.
   const deepLink=restore?null:(()=>{ try{ const q=new URLSearchParams(window.location.search); const k=q.get("perfil"); return k&&profiles[k]?{ perfil:k, nome:(q.get("nome")||"").slice(0,40) }:null; }catch(e){ return null; } })();
-  const [tela,setTela]=useState(restore?"recuperar":(deepLink?"preview":"intro"));
+  const [tela,setTela]=useState(restore?(restaurarCheckout?"pagamento":"recuperar"):(deepLink?"preview":"intro"));
   const [pergunta,setPergunta]=useState(0);
   const [respostas,setRespostas]=useState(Array(questions.length).fill(null));
   const [perfilKey,setPerfilKey]=useState(restore?restore.profileKey:(deepLink?deepLink.perfil:null));
@@ -341,7 +346,9 @@ export default function MindCode() {
   const [tema,setTema]=useState(()=> (typeof document!=="undefined" && document.documentElement.getAttribute("data-theme")) || "light");
   // Pagamento real (Mercado Pago PIX)
   const [email,setEmail]=useState("");
-  const [pix,setPix]=useState(restore?{ paymentId:restore.paymentId }:null); // { paymentId, qrCode, qrCodeBase64, ... }
+  // Ao voltar do app do banco, restaura o MESMO PIX (com QR) — nunca gera outra
+  // cobrança para o mesmo cliente.
+  const [pix,setPix]=useState(restore?(restore.pix&&restore.pix.qrCode?restore.pix:{ paymentId:restore.paymentId }):null); // { paymentId, qrCode, qrCodeBase64, ... }
   const [pixLoading,setPixLoading]=useState(false);
   const [pixErro,setPixErro]=useState(null);
   const [pagStatus,setPagStatus]=useState(null); // status vindo do Firestore
@@ -523,7 +530,9 @@ export default function MindCode() {
   }
 
   // ─── Acesso durável ao relatório pago ───
-  const saveAccess=(paymentId,pk,nm)=>{ try{ localStorage.setItem("mc-access",JSON.stringify({paymentId,profileKey:pk,nome:nm||"",mix:mix||null,ts:Date.now()})); }catch(e){} };
+  // `extra.status`: "pending" (PIX criado, aguardando) ou "approved" (pago).
+  // `extra.pix`: guarda o QR para restaurar o checkout se o cliente voltar.
+  const saveAccess=(paymentId,pk,nm,extra={})=>{ try{ localStorage.setItem("mc-access",JSON.stringify({paymentId,profileKey:pk,nome:nm||"",mix:mix||null,ts:Date.now(),...extra})); }catch(e){} };
   const clearAccess=()=>{ try{ localStorage.removeItem("mc-access"); }catch(e){} };
 
   // ─── Compartilhamento ───
@@ -661,7 +670,7 @@ export default function MindCode() {
                   installments: fd.installments,
                   identification: fd.payer && fd.payer.identification,
                 });
-                if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome);
+                if(d.paymentId) saveAccess(d.paymentId, perfilKey, nome, { status: d.status==="approved"?"approved":"pending" });
                 if(d.status==="approved"){ cktFim.current=true; trackCkt("card_aprovado"); setPix({paymentId:d.paymentId}); setPagStatus("approved"); goToSuccess(d.paymentId); }
                 else if(d.status==="in_process"||d.status==="pending"){ trackCkt("card_em_analise"); setPix({paymentId:d.paymentId}); setCardMsg("Pagamento em análise. Assim que for aprovado, seu relatório é liberado automaticamente aqui — não feche esta página."); }
                 else { trackCkt("card_recusado",{ detalhe:String(d.statusDetail||d.status||"").slice(0,90) }); setCardMsg(null); setCardErro("Pagamento não aprovado. Verifique os dados ou tente outro cartão."); }
@@ -689,7 +698,9 @@ export default function MindCode() {
       const data = await criarPagamentoPix({ profileKey: perfilKey, nome, email: emailOk?email:null });
       setPix(data); setPagStatus(data.status||"pending");
       trackCkt(auto?"pix_qr_auto":"pix_qr_gerado");
-      if(data.paymentId) saveAccess(data.paymentId, perfilKey, nome);
+      // Salva como PENDENTE + o QR: se o cliente sair para o banco e voltar,
+      // ele reabre no checkout com o mesmo código (não na tela de recuperação).
+      if(data.paymentId) saveAccess(data.paymentId, perfilKey, nome, { status:"pending", pix:{ paymentId:data.paymentId, qrCode:data.qrCode||null, qrCodeBase64:data.qrCodeBase64||null } });
     }catch(e){
       trackCkt("pix_erro_gerar");
       setPixErro("Não foi possível gerar o PIX agora. Tente novamente em instantes.");
@@ -711,6 +722,14 @@ export default function MindCode() {
   // E-mail informado DEPOIS do QR (opcional, para o comprovante).
   const [emailSalvo,setEmailSalvo]=useState(false);
   const [emailBusy,setEmailBusy]=useState(false);
+  // Escape da tela "Recuperando": se em 15s o pagamento não confirmar, mostra
+  // saída em vez de girar para sempre (ex.: link de acesso sem pagamento).
+  const [recTimeout,setRecTimeout]=useState(false);
+  useEffect(()=>{
+    if(tela!=="recuperar") return;
+    const t=setTimeout(()=>setRecTimeout(true),15000);
+    return ()=>clearTimeout(t);
+  },[tela]);
   async function salvarEmailDepois(){
     if(!pix?.paymentId || emailBusy) return;
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ trackCkt("pix_email_invalido"); setPixErro("Digite um e-mail válido."); return; }
@@ -746,7 +765,7 @@ export default function MindCode() {
       unsub = observarPagamento(pix.paymentId,(d)=>{
         if(!d) return;
         setPagStatus(d.status);
-        if(d.status==="approved"){ if(tela==="pagamento"&&!cktFim.current){ cktFim.current=true; trackCkt("pix_pago"); } saveAccess(pix.paymentId, perfilKey, nome); if(pix?.qrCode) goToSuccess(pix.paymentId); else ir("resultado"); }
+        if(d.status==="approved"){ if(tela==="pagamento"&&!cktFim.current){ cktFim.current=true; trackCkt("pix_pago"); } saveAccess(pix.paymentId, perfilKey, nome, { status:"approved" }); if(pix?.qrCode) goToSuccess(pix.paymentId); else ir("resultado"); }
         else if(d.status==="cancelled"||d.status==="rejected"||d.status==="refunded"){ if(tela==="pagamento") trackCkt("pagamento_"+d.status); clearAccess(); }
       });
     })();
@@ -782,7 +801,7 @@ export default function MindCode() {
   }
 
   if(tela==="recuperar"){
-    const negado = pagStatus==="cancelled"||pagStatus==="rejected"||pagStatus==="refunded";
+    const negado = pagStatus==="cancelled"||pagStatus==="rejected"||pagStatus==="refunded" || recTimeout;
     return(
     <div style={bg} ref={top}>
       {themeToggle}
@@ -794,9 +813,14 @@ export default function MindCode() {
           <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.7}}>{nome?`${nome}, estamos`:"Estamos"} confirmando seu pagamento. Isso leva alguns segundos — não feche esta página.</p>
           <style>{"@keyframes mcspin{to{transform:rotate(360deg)}}"}</style>
         </>) : (<>
-          <h2 style={{fontSize:"clamp(22px,4vw,28px)",fontWeight:700,marginBottom:12,letterSpacing:"-0.02em"}}>Não encontramos um pagamento aprovado</h2>
-          <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.7,marginBottom:30}}>O pagamento pode ter sido cancelado ou ainda não foi concluído. Se você acabou de pagar por PIX, aguarde alguns instantes e recarregue. Caso contrário, faça o teste e desbloqueie seu relatório.</p>
-          <button onClick={()=>{ clearAccess(); setPix(null); setPerfilKey(null); setPagStatus(null); setReport(null); ir("intro"); }} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"15px 40px",fontSize:15,cursor:"pointer",borderRadius:12,fontWeight:600,boxShadow:"0 10px 30px rgba(99,102,241,0.30)"}}>Fazer o teste</button>
+          <h2 style={{fontSize:"clamp(22px,4vw,28px)",fontWeight:700,marginBottom:12,letterSpacing:"-0.02em"}}>Pagamento ainda não confirmado</h2>
+          <p style={{color:"var(--muted)",fontSize:15,lineHeight:1.7,marginBottom:26}}>Se você acabou de pagar, a confirmação pode levar alguns instantes. Você pode voltar para a tela de pagamento e aguardar por lá.</p>
+          <div style={{display:"flex",flexDirection:"column",gap:10,maxWidth:300,margin:"0 auto"}}>
+            {perfilKey&&(
+              <button onClick={()=>{ setRecTimeout(false); setPagStatus(null); ir("pagamento"); }} style={{background:"linear-gradient(135deg,var(--cta),var(--cta-2))",border:"none",color:"#fff",padding:"15px 30px",fontSize:15,cursor:"pointer",borderRadius:12,fontWeight:700,boxShadow:"0 10px 30px rgba(99,102,241,0.30)"}}>Voltar ao pagamento</button>
+            )}
+            <button onClick={()=>{ clearAccess(); setPix(null); setPerfilKey(null); setPagStatus(null); setReport(null); setRecTimeout(false); ir("intro"); }} style={{background:"none",border:"none",color:"var(--faint)",cursor:"pointer",fontSize:13.5}}>Fazer o teste do início</button>
+          </div>
         </>)}
       </div>
     </div>
